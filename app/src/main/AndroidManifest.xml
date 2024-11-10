@@ -12,11 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppQue"
         tools:targetApi="31">
+
         <activity
-            android:name=".UserCahierActivity"
+            android:name=".StudentCashierActivity"
             android:exported="false" />
         <activity
-            android:name=".StudentSelect"
+            android:name=".WindowSelectionActivity"
             android:exported="false" />
         <activity
             android:name=".Window4Activity"

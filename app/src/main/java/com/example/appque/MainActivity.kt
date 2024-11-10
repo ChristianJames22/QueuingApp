@@ -1,11 +1,11 @@
 package com.example.appque
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,7 +19,9 @@ class MainActivity : AppCompatActivity() {
         loginButton.setOnClickListener {
             val enteredId = idInput.text.toString().trim()
             if (enteredId.isNotEmpty()) {
+                // Checking if the entered ID is 2024-01 for WindowSelectionActivity
                 val intent = when (enteredId) {
+                    "2024-01" -> Intent(this, WindowSelectionActivity::class.java)  // New condition for 2024-01
                     "0001" -> Intent(this, CashierActivity::class.java)
                     "0002" -> Intent(this, Window1Activity::class.java)
                     "0003" -> Intent(this, Window2Activity::class.java)
@@ -30,7 +32,7 @@ class MainActivity : AppCompatActivity() {
                         return@setOnClickListener
                     }
                 }
-                intent.putExtra("toggledId", enteredId)
+                intent.putExtra("toggledId", enteredId)  // Optionally pass the ID for use in the next activity
                 startActivity(intent)
                 finish()  // Close MainActivity
             } else {

@@ -2,4 +2,9 @@
 <resources>
     <item name="servingNowText" type="id" />
     <item name="logoutButton" type="id" />
+    <item name="buttonCashier" type="id" />
+    <item name="buttonWindow1" type="id" />
+    <item name="buttonWindow2" type="id" />
+    <item name="buttonWindow3" type="id" />
+    <item name="buttonWindow4" type="id" />
 </resources>
