@@ -3,10 +3,11 @@ package com.example.appque
 import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
+import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Button
 import android.widget.TextView
 
 class Window3Activity : AppCompatActivity() {
@@ -30,10 +31,15 @@ class Window3Activity : AppCompatActivity() {
 
         builder.setPositiveButton("Yes") { dialog, _ ->
             dialog.dismiss()
+
+            // Show logout success message
+            Toast.makeText(this, "Logout Successfully", Toast.LENGTH_SHORT).show()
+
+            // Navigate to MainActivity (login page)
             val intent = Intent(this, MainActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
-            finish()
+            finish() // Close Window3Activity
         }
 
         builder.setNegativeButton("No") { dialog, _ ->
