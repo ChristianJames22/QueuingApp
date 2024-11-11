@@ -14,12 +14,6 @@ class StudentWindow1Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_student_window1)  // Use the Cashier layout
 
-        // Handle the Back Arrow Button logic
-        val backArrowButton = findViewById<ImageButton>(R.id.backArrowButton)
-        backArrowButton.setOnClickListener {
-            navigateBackToWindowSelection()  // Navigate to WindowSelectionActivity
-        }
-
         // Handle the Settings button logic
         val settingsButton = findViewById<ImageButton>(R.id.settingsButton)
         settingsButton.setOnClickListener {
@@ -66,10 +60,5 @@ class StudentWindow1Activity : AppCompatActivity() {
         finish()
     }
 
-    // Navigate back to WindowSelectionActivity
-    private fun navigateBackToWindowSelection() {
-        val intent = Intent(this, WindowSelectionActivity::class.java)
-        startActivity(intent)
-        finish()
-    }
 }
+

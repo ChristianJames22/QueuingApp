@@ -8,6 +8,8 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.ImageButton
+import android.widget.PopupMenu
 import android.widget.TextView
 
 class Window3Activity : AppCompatActivity() {
@@ -19,34 +21,48 @@ class Window3Activity : AppCompatActivity() {
 
         val toggledId = intent.getStringExtra("toggledId")
 
-        val logoutButton: Button = findViewById(R.id.logoutButton)
-        logoutButton.setOnClickListener {
-            showLogoutConfirmationDialog()
+        val settingsButton = findViewById<ImageButton>(R.id.settingsButton)
+        settingsButton.setOnClickListener {
+            showSettingsMenu(settingsButton)
+
+
         }
     }
 
+    // Function to show the settings menu with a logout option
+    private fun showSettingsMenu(anchor: ImageButton) {
+        val popupMenu = PopupMenu(this, anchor)
+        popupMenu.menuInflater.inflate(R.menu.settings_menu, popupMenu.menu)
+        popupMenu.setOnMenuItemClickListener { item ->
+            when (item.itemId) {
+                R.id.action_logout -> {
+                    showLogoutConfirmationDialog()
+                    true
+                }
+
+                else -> false
+            }
+        }
+        popupMenu.show()
+    }
+
+    // Function to show the confirmation dialog before logging out
     private fun showLogoutConfirmationDialog() {
         val builder = AlertDialog.Builder(this)
-        builder.setMessage("Are you sure you want to logout?")
+        builder.setMessage("Are you sure you want to log out?")
+            .setCancelable(false)
+            .setPositiveButton("Yes") { _, _ ->
+                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
 
-        builder.setPositiveButton("Yes") { dialog, _ ->
-            dialog.dismiss()
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
 
-            // Show logout success message
-            Toast.makeText(this, "Logout Successfully", Toast.LENGTH_SHORT).show()
-
-            // Navigate to MainActivity (login page)
-            val intent = Intent(this, MainActivity::class.java)
-            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-            startActivity(intent)
-            finish() // Close Window3Activity
-        }
-
-        builder.setNegativeButton("No") { dialog, _ ->
-            dialog.dismiss()
-        }
-
-        val dialog: AlertDialog = builder.create()
-        dialog.show()
+        builder.create().show()
     }
 }

@@ -12,12 +12,12 @@ import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.TextView
 
-class Window1Activity : AppCompatActivity() {
+class Window7Activity : AppCompatActivity() {
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_window1)
+        setContentView(R.layout.activity_window7)
 
         val toggledId = intent.getStringExtra("toggledId")
 

@@ -5,35 +5,22 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".StudentWindow1Activity">
+    android:padding="16dp">
 
-    <!-- Back Arrow Button on the left side -->
-    <ImageButton
-        android:id="@+id/backArrowButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Back"
-        android:src="@android:drawable/ic_menu_revert"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <!-- Title for Cashier -->
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Window 1"
+        android:layout_marginTop="56dp"
+        android:text="Window 5"
         android:textColor="#3F51B5"
         android:textSize="30sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/tvServingLabel" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Settings Button on the right side -->
     <ImageButton
         android:id="@+id/settingsButton"
         android:layout_width="50dp"
@@ -41,8 +28,12 @@
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="Settings"
         android:src="@android:drawable/ic_menu_manage"
+        app:layout_constraintBottom_toTopOf="@+id/title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/tvServingLabel"
@@ -53,10 +44,10 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.059"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.229" />
+        app:layout_constraintVertical_bias="0.235" />
 
     <TextView
         android:id="@+id/tvServingNow"
@@ -66,7 +57,7 @@
         android:background="@drawable/text_view_border"
         android:gravity="center"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvServingLabel" />
 
@@ -79,10 +70,10 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/tvNextInLine"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.047"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
-        app:layout_constraintVertical_bias="0.825" />
+        app:layout_constraintVertical_bias="1.0" />
 
     <TextView
         android:id="@+id/tvNextInLine"
@@ -97,33 +88,32 @@
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
         app:layout_constraintVertical_bias="0.244" />
 
-    <TextView
-        android:id="@+id/tvaddApoinment1"
+    <Button
+        android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Appointment:"
-        android:textSize="18sp"
-        android:textStyle="bold"
+        android:layout_marginStart="68dp"
+        android:backgroundTint="@android:color/holo_red_dark"
+        android:text="Reset"
+        android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/addButton"
-        app:layout_constraintHorizontal_bias="0.666"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
-        app:layout_constraintVertical_bias="0.611" />
+        app:layout_constraintTop_toBottomOf="@+id/tvNextLabel"
+        app:layout_constraintVertical_bias="0.548" />
 
     <Button
-        android:id="@+id/addButton"
-        android:layout_width="89dp"
-        android:layout_height="53dp"
-        android:backgroundTint="@color/blue"
-        android:text="Add"
+        android:id="@+id/nextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/Charcoal"
+        android:text="Next"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.734"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.548"
+        app:layout_constraintStart_toEndOf="@+id/resetButton"
         app:layout_constraintTop_toBottomOf="@+id/tvNextInLine"
-        app:layout_constraintVertical_bias="0.098" />
+        app:layout_constraintVertical_bias="0.088" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

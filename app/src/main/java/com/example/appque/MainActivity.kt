@@ -20,17 +20,27 @@ class MainActivity : AppCompatActivity() {
             val enteredId = idInput.text.toString().trim()
             if (enteredId.isNotEmpty()) {
                 // Checking if the entered ID is 2024-01 for WindowSelectionActivity
+                //Students
                 val intent = when (enteredId) {
                     "2024-01" -> Intent(this, WindowSelectionActivity::class.java)
                     "2024-02" -> Intent(this, WindowSelectionActivity::class.java)
                     "2024-03" -> Intent(this, WindowSelectionActivity::class.java)
                     "2024-04" -> Intent(this, WindowSelectionActivity::class.java)
                     "2024-05" -> Intent(this, WindowSelectionActivity::class.java)
+                    "2024-06" -> Intent(this, WindowSelectionActivity::class.java)
+                    "2024-07" -> Intent(this, WindowSelectionActivity::class.java)
+                    //Admin
                     "0001" -> Intent(this, CashierActivity::class.java)
                     "0002" -> Intent(this, Window1Activity::class.java)
                     "0003" -> Intent(this, Window2Activity::class.java)
                     "0004" -> Intent(this, Window3Activity::class.java)
                     "0005" -> Intent(this, Window4Activity::class.java)
+                    "0006" -> Intent(this, Window5Activity::class.java)
+                    "0007" -> Intent(this, Window6Activity::class.java)
+                    "0008" -> Intent(this, Window7Activity::class.java)
+
+
+
                     else -> {
                         Toast.makeText(this, "Please enter a valid ID", Toast.LENGTH_SHORT).show()
                         return@setOnClickListener
