@@ -21,7 +21,11 @@ class MainActivity : AppCompatActivity() {
             if (enteredId.isNotEmpty()) {
                 // Checking if the entered ID is 2024-01 for WindowSelectionActivity
                 val intent = when (enteredId) {
-                    "2024-01" -> Intent(this, WindowSelectionActivity::class.java)  // New condition for 2024-01
+                    "2024-01" -> Intent(this, WindowSelectionActivity::class.java)
+                    "2024-02" -> Intent(this, WindowSelectionActivity::class.java)
+                    "2024-03" -> Intent(this, WindowSelectionActivity::class.java)
+                    "2024-04" -> Intent(this, WindowSelectionActivity::class.java)
+                    "2024-05" -> Intent(this, WindowSelectionActivity::class.java)
                     "0001" -> Intent(this, CashierActivity::class.java)
                     "0002" -> Intent(this, Window1Activity::class.java)
                     "0003" -> Intent(this, Window2Activity::class.java)

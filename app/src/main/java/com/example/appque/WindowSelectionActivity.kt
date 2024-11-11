@@ -17,31 +17,54 @@ class WindowSelectionActivity : AppCompatActivity() {
         val buttonWindow2 = findViewById<Button>(R.id.buttonWindow2)
         val buttonWindow3 = findViewById<Button>(R.id.buttonWindow3)
         val buttonWindow4 = findViewById<Button>(R.id.buttonWindow4)
+        val buttonWindow5 = findViewById<Button>(R.id.buttonWindow5)
+        val buttonWindow6 = findViewById<Button>(R.id.buttonWindow6)
+        val buttonWindow7 = findViewById<Button>(R.id.buttonWindow7)
 
-        // Set up the Cashier button to navigate to the Cashier Activity
         buttonCashier.setOnClickListener {
-            val intent = Intent(this, StudentCashierActivity::class.java)  // Navigate to StudentCashierActivity
+            val intent = Intent(this, StudentCashierActivity::class.java)
             startActivity(intent)
         }
 
-        // Set up the Window 1 button to navigate to another activity if needed
         buttonWindow1.setOnClickListener {
-            // Example: if needed, you can navigate to a different activity for Window 1.
-            // val intent = Intent(this, AnotherActivity::class.java)
-            // startActivity(intent)
+            val intent = Intent(this, StudentWindow1Activity::class.java)
+            startActivity(intent)
         }
 
-        // Set up listeners for other windows (buttonWindow2, buttonWindow3, buttonWindow4)
         buttonWindow2.setOnClickListener {
-            // Handle navigation for Window 2
+            val intent = Intent(this, StudentWindow2Activity::class.java)
+            startActivity(intent)
         }
 
         buttonWindow3.setOnClickListener {
-            // Handle navigation for Window 3
+            val intent = Intent(this, StudentWindow3Activity::class.java)
+            startActivity(intent)
         }
 
         buttonWindow4.setOnClickListener {
-            // Handle navigation for Window 4
+            val intent = Intent(this, StudentWindow4Activity::class.java)
+            startActivity(intent)
+
         }
+
+        buttonWindow5.setOnClickListener {
+            val intent = Intent(this, StudentWindow5Activity::class.java)
+            startActivity(intent)
+
+        }
+
+        buttonWindow6.setOnClickListener {
+            val intent = Intent(this, StudentWindow6Activity::class.java)
+            startActivity(intent)
+
+        }
+
+        buttonWindow7.setOnClickListener {
+            val intent = Intent(this, StudentWindow7Activity::class.java)
+            startActivity(intent)
+
+        }
+
     }
+
 }

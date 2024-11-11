@@ -1,5 +1,6 @@
 package com.example.appque
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
@@ -8,11 +9,12 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
-class StudentCashierActivity : AppCompatActivity() {
+class StudentWindow7Activity : AppCompatActivity() {
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_cashier)  // Use the Cashier layout
+        setContentView(R.layout.activity_student_window7)  // Use the Cashier layout
 
         // Handle the Back Arrow Button logic
         val backArrowButton = findViewById<ImageButton>(R.id.backArrowButton)

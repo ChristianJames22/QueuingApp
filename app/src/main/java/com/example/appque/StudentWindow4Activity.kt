@@ -8,11 +8,11 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
-class StudentCashierActivity : AppCompatActivity() {
+class StudentWindow4Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_cashier)  // Use the Cashier layout
+        setContentView(R.layout.activity_student_window4)  // Use the Cashier layout
 
         // Handle the Back Arrow Button logic
         val backArrowButton = findViewById<ImageButton>(R.id.backArrowButton)
