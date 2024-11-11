@@ -14,7 +14,7 @@ class StudentWindow1Activity : AppCompatActivity() {
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_cashier)  // Use the Cashier layout
+        setContentView(R.layout.activity_student_window1)  // Use the Cashier layout
 
         // Handle the Back Arrow Button logic
         val backArrowButton = findViewById<ImageButton>(R.id.backArrowButton)
