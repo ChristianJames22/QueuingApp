@@ -4,15 +4,29 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class StudentWindow4Activity : AppCompatActivity() {
 
+    private lateinit var userNameTextView: TextView  // TextView to display username
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_window4)  // Use the Cashier layout
+        setContentView(R.layout.activity_student_window4)  // Your layout
+
+        // Retrieve the username passed from MainActivity
+        val name = intent.getStringExtra("name")
+
+        if (name != null) {
+            // Initialize the TextView and set the username inside settings
+            userNameTextView = findViewById(R.id.userNameTextView)
+            userNameTextView.text = name  // Display username in Profile section
+        } else {
+            Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show()
+        }
 
         // Handle the Back Arrow Button logic
         val backArrowButton = findViewById<ImageButton>(R.id.backArrowButton)
@@ -23,14 +37,20 @@ class StudentWindow4Activity : AppCompatActivity() {
         // Handle the Settings button logic
         val settingsButton = findViewById<ImageButton>(R.id.settingsButton)
         settingsButton.setOnClickListener {
-            showSettingsMenu(settingsButton)
+            showSettingsMenu(settingsButton, name)  // Pass name to settings menu
         }
     }
 
     // Function to show the settings menu with a logout option
-    private fun showSettingsMenu(anchor: ImageButton) {
+    private fun showSettingsMenu(anchor: ImageButton, name: String?) {
         val popupMenu = PopupMenu(this, anchor)
         popupMenu.menuInflater.inflate(R.menu.settings_menu, popupMenu.menu)
+
+        // If name is not null, update the settings menu to show the username
+        if (name != null) {
+            popupMenu.menu.findItem(R.id.action_profile).title = "Logged in as: $name"
+        }
+
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_logout -> {

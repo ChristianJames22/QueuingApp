@@ -1,5 +1,4 @@
 package com.example.appque
-
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle

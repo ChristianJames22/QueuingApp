@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">ATCI Que</string>
+    <string name="app_name">ATCI Queue</string>
+    <string name="logout">Logout</string>
+    <string name="window_1">Window 1</string>
 </resources>

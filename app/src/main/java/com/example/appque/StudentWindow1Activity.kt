@@ -1,20 +1,28 @@
 package com.example.appque
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 
 class StudentWindow1Activity : AppCompatActivity() {
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_window1)  // Use the Cashier layout
+        setContentView(R.layout.activity_student_window1) // Your window 1 layout
+
+        // Retrieve the username passed from MainActivity
+        val name = intent.getStringExtra("name")
+
+        // Set the username in the TextView inside the profile section
+        val userNameTextView: TextView = findViewById(R.id.userNameTextView)
+        if (name != null) {
+            userNameTextView.text = name  // Set the username as the TextView text
+        }
 
         // Handle the Back Arrow Button logic
         val backArrowButton = findViewById<ImageButton>(R.id.backArrowButton)
