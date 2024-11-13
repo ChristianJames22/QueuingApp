@@ -1,31 +1,32 @@
 package com.example.appque
 
 import android.annotation.SuppressLint
-import android.content.DialogInterface
 import android.content.Intent
-import android.widget.Button
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.PopupMenu
-import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import com.example.appque.databinding.ActivityWindow1Binding
 
 class Window2Activity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityWindow1Binding
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_window2)
+
+        // Inflate the layout using view binding
+        binding = ActivityWindow1Binding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val toggledId = intent.getStringExtra("toggledId")
 
-        val settingsButton = findViewById<ImageButton>(R.id.settingsButton)
-        settingsButton.setOnClickListener {
-            showSettingsMenu(settingsButton)
-
-
+        // Access the settings button through binding
+        binding.settingsButton.setOnClickListener {
+            showSettingsMenu(binding.settingsButton)
         }
     }
 
@@ -39,7 +40,6 @@ class Window2Activity : AppCompatActivity() {
                     showLogoutConfirmationDialog()
                     true
                 }
-
                 else -> false
             }
         }

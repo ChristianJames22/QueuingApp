@@ -2,22 +2,16 @@ package com.example.appque
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
-import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.appque.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     // Map of IDs to names
     private val idToNameMap = mapOf(
         // Students
         "2024-01" to "Alice",
-        "2024-02" to "Bob",
-        "2024-03" to "Charlie",
-        "2024-04" to "Diana",
-        "2024-05" to "Eve",
-        "2024-06" to "Frank",
-        "2024-07" to "Grace",
+
         // Admins
         "0001" to "Admin1",
         "0002" to "Admin2",
@@ -29,21 +23,24 @@ class MainActivity : AppCompatActivity() {
         "0008" to "Admin8"
     )
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        val loginButton: Button = findViewById(R.id.loginButton)
-        val idInput: EditText = findViewById(R.id.idInput)
+        // Initialize binding
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        loginButton.setOnClickListener {
-            val enteredId = idInput.text.toString().trim()
+        // Use binding to access views
+        binding.loginButton.setOnClickListener {
+            val enteredId = binding.idInput.text.toString().trim()
             val name = idToNameMap[enteredId]
 
             if (enteredId.isNotEmpty() && name != null) {
                 // Start the appropriate activity based on ID
                 val intent = when (enteredId) {
-                    "2024-01", "2024-02", "2024-03", "2024-04", "2024-05", "2024-06", "2024-07" -> Intent(this, WindowSelectionActivity::class.java)
+                    "2024-01" -> Intent(this, WindowSelectionActivity::class.java)
                     "0001" -> Intent(this, CashierActivity::class.java)
                     "0002" -> Intent(this, Window1Activity::class.java)
                     "0003" -> Intent(this, Window2Activity::class.java)
@@ -60,7 +57,7 @@ class MainActivity : AppCompatActivity() {
 
                 // Pass the ID and name to the next activity
                 intent.putExtra("toggledId", enteredId)
-                intent.putExtra("name", name)  // Pass the name as well
+                intent.putExtra("name", name)
                 startActivity(intent)
                 finish() // Close MainActivity
             } else {

@@ -4,132 +4,153 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".WindowSelectionActivity">
+    tools:context=".WindowSelectionActivity"
+    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="0dp">
 
-    <!-- Title Text -->
-
-    <!-- Cashier Button -->
-
-    <!-- Window 1 Button -->
 
     <TextView
         android:id="@+id/textSelectWindow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="30dp"
-        android:text="Select Window"
+        android:gravity="center"
+        android:text="Select Window
+             Transaction"
         android:textColor="#3b5b99"
-        android:textSize="24sp"
+        android:textSize="28sp"
+        android:textStyle="bold|italic"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.566"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.024" />
 
     <Button
         android:id="@+id/buttonCashier"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="30dp"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
         android:backgroundTint="#3b5b99"
         android:text="Cashier"
         android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textSelectWindow" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.16" />
 
-    <!-- Window 2 Button -->
-
-    <!-- Window 3 Button -->
     <Button
         android:id="@+id/buttonWindow1"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
         android:backgroundTint="#3b5b99"
         android:text="Window 1"
         android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonCashier" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.253" />
 
     <Button
         android:id="@+id/buttonWindow2"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
         android:backgroundTint="#3b5b99"
         android:text="Window 2"
         android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonWindow1" />
-
-    <!-- Window 4 Button -->
-    <Button
-        android:id="@+id/buttonWindow3"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
-        android:backgroundTint="#3b5b99"
-        android:text="Window 3"
-        android:textColor="#ffffff"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonWindow2" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.352" />
 
     <Button
         android:id="@+id/buttonWindow4"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
         android:backgroundTint="#3b5b99"
         android:text="Window 4"
         android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonWindow3" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.544" />
 
     <Button
         android:id="@+id/buttonWindow5"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
         android:backgroundTint="#3b5b99"
         android:text="Window 5"
         android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonWindow4" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.637" />
 
     <Button
         android:id="@+id/buttonWindow6"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
         android:backgroundTint="#3b5b99"
         android:text="Window 6"
         android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonWindow5" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.731" />
+
+    <Button
+        android:id="@+id/buttonWindow8"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
+        android:backgroundTint="#3b5b99"
+        android:text="Window 8"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.918" />
 
     <Button
         android:id="@+id/buttonWindow7"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="20dp"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
         android:backgroundTint="#3b5b99"
         android:text="Window 7"
         android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonWindow6" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.824" />
+
+    <Button
+        android:id="@+id/buttonWindow3"
+        android:layout_width="306dp"
+        android:layout_height="53dp"
+        android:backgroundTint="#3b5b99"
+        android:text="Window 3"
+        android:textColor="#ffffff"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.449" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

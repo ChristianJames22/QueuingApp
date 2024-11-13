@@ -4,8 +4,8 @@ plugins {
 }
 
 android {
-    namespace = "com.example.appque"  // Specify your app’s namespace here
-    compileSdk = 35  // Adjust as necessary
+    namespace = "com.example.appque"
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.appque"
@@ -25,11 +25,15 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+    // Enable view binding
+    buildFeatures{
+
+        viewBinding =true
+    }
 }
 
-
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

@@ -1,56 +1,43 @@
 package com.example.appque
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.PopupMenu
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import com.example.appque.databinding.ActivityStudentCashierBinding  // Import the generated binding class
 
-class StudentWindow7Activity : AppCompatActivity() {
+class StudentWindow7Activity: AppCompatActivity() {
 
-    private lateinit var userNameTextView: TextView  // TextView to display username
+    // Initialize ViewBinding
+    private lateinit var binding: ActivityStudentCashierBinding
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_window7)  // Your layout
 
-        // Retrieve the username passed from MainActivity
-        val name = intent.getStringExtra("name")
-
-        if (name != null) {
-            // Initialize the TextView and set the username inside settings
-            userNameTextView = findViewById(R.id.userNameTextView)
-            userNameTextView.text = name  // Display username in Profile section
-        } else {
-            Toast.makeText(this, "Username not found", Toast.LENGTH_SHORT).show()
-        }
+        // Inflate the layout using View Binding
+        binding = ActivityStudentCashierBinding.inflate(layoutInflater)
+        setContentView(binding.root)  // Set the root of the ViewBinding object
 
         // Handle the Back Arrow Button logic
-        val backArrowButton = findViewById<ImageButton>(R.id.backArrowButton)
-        backArrowButton.setOnClickListener {
+        binding.backArrowButton.setOnClickListener {
             navigateBackToWindowSelection()  // Navigate to WindowSelectionActivity
         }
 
         // Handle the Settings button logic
-        val settingsButton = findViewById<ImageButton>(R.id.settingsButton)
-        settingsButton.setOnClickListener {
-            showSettingsMenu(settingsButton, name)  // Pass name to settings menu
+        binding.settingsButton.setOnClickListener {
+            showSettingsMenu(binding.settingsButton)  // Pass the settings button to show the menu
         }
     }
 
     // Function to show the settings menu with a logout option
-    private fun showSettingsMenu(anchor: ImageButton, name: String?) {
+    private fun showSettingsMenu(anchor: ImageButton) {
         val popupMenu = PopupMenu(this, anchor)
         popupMenu.menuInflater.inflate(R.menu.settings_menu, popupMenu.menu)
-
-        // If name is not null, update the settings menu to show the username
-        if (name != null) {
-            popupMenu.menu.findItem(R.id.action_profile).title = "Logged in as: $name"
-        }
-
         popupMenu.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.action_logout -> {
