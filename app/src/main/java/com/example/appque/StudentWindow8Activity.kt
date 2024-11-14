@@ -8,18 +8,18 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.example.appque.databinding.ActivityStudentWindow4Binding
+import com.example.appque.databinding.ActivityStudentWindow8Binding  // Correct ViewBinding for StudentWindow8Activity
 
-class StudentWindow4Activity : AppCompatActivity() {
+class StudentWindow8Activity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityStudentWindow4Binding
+    private lateinit var binding: ActivityStudentWindow8Binding  // Correct ViewBinding reference
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inflate the layout using View Binding
-        binding = ActivityStudentWindow4Binding.inflate(layoutInflater)
+        // Inflate the layout using ViewBinding
+        binding = ActivityStudentWindow8Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // Handle the Back Arrow Button logic

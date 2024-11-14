@@ -8,7 +8,6 @@
     tools:layout_editor_absoluteX="0dp"
     tools:layout_editor_absoluteY="0dp">
 
-
     <TextView
         android:id="@+id/textSelectWindow"
         android:layout_width="wrap_content"

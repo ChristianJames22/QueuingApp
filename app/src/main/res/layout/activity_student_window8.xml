@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".StudentWindow1Activity">
 
     <!-- Back Arrow Button on the left side -->
     <ImageButton
@@ -24,7 +24,7 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/window_1"
+        android:text="Window 8"
         android:textColor="#3F51B5"
         android:textSize="30sp"
         android:textStyle="bold"
@@ -33,18 +33,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/tvServingLabel" />
 
-    <TextView
-        android:id="@+id/userNameTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="User Name"
-        android:textSize="18sp"
-        android:layout_marginBottom="20dp"
-        android:visibility="gone"
-        tools:ignore="MissingConstraints" /> <!-- Set visibility to gone initially -->
-
-
-    <!-- Serving now label -->
+    <!-- Settings Button on the right side -->
     <ImageButton
         android:id="@+id/settingsButton"
         android:layout_width="50dp"
@@ -69,7 +58,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.229" />
 
-    <!-- Serving now box -->
     <TextView
         android:id="@+id/tvServingNow"
         android:layout_width="0dp"
@@ -82,7 +70,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvServingLabel" />
 
-    <!-- Next label -->
     <TextView
         android:id="@+id/tvNextLabel"
         android:layout_width="wrap_content"
@@ -97,7 +84,6 @@
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
         app:layout_constraintVertical_bias="0.825" />
 
-    <!-- Next in line box -->
     <TextView
         android:id="@+id/tvNextInLine"
         android:layout_width="0dp"
@@ -111,7 +97,6 @@
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
         app:layout_constraintVertical_bias="0.244" />
 
-    <!-- Add Appointment label -->
     <TextView
         android:id="@+id/tvaddApoinment1"
         android:layout_width="wrap_content"
@@ -126,7 +111,6 @@
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
         app:layout_constraintVertical_bias="0.611" />
 
-    <!-- Add button -->
     <Button
         android:id="@+id/addButton"
         android:layout_width="89dp"
@@ -140,5 +124,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvNextInLine"
         app:layout_constraintVertical_bias="0.098" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             if (enteredId.isNotEmpty() && name != null) {
                 // Start the appropriate activity based on ID
                 val intent = when (enteredId) {
-                    "2024-01" -> Intent(this, WindowSelectionActivity::class.java)
+                    "2024-01" -> Intent(this, WindowSelectionActivity::class.java)  // Redirect to StudentWindow1Activity
                     "0001" -> Intent(this, CashierActivity::class.java)
                     "0002" -> Intent(this, Window1Activity::class.java)
                     "0003" -> Intent(this, Window2Activity::class.java)
@@ -57,9 +57,9 @@ class MainActivity : AppCompatActivity() {
 
                 // Pass the ID and name to the next activity
                 intent.putExtra("toggledId", enteredId)
-                intent.putExtra("name", name)
+                intent.putExtra("name", name)  // Pass the name to the next activity
                 startActivity(intent)
-                finish() // Close MainActivity
+                finish() // Close MainActivity after starting the next activity
             } else {
                 Toast.makeText(this, "Please enter a valid ID", Toast.LENGTH_SHORT).show()
             }

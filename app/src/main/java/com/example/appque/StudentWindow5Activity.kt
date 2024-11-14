@@ -8,30 +8,34 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.example.appque.databinding.ActivityStudentCashierBinding  // Import the generated binding class
+import com.example.appque.databinding.ActivityStudentWindow5Binding  // Correct ViewBinding for StudentWindow5Activity
 
-class StudentWindow5Activity: AppCompatActivity() {
+class StudentWindow5Activity : AppCompatActivity() {
 
-    // Initialize ViewBinding
-    private lateinit var binding: ActivityStudentCashierBinding
+    private lateinit var binding: ActivityStudentWindow5Binding  // Correct ViewBinding reference
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inflate the layout using View Binding
-        binding = ActivityStudentCashierBinding.inflate(layoutInflater)
-        setContentView(binding.root)  // Set the root of the ViewBinding object
+        // Inflate the layout using ViewBinding
+        binding = ActivityStudentWindow5Binding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Handle the Back Arrow Button logic
         binding.backArrowButton.setOnClickListener {
-            navigateBackToWindowSelection()  // Navigate to WindowSelectionActivity
+            onBackPressed()  // Calls the overridden onBackPressed() method to navigate back
         }
 
         // Handle the Settings button logic
         binding.settingsButton.setOnClickListener {
             showSettingsMenu(binding.settingsButton)  // Pass the settings button to show the menu
         }
+    }
+
+    // Override onBackPressed to just go back to the previous activity in the back stack
+    override fun onBackPressed() {
+        super.onBackPressed()  // This takes the user back to the previous activity in the stack
     }
 
     // Function to show the settings menu with a logout option
@@ -59,9 +63,7 @@ class StudentWindow5Activity: AppCompatActivity() {
                 navigateBackToLogin()
                 Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
 
         builder.create().show()
     }
@@ -69,13 +71,6 @@ class StudentWindow5Activity: AppCompatActivity() {
     private fun navigateBackToLogin() {
         val intent = Intent(this, MainActivity::class.java)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
-    }
-
-    // Navigate back to WindowSelectionActivity
-    private fun navigateBackToWindowSelection() {
-        val intent = Intent(this, WindowSelectionActivity::class.java)
         startActivity(intent)
         finish()
     }

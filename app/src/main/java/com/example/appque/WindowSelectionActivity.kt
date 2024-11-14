@@ -20,7 +20,9 @@ class WindowSelectionActivity : AppCompatActivity() {
         val buttonWindow5 = findViewById<Button>(R.id.buttonWindow5)
         val buttonWindow6 = findViewById<Button>(R.id.buttonWindow6)
         val buttonWindow7 = findViewById<Button>(R.id.buttonWindow7)
+        val buttonWindow8 = findViewById<Button>(R.id.buttonWindow8)
 
+        // Set up your button click listeners
         buttonCashier.setOnClickListener {
             val intent = Intent(this, StudentCashierActivity::class.java)
             startActivity(intent)
@@ -44,27 +46,32 @@ class WindowSelectionActivity : AppCompatActivity() {
         buttonWindow4.setOnClickListener {
             val intent = Intent(this, StudentWindow4Activity::class.java)
             startActivity(intent)
-
         }
 
         buttonWindow5.setOnClickListener {
             val intent = Intent(this, StudentWindow5Activity::class.java)
             startActivity(intent)
-
         }
 
         buttonWindow6.setOnClickListener {
             val intent = Intent(this, StudentWindow6Activity::class.java)
             startActivity(intent)
-
         }
 
         buttonWindow7.setOnClickListener {
             val intent = Intent(this, StudentWindow7Activity::class.java)
             startActivity(intent)
-
         }
 
+        buttonWindow8.setOnClickListener {
+            val intent = Intent(this, StudentWindow8Activity::class.java)
+            startActivity(intent)
+        }
     }
 
+    // Override the back button behavior to exit the app
+    override fun onBackPressed() {
+        // Exit the application when the back button is pressed on WindowSelectionActivity
+        finishAffinity()  // This will close the app
+    }
 }
