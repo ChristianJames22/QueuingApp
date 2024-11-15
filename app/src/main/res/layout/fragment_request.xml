@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/requestTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Request List:"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Info Box -->
+    <TextView
+        android:id="@+id/requestInfoBox"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@drawable/rounded_edittext"
+    android:layout_below="@id/requestTitle"
+    android:layout_marginBottom="16dp"
+    android:text="Name:\nID number:" />
+
+    <!-- Add Button -->
+</RelativeLayout>

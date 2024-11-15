@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Title -->
+    <TextView
+        android:id="@+id/staffTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Staff List:"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Info Box -->
+    <TextView
+        android:id="@+id/staffInfoBox"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:background="@drawable/rounded_edittext"
+    android:padding="16dp"
+    android:layout_below="@id/staffTitle"
+    android:layout_marginBottom="16dp"
+    android:text="Name:\nID number:" />
+
+    <!-- Add Button -->
+    <ImageButton
+        android:id="@+id/addStaffButton"
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp"
+        android:backgroundTint="@android:color/holo_purple"
+        android:src="@drawable/addbtutton"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Add Staff" />
+</RelativeLayout>
