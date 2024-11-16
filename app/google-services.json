@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "202657555047",
+    "project_id": "appque-5712f",
+    "storage_bucket": "appque-5712f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202657555047:android:77350cf1ce819bb14c6ac2",
+        "android_client_info": {
+          "package_name": "com.example.appque"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDNU3NIAtP08r87zj9qLldembFaOZrRQdE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
