@@ -1,4 +1,5 @@
 package com.example.appque.fragments
+
 import Staff // Ensure this is the correct model class
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -70,19 +71,24 @@ class StaffFragment : Fragment() {
         }
 
         addButton.setOnClickListener {
-            val id = idInput.text.toString()
-            val name = nameInput.text.toString()
-            val email = emailInput.text.toString()
-            val password = passwordInput.text.toString()
-            val confirmPassword = confirmPasswordInput.text.toString()
+            val id = idInput.text.toString().trim()
+            val name = nameInput.text.toString().trim()
+            val email = emailInput.text.toString().trim()
+            val password = passwordInput.text.toString().trim()
+            val confirmPassword = confirmPasswordInput.text.toString().trim()
 
-            if (password == confirmPassword) {
-                val newStaff = Staff(id, name, email)
-                staffAdapter.addStaff(newStaff) // Use the instance of StaffAdapter
-                Toast.makeText(requireContext(), "Staff added successfully", Toast.LENGTH_SHORT).show()
-                alertDialog.dismiss()
+            if (id.isNotEmpty() && name.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty()) {
+                if (password == confirmPassword) {
+                    val newStaff = Staff(id, name, email)
+                    staffList.add(newStaff)
+                    staffAdapter.notifyDataSetChanged()
+                    Toast.makeText(requireContext(), "Staff added successfully", Toast.LENGTH_SHORT).show()
+                    alertDialog.dismiss()
+                } else {
+                    confirmPasswordInput.error = "Passwords do not match"
+                }
             } else {
-                confirmPasswordInput.error = "Passwords do not match"
+                Toast.makeText(requireContext(), "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
         }
 

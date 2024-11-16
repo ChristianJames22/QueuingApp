@@ -1,16 +1,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-    <!-- Profile Item to show the user name dynamically -->
+
+    <!-- Profile Item: Displays user profile details -->
     <item
         android:id="@+id/action_profile"
         android:title="Profile"
         android:icon="@android:drawable/ic_menu_info_details"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
-    <!-- Other menu items, e.g., logout -->
+    <!-- Logout Item: Allows the user to log out -->
     <item
         android:id="@+id/action_logout"
         android:title="Logout"
         android:icon="@android:drawable/ic_menu_close_clear_cancel"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 </menu>

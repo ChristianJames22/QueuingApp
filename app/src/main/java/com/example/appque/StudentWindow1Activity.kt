@@ -1,77 +1,88 @@
 package com.example.appque
 
-import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
-import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.example.appque.databinding.ActivityStudentWindow1Binding
 
 class StudentWindow1Activity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityStudentWindow1Binding
+    private var userName: String? = null
+    private var userIdNumber: String? = null
+    private var userCourse: String? = null
+    private var userYear: String? = null
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_student_window1)
 
-        // Inflate the layout using View Binding
-        binding = ActivityStudentWindow1Binding.inflate(layoutInflater)
-        setContentView(binding.root)
+        // Retrieve user data passed from WindowSelectionActivity
+        userName = intent.getStringExtra("name")
+        userIdNumber = intent.getStringExtra("idNumber")
+        userCourse = intent.getStringExtra("course")
+        userYear = intent.getStringExtra("year")
 
-        // Handle the Back Arrow Button logic
-        binding.backArrowButton.setOnClickListener {
-            onBackPressed()  // Calls the overridden onBackPressed() method to navigate back
+        Log.d("StudentWindow1Activity", "Received Data -> Name: $userName, ID: $userIdNumber, Course: $userCourse, Year: $userYear")
+
+        // Back arrow button functionality
+        findViewById<ImageButton>(R.id.backArrowButton).setOnClickListener {
+            finish()
         }
 
-        // Handle the Settings button logic
-        binding.settingsButton.setOnClickListener {
-            showSettingsMenu(binding.settingsButton)  // Pass the settings button to show the menu
+        // Settings button functionality
+        findViewById<ImageButton>(R.id.settingsButton).setOnClickListener {
+            showSettingsMenu()
         }
     }
 
-    // Override onBackPressed to just go back to the previous activity in the back stack
-    override fun onBackPressed() {
-        super.onBackPressed()  // This takes the user back to the previous activity in the stack
-    }
-
-    // Function to show the settings menu with a logout option
-    private fun showSettingsMenu(anchor: ImageButton) {
-        val popupMenu = PopupMenu(this, anchor)
-        popupMenu.menuInflater.inflate(R.menu.settings_menu, popupMenu.menu)
-        popupMenu.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_logout -> {
-                    showLogoutConfirmationDialog()
-                    true
+    // Show settings menu with options like logout or profile info
+    private fun showSettingsMenu() {
+        val options = arrayOf("Profile", "Logout")
+        AlertDialog.Builder(this)
+            .setTitle("Settings")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showProfileDialog()
+                    1 -> showLogoutConfirmationDialog()
                 }
-                else -> false
             }
-        }
-        popupMenu.show()
+            .show()
     }
 
-    // Function to show the confirmation dialog before logging out
+    // Show profile information in a dialog
+    private fun showProfileDialog() {
+        val profileInfo = """
+            Name: ${userName ?: "N/A"}
+            ID No.: ${userIdNumber ?: "N/A"}
+            Course: ${userCourse ?: "N/A"}
+            Year: ${userYear ?: "N/A"}
+        """.trimIndent()
+
+        AlertDialog.Builder(this)
+            .setTitle("Profile Information")
+            .setMessage(profileInfo)
+            .setPositiveButton("OK", null)
+            .show()
+    }
+
+    // Show logout confirmation dialog
     private fun showLogoutConfirmationDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Are you sure you want to log out?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
-                navigateBackToLogin()
                 Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, MainActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                finish()
             }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
         builder.create().show()
-    }
-
-    private fun navigateBackToLogin() {
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
-        finish()
     }
 }

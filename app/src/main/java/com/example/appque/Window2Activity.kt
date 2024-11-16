@@ -9,17 +9,18 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appque.databinding.ActivityWindow1Binding
+import com.example.appque.databinding.ActivityWindow2Binding
 
 class Window2Activity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityWindow1Binding
+    private lateinit var binding: ActivityWindow2Binding
 
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Inflate the layout using view binding
-        binding = ActivityWindow1Binding.inflate(layoutInflater)
+        binding = ActivityWindow2Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val toggledId = intent.getStringExtra("toggledId")
