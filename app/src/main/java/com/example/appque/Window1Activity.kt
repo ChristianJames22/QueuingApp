@@ -1,22 +1,25 @@
 package com.example.appque
 
-import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageButton
 import android.widget.PopupMenu
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appque.databinding.ActivityWindow1Binding
+import com.google.firebase.auth.FirebaseAuth
 
 class Window1Activity : AppCompatActivity() {
 
     private lateinit var binding: ActivityWindow1Binding
+    private lateinit var auth: FirebaseAuth
 
-    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize FirebaseAuth
+        auth = FirebaseAuth.getInstance()
 
         // Inflate the layout using view binding
         binding = ActivityWindow1Binding.inflate(layoutInflater)
@@ -26,7 +29,7 @@ class Window1Activity : AppCompatActivity() {
 
         // Access the settings button and other views through binding
         binding.settingsButton.setOnClickListener {
-            showSettingsMenu(binding.settingsButton)
+            showSettingsMenu()
         }
 
         // Example: Accessing other views using binding
@@ -39,38 +42,45 @@ class Window1Activity : AppCompatActivity() {
         }
     }
 
-    // Function to show the settings menu with a logout option
-    private fun showSettingsMenu(anchor: ImageButton) {
-        val popupMenu = PopupMenu(this, anchor)
-        popupMenu.menuInflater.inflate(R.menu.settings_menu, popupMenu.menu)
-        popupMenu.setOnMenuItemClickListener { item ->
-            when (item.itemId) {
-                R.id.action_logout -> {
-                    showLogoutConfirmationDialog()
-                    true
+    // Function to show the settings menu with a profile and logout option
+    private fun showSettingsMenu() {
+        val options = arrayOf("Profile", "Logout")
+        AlertDialog.Builder(this)
+            .setTitle("Settings")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> navigateToProfileActivity()
+                    1 -> showLogoutConfirmationDialog()
                 }
-                else -> false
             }
-        }
-        popupMenu.show()
+            .show()
     }
 
-    // Function to show the confirmation dialog before logging out
+    private fun navigateToProfileActivity() {
+        // Logic for navigating to profile activity, modify as needed
+        Toast.makeText(this, "Profile selected", Toast.LENGTH_SHORT).show()
+    }
+
     private fun showLogoutConfirmationDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Are you sure you want to log out?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
-                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
-                val intent = Intent(this, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-                finish()
+                performLogout()
             }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-            }
-
+            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
         builder.create().show()
+    }
+
+    private fun performLogout() {
+        auth.signOut()
+
+        val intent = Intent(this, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
+        finishAffinity()
+
+        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
     }
 }

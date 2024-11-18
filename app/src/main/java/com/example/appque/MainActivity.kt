@@ -3,107 +3,153 @@ package com.example.appque
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.Patterns
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appque.databinding.ActivityMainBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import android.content.SharedPreferences
 
 class MainActivity : AppCompatActivity() {
 
-    data class User(
-        val name: String,
-        val password: String,
-        val idNumber: String? = null,
-        val course: String? = null,
-        val year: String? = null
-    )
-
-    // Map of emails to User objects
-    private val emailToUserMap = mapOf(
-        "Alice@gmail.com" to User(
-            name = "Alice",
-            password = "2024-01",
-            idNumber = "22-01",
-            course = "BSIT",
-            year = "3rd Year"
-        ),
-        "Staff1@gmail.com" to User(name = "Staff1", password = "0001"),
-        "Staff2@gmail.com" to User(name = "Staff2", password = "0002"),
-        "Staff3@gmail.com" to User(name = "Staff3", password = "0003"),
-        "Staff4@gmail.com" to User(name = "Staff4", password = "0004"),
-        "Staff5@gmail.com" to User(name = "Staff5", password = "0005"),
-        "Staff6@gmail.com" to User(name = "Staff6", password = "0006"),
-        "Staff7@gmail.com" to User(name = "Staff7", password = "0007"),
-        "Staff8@gmail.com" to User(name = "Staff8", password = "0008"),
-        "Mainadmin@gmail.com" to User(name = "Main admin", password = "2023")
-    )
-
-    // Map of emails to Activities
-    private val emailToActivityMap = mapOf(
-        "Staff1@gmail.com" to CashierActivity::class.java,
-        "Staff2@gmail.com" to Window1Activity::class.java,
-        "Staff3@gmail.com" to Window2Activity::class.java,
-        "Staff4@gmail.com" to Window3Activity::class.java,
-        "Staff5@gmail.com" to Window4Activity::class.java,
-        "Staff6@gmail.com" to Window5Activity::class.java,
-        "Staff7@gmail.com" to Window6Activity::class.java,
-        "Staff8@gmail.com" to Window7Activity::class.java
-    )
-
     private lateinit var binding: ActivityMainBinding
+    private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
+    private lateinit var sharedPreferences: SharedPreferences
+    private var preventAutoLogin = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        auth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
+        sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
+
+        preventAutoLogin = sharedPreferences.getBoolean("logged_out", false)
+
         binding.loginButton.setOnClickListener {
             val enteredEmail = binding.emailInput.text.toString().trim()
             val enteredPassword = binding.passwordInput.text.toString().trim()
 
-            val user = emailToUserMap[enteredEmail]
+            if (!validateInputs(enteredEmail, enteredPassword)) return@setOnClickListener
 
-            if (user != null && enteredPassword == user.password) {
-                Log.d("MainActivity", "Login successful for email: $enteredEmail")
-
-                // Determine which activity to navigate to based on email
-                val destinationActivity = emailToActivityMap[enteredEmail] ?: AdminActivity::class.java
-
-                val intent = Intent(this, destinationActivity).apply {
-                    putExtra("name", user.name)
-                    putExtra("idNumber", user.idNumber)
-                    putExtra("course", user.course)
-                    putExtra("year", user.year)
-                }
-
-                startActivity(intent)
-                finish()
-            } else {
-                // Show a custom toast for invalid login
-                showCustomToast("Invalid email or password. Please try again.")
-            }
+            loginUser(enteredEmail, enteredPassword)
         }
 
         binding.signUpLink.setOnClickListener {
-            val signUpIntent = Intent(this, SignUpActivity::class.java)
-            startActivity(signUpIntent)
+            startActivity(Intent(this, SignUpActivity::class.java))
         }
     }
 
-    // Function to display a custom toast
+    override fun onStart() {
+        super.onStart()
+
+        if (preventAutoLogin) {
+            Log.d("MainActivity", "Auto-login prevented after explicit logout.")
+            sharedPreferences.edit().putBoolean("logged_out", false).apply()
+            return
+        }
+
+        val currentUser = auth.currentUser
+        currentUser?.let {
+            fetchUserRole(it.uid)
+        }
+    }
+
+    private fun validateInputs(email: String, password: String): Boolean {
+        return when {
+            email.isEmpty() || password.isEmpty() -> {
+                showCustomToast("Please fill in all fields.")
+                false
+            }
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
+                showCustomToast("Invalid email format.")
+                false
+            }
+            password.length < 6 -> {
+                showCustomToast("Password must be at least 6 characters.")
+                false
+            }
+            else -> true
+        }
+    }
+
+    private fun loginUser(email: String, password: String) {
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userId = auth.currentUser?.uid
+                    userId?.let {
+                        fetchUserRole(it)
+                    } ?: showCustomToast("Failed to retrieve user ID.")
+                } else {
+                    Log.e("MainActivity", "Login failed: ${task.exception?.message}")
+                    showCustomToast("Invalid email or password. Please try again.")
+                }
+            }
+    }
+
+    private fun fetchUserRole(uid: String) {
+        firestore.collection("users").document(uid).get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val role = document.getString("role") ?: "student"
+                    val name = document.getString("name") ?: "User"
+                    val course = document.getString("course")
+                    val year = document.getString("year")
+
+                    Log.d("MainActivity", "User data -> Name: $name, Course: $course, Year: $year")
+                    navigateBasedOnRole(role, name, course, year)
+                } else {
+                    showCustomToast("No user details found. Please contact admin.")
+                }
+            }
+            .addOnFailureListener {
+                Log.e("MainActivity", "Error fetching user role: ${it.message}")
+                showCustomToast("Failed to fetch user details.")
+            }
+    }
+
+    private fun navigateBasedOnRole(role: String, name: String, course: String?, year: String?) {
+        val destination = when (role) {
+            "admin" -> AdminActivity::class.java
+            "staff" -> CashierActivity::class.java
+            "student" -> WindowSelectionActivity::class.java
+            else -> MainActivity::class.java
+        }
+
+        val intent = Intent(this, destination).apply {
+            putExtra("name", name)
+            putExtra("course", course)
+            putExtra("year", year)
+        }
+        startActivity(intent)
+        finish()
+    }
+
     private fun showCustomToast(message: String) {
         val inflater: LayoutInflater = layoutInflater
-        val layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
+        val layout =
+            inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
 
         val text: TextView = layout.findViewById(R.id.toastText)
         text.text = message
 
-        val toast = Toast(applicationContext)
-        toast.duration = Toast.LENGTH_SHORT
-        toast.view = layout
-        toast.setGravity(Gravity.CENTER, 0, 0) // Center the toast
-        toast.show()
+        Toast(applicationContext).apply {
+            duration = Toast.LENGTH_SHORT
+            view = layout
+            setGravity(Gravity.CENTER, 0, 0)
+            show()
+        }
+    }
+
+    override fun onBackPressed() {
+        finishAffinity()
     }
 }

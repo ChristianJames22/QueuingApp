@@ -2,7 +2,6 @@ package com.example.appque.fragments
 
 import android.app.AlertDialog
 import android.content.Intent
-import com.example.appque.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +11,8 @@ import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.appque.MainActivity
+import com.example.appque.R
+import com.google.firebase.auth.FirebaseAuth
 
 class RequestFragment : Fragment(R.layout.fragment_request) {
 
@@ -31,11 +32,11 @@ class RequestFragment : Fragment(R.layout.fragment_request) {
 
         // Set up the click listener for the settings menu
         settingsButton.setOnClickListener {
-            showSettingsMenu(it as ImageButton)
+            showSettingsMenu(it)
         }
     }
 
-    private fun showSettingsMenu(anchor: ImageButton) {
+    private fun showSettingsMenu(anchor: View) {
         val popupMenu = PopupMenu(requireContext(), anchor)
         popupMenu.menuInflater.inflate(R.menu.settings_menu, popupMenu.menu)
         popupMenu.setOnMenuItemClickListener { item ->
@@ -55,17 +56,20 @@ class RequestFragment : Fragment(R.layout.fragment_request) {
         builder.setMessage("Are you sure you want to log out?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
-                Toast.makeText(requireContext(), "Logged out successfully", Toast.LENGTH_SHORT)
-                    .show()
-                val intent = Intent(requireContext(), MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
-                startActivity(intent)
-                requireActivity().finish()
+                FirebaseAuth.getInstance().signOut() // Clear Firebase session
+                navigateToLogin()
             }
             .setNegativeButton("No") { dialog, _ ->
                 dialog.dismiss()
             }
 
         builder.create().show()
+    }
+
+    private fun navigateToLogin() {
+        val intent = Intent(requireContext(), MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
     }
 }

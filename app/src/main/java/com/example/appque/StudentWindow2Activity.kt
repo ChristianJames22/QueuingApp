@@ -7,6 +7,7 @@ import android.util.Log
 import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class StudentWindow2Activity : AppCompatActivity() {
 
@@ -25,7 +26,10 @@ class StudentWindow2Activity : AppCompatActivity() {
         userCourse = intent.getStringExtra("course")
         userYear = intent.getStringExtra("year")
 
-        Log.d("StudentWindow2Activity", "Received Data -> Name: $userName, ID: $userIdNumber, Course: $userCourse, Year: $userYear")
+        Log.d(
+            "StudentWindow2Activity",
+            "Received Data -> Name: $userName, ID: $userIdNumber, Course: $userCourse, Year: $userYear"
+        )
 
         // Back arrow button functionality
         findViewById<ImageButton>(R.id.backArrowButton).setOnClickListener {
@@ -38,51 +42,43 @@ class StudentWindow2Activity : AppCompatActivity() {
         }
     }
 
-    // Show settings menu with options like logout or profile info
     private fun showSettingsMenu() {
         val options = arrayOf("Profile", "Logout")
         AlertDialog.Builder(this)
             .setTitle("Settings")
             .setItems(options) { _, which ->
                 when (which) {
-                    0 -> showProfileDialog()
+                    0 -> navigateToProfileActivity()
                     1 -> showLogoutConfirmationDialog()
                 }
             }
             .show()
     }
 
-    // Show profile information in a dialog
-    private fun showProfileDialog() {
-        val profileInfo = """
-            Name: ${userName ?: "N/A"}
-            ID No.: ${userIdNumber ?: "N/A"}
-            Course: ${userCourse ?: "N/A"}
-            Year: ${userYear ?: "N/A"}
-        """.trimIndent()
-
-        AlertDialog.Builder(this)
-            .setTitle("Profile Information")
-            .setMessage(profileInfo)
-            .setPositiveButton("OK", null)
-            .show()
+    private fun navigateToProfileActivity() {
+        val intent = Intent(this, ProfileActivity::class.java).apply {
+            putExtra("name", userName)
+            putExtra("idNumber", userIdNumber)
+            putExtra("course", userCourse)
+            putExtra("year", userYear)
+        }
+        startActivity(intent)
     }
 
-    // Show logout confirmation dialog
     private fun showLogoutConfirmationDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setMessage("Are you sure you want to log out?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
+                FirebaseAuth.getInstance().signOut()
                 Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+
                 val intent = Intent(this, MainActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
                 startActivity(intent)
                 finish()
             }
-            .setNegativeButton("No") { dialog, _ ->
-                dialog.dismiss()
-            }
+            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
         builder.create().show()
     }
 }
