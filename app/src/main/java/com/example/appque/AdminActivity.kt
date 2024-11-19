@@ -1,24 +1,26 @@
 package com.example.appque
 
-import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.example.appque.fragments.StudentsFragment
-import com.example.appque.fragments.StaffFragment
+import androidx.fragment.app.Fragment
+import com.example.appque.databinding.ActivityAdminBinding
 import com.example.appque.fragments.RequestFragment
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.auth.FirebaseAuth
+import com.example.appque.fragments.StaffFragment
+import com.example.appque.fragments.StudentsFragment
 
 class AdminActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityAdminBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_admin)
 
-        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottomNavigation)
+        // Initialize View Binding
+        binding = ActivityAdminBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        bottomNavigationView.setOnNavigationItemSelectedListener { item ->
+        // Set up BottomNavigationView with View Binding
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_students -> {
                     loadFragment(StudentsFragment())
@@ -40,10 +42,9 @@ class AdminActivity : AppCompatActivity() {
         loadFragment(StudentsFragment())
     }
 
-    private fun loadFragment(fragment: androidx.fragment.app.Fragment) {
+    private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, fragment)
+            .replace(binding.fragmentContainer.id, fragment)
             .commit()
     }
-
 }

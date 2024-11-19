@@ -22,52 +22,45 @@ class SignUpActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase
+        // Initialize Firebase Auth and Firestore
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
 
-        // Initialize binding
+        // Initialize View Binding
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Adjust padding for edge-to-edge layout
-        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
+        // Adjust for edge-to-edge layout using View Binding
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+            binding.main.setPadding(
+                systemBars.left,
+                systemBars.top,
+                systemBars.right,
+                systemBars.bottom
+            )
             insets
         }
 
-        // Set up spinners
+        // Set up spinners for Course and Year
         setupCourseSpinner()
         setupYearSpinner()
 
+        // Set click listener for the "Continue" button
         binding.continueButton.setOnClickListener {
-            val id = binding.idInput.text.toString().trim()
-            val name = binding.nameInput.text.toString().trim()
-            val course = binding.courseSpinner.selectedItem?.toString()?.trim() ?: ""
-            val year = binding.yearSpinner.selectedItem?.toString()?.trim() ?: ""
-            val email = binding.emailInput.text.toString().trim()
-            val password = binding.passwordInput.text.toString().trim()
-            val confirmPassword = binding.confirmPasswordInput.text.toString().trim()
-
-            if (!validateInputs(id, name, course, year, email, password, confirmPassword)) {
-                return@setOnClickListener
-            }
-
-            registerUser(email, password, id, name, course, year)
+            handleSignUp()
         }
     }
 
     private fun setupCourseSpinner() {
-        val courses = resources.getStringArray(R.array.course_options) // E.g., ["Select Course", "BSIT", "HM", "BEED", "SHS"]
+        val courses = resources.getStringArray(R.array.course_options) // Example: ["Select Course", "BSIT", "HM", "BEED", "SHS"]
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, courses)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.courseSpinner.adapter = adapter
 
         binding.courseSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
-                val selectedCourse = courses[position]
-                updateYearOptions(selectedCourse)
+                updateYearOptions(courses[position])
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -77,19 +70,32 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun setupYearSpinner() {
-        // Initialize year spinner with default values
-        updateYearOptions("Select Course")
+        updateYearOptions("Select Course") // Default year options
     }
 
     private fun updateYearOptions(selectedCourse: String) {
-        val years: Array<String> = when (selectedCourse) {
+        val years = when (selectedCourse) {
             "SHS" -> arrayOf("Select Year", "G-11", "G-12")
             else -> arrayOf("Select Year", "1st", "2nd", "3rd", "4th")
         }
 
-        val yearAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, years)
-        yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.yearSpinner.adapter = yearAdapter
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, years)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.yearSpinner.adapter = adapter
+    }
+
+    private fun handleSignUp() {
+        val id = binding.idInput.text.toString().trim()
+        val name = binding.nameInput.text.toString().trim()
+        val course = binding.courseSpinner.selectedItem?.toString()?.trim() ?: ""
+        val year = binding.yearSpinner.selectedItem?.toString()?.trim() ?: ""
+        val email = binding.emailInput.text.toString().trim()
+        val password = binding.passwordInput.text.toString().trim()
+        val confirmPassword = binding.confirmPasswordInput.text.toString().trim()
+
+        if (validateInputs(id, name, course, year, email, password, confirmPassword)) {
+            registerUser(email, password, id, name, course, year)
+        }
     }
 
     private fun validateInputs(
@@ -106,7 +112,7 @@ class SignUpActivity : AppCompatActivity() {
                 showToast("Please fill in all the fields")
                 false
             }
-            !email.matches(Patterns.EMAIL_ADDRESS.pattern().toRegex()) -> {
+            !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
                 showToast("Invalid email format")
                 false
             }
@@ -147,7 +153,7 @@ class SignUpActivity : AppCompatActivity() {
             "course" to course,
             "year" to year,
             "email" to email,
-            "role" to "student" // Default role for registered users
+            "role" to "student" // Default role
         )
 
         firestore.collection("users").document(userId)

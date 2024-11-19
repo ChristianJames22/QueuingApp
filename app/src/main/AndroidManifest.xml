@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- Permissions -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -16,67 +15,92 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
 
+
+        <activity
+            android:name=".Window7Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window6Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window5Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window4Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window3Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window2Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window1Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window8Activity"
+            android:exported="false" />
         <!-- Firebase Metadata -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/logo" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/purple_500" />
-
-        <!-- Splash Activity (Launcher) -->
+            android:resource="@color/purple_500" /> <!-- Splash Activity (Launcher) -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Main Login Activity -->
+        </activity> <!-- Main Login Activity -->
         <activity
             android:name=".MainActivity"
-            android:exported="true" />
-
-        <!-- Sign Up Activity -->
+            android:exported="true" /> <!-- Sign Up Activity -->
         <activity
             android:name=".SignUpActivity"
-            android:exported="true" />
-
-        <!-- Admin Activity -->
+            android:exported="true" /> <!-- Admin Activity -->
         <activity
             android:name=".AdminActivity"
-            android:exported="false" />
-
-        <!-- Cashier Activity -->
+            android:exported="false" /> <!-- Cashier Activity -->
         <activity
             android:name=".CashierActivity"
-            android:exported="false" />
-
-        <!-- Window Selection Activity -->
+            android:exported="true" /> <!-- Window Selection Activity -->
         <activity
             android:name=".WindowSelectionActivity"
-            android:exported="false" />
-
-        <!-- Student Cashier Activity -->
+            android:exported="false" /> <!-- Student Cashier Activity -->
         <activity
             android:name=".StudentCashierActivity"
+            android:exported="false" /> <!-- Student Window Activities -->
+        <activity
+            android:name=".StudentWindow1Activity"
             android:exported="false" />
-
-        <!-- Student Window Activities -->
-        <activity android:name=".StudentWindow1Activity" android:exported="false" />
-        <activity android:name=".StudentWindow2Activity" android:exported="false" />
-        <activity android:name=".StudentWindow3Activity" android:exported="false" />
-        <activity android:name=".StudentWindow4Activity" android:exported="false" />
-        <activity android:name=".StudentWindow5Activity" android:exported="false" />
-        <activity android:name=".StudentWindow6Activity" android:exported="false" />
-        <activity android:name=".StudentWindow7Activity" android:exported="false" />
-        <activity android:name=".StudentWindow8Activity" android:exported="false" />
-
-        <!-- Profile Activity -->
+        <activity
+            android:name=".StudentWindow2Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow3Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow4Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow5Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow6Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow7Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow8Activity"
+            android:exported="false" /> <!-- Profile Activity -->
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
     </application>
+
 </manifest>

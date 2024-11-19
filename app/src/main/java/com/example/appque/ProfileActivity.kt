@@ -1,19 +1,24 @@
 package com.example.appque
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.example.appque.databinding.ActivityProfileBinding
 
 class ProfileActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityProfileBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_profile)
 
+        // Initialize View Binding
+        binding = ActivityProfileBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        // Retrieve data from Intent
         val userName = intent.getStringExtra("name") ?: "N/A"
-        val userIdNumber = intent.getStringExtra("idNumber") ?: "N/A"
+        val userIdNumber = intent.getStringExtra("id") ?: "N/A"
         val userCourse = intent.getStringExtra("course") ?: "N/A"
         val userYear = intent.getStringExtra("year") ?: "N/A"
 
@@ -22,9 +27,10 @@ class ProfileActivity : AppCompatActivity() {
             "Profile Data -> Name: $userName, ID: $userIdNumber, Course: $userCourse, Year: $userYear"
         )
 
-        findViewById<TextView>(R.id.textName).text = "Name: $userName"
-        findViewById<TextView>(R.id.textIdNumber).text = "ID No.: $userIdNumber"
-        findViewById<TextView>(R.id.textCourse).text = "Course: $userCourse"
-        findViewById<TextView>(R.id.textYear).text = "Year: $userYear"
+        // Assign data to TextViews using View Binding
+        binding.textName.text = "Name: $userName"
+        binding.textIdNumber.text = "ID No.: $userIdNumber"
+        binding.textCourse.text = "Course: $userCourse"
+        binding.textYear.text = "Year: $userYear"
     }
 }

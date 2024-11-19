@@ -4,13 +4,14 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.appque.databinding.ActivityStudentWindow1Binding
 import com.google.firebase.auth.FirebaseAuth
 
 class StudentWindow1Activity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityStudentWindow1Binding
     private var userName: String? = null
     private var userIdNumber: String? = null
     private var userCourse: String? = null
@@ -18,11 +19,12 @@ class StudentWindow1Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_window1)
+        binding = ActivityStudentWindow1Binding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Retrieve user data passed from WindowSelectionActivity
         userName = intent.getStringExtra("name")
-        userIdNumber = intent.getStringExtra("idNumber")
+        userIdNumber = intent.getStringExtra("id")
         userCourse = intent.getStringExtra("course")
         userYear = intent.getStringExtra("year")
 
@@ -31,11 +33,13 @@ class StudentWindow1Activity : AppCompatActivity() {
             "Received Data -> Name: $userName, ID: $userIdNumber, Course: $userCourse, Year: $userYear"
         )
 
-        findViewById<ImageButton>(R.id.backArrowButton).setOnClickListener {
+        // Back arrow button functionality
+        binding.backArrowButton.setOnClickListener {
             finish()
         }
 
-        findViewById<ImageButton>(R.id.settingsButton).setOnClickListener {
+        // Settings button functionality
+        binding.settingsButton.setOnClickListener {
             showSettingsMenu()
         }
     }
@@ -56,7 +60,7 @@ class StudentWindow1Activity : AppCompatActivity() {
     private fun navigateToProfileActivity() {
         val intent = Intent(this, ProfileActivity::class.java).apply {
             putExtra("name", userName ?: "N/A")
-            putExtra("idNumber", userIdNumber ?: "N/A")
+            putExtra("id", userIdNumber ?: "N/A")
             putExtra("course", userCourse ?: "N/A")
             putExtra("year", userYear ?: "N/A")
         }
@@ -81,5 +85,3 @@ class StudentWindow1Activity : AppCompatActivity() {
         builder.create().show()
     }
 }
-
-

@@ -1,11 +1,12 @@
 package com.example.appque
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
-import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appque.databinding.ActivityWindow1Binding
 import com.google.firebase.auth.FirebaseAuth
@@ -13,36 +14,39 @@ import com.google.firebase.auth.FirebaseAuth
 class Window1Activity : AppCompatActivity() {
 
     private lateinit var binding: ActivityWindow1Binding
-    private lateinit var auth: FirebaseAuth
+    private var userName: String? = null
+    private var userIdNumber: String? = null
+    private var userCourse: String? = null
+    private var userYear: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize FirebaseAuth
-        auth = FirebaseAuth.getInstance()
-
-        // Inflate the layout using view binding
         binding = ActivityWindow1Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val toggledId = intent.getStringExtra("toggledId")
+        // Retrieve data passed through Intent
+        userName = intent.getStringExtra("name")
+        userIdNumber = intent.getStringExtra("id")  // Retrieve ID
+        userCourse = intent.getStringExtra("course")
+        userYear = intent.getStringExtra("year")
 
-        // Access the settings button and other views through binding
-        binding.settingsButton.setOnClickListener {
+        Log.d(
+            "Window1Activity",
+            "Received Data -> Name: $userName, ID: $userIdNumber, Course: $userCourse, Year: $userYear"
+        )
+
+        // Display user data in UI
+        findViewById<TextView>(R.id.textName)?.text = "Name: ${userName ?: "Unknown"}"
+        findViewById<TextView>(R.id.textIdNumber)?.text = "ID No.: ${userIdNumber ?: "N/A"}"
+        findViewById<TextView>(R.id.textCourse)?.text = "Course: ${userCourse ?: "N/A"}"
+        findViewById<TextView>(R.id.textYear)?.text = "Year: ${userYear ?: "N/A"}"
+
+        // Settings button functionality
+        findViewById<ImageButton>(R.id.settingsButton).setOnClickListener {
             showSettingsMenu()
-        }
-
-        // Example: Accessing other views using binding
-        binding.tvServingLabel.text = "Serving now..." // Set text programmatically
-        binding.resetButton.setOnClickListener {
-            Toast.makeText(this, "Reset clicked", Toast.LENGTH_SHORT).show()
-        }
-        binding.nextButton.setOnClickListener {
-            Toast.makeText(this, "Next clicked", Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Function to show the settings menu with a profile and logout option
     private fun showSettingsMenu() {
         val options = arrayOf("Profile", "Logout")
         AlertDialog.Builder(this)
@@ -57,30 +61,31 @@ class Window1Activity : AppCompatActivity() {
     }
 
     private fun navigateToProfileActivity() {
-        // Logic for navigating to profile activity, modify as needed
-        Toast.makeText(this, "Profile selected", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this, ProfileActivity::class.java).apply {
+            putExtra("name", userName ?: "N/A")
+            putExtra("id", userIdNumber ?: "N/A")  // Pass the ID
+            putExtra("course", userCourse ?: "N/A")
+            putExtra("year", userYear ?: "N/A")
+        }
+        startActivity(intent)
     }
 
     private fun showLogoutConfirmationDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage("Are you sure you want to log out?")
+        AlertDialog.Builder(this)
+            .setMessage("Are you sure you want to log out?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
-                performLogout()
+                FirebaseAuth.getInstance().signOut()
+
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
+                startActivity(intent)
+                finishAffinity()
+                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-        builder.create().show()
-    }
-
-    private fun performLogout() {
-        auth.signOut()
-
-        val intent = Intent(this, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-        startActivity(intent)
-        finishAffinity()
-
-        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
+            .create()
+            .show()
     }
 }

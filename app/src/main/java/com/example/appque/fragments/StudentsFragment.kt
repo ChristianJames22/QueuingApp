@@ -7,18 +7,19 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.appque.MainActivity
 import com.example.appque.R
 import com.example.appque.StudentsAdapter
+import com.example.appque.databinding.FragmentStudentsBinding
 import com.google.firebase.auth.FirebaseAuth
 
 class StudentsFragment : Fragment() {
+
+    private var _binding: FragmentStudentsBinding? = null
+    private val binding get() = _binding!!
 
     private lateinit var studentsAdapter: StudentsAdapter
     private val studentsList = mutableListOf<Student>()
@@ -27,24 +28,26 @@ class StudentsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_students, container, false)
-
-        // Setup RecyclerView and Adapter
-        val recyclerView: RecyclerView = view.findViewById(R.id.studentsRecyclerView)
-        studentsAdapter = StudentsAdapter(studentsList)
-        recyclerView.layoutManager = LinearLayoutManager(context)
-        recyclerView.adapter = studentsAdapter
-
-        // Settings button click listener
-        val settingsButton: ImageButton = view.findViewById(R.id.settingsButton)
-        settingsButton.setOnClickListener {
-            showSettingsMenu(settingsButton)
-        }
-
-        return view
+        // Initialize View Binding
+        _binding = FragmentStudentsBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    private fun showSettingsMenu(anchor: ImageButton) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        // Setup RecyclerView and Adapter
+        studentsAdapter = StudentsAdapter(studentsList)
+        binding.studentsRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.studentsRecyclerView.adapter = studentsAdapter
+
+        // Settings button click listener
+        binding.settingsButton.setOnClickListener {
+            showSettingsMenu(it)
+        }
+    }
+
+    private fun showSettingsMenu(anchor: View) {
         val popupMenu = PopupMenu(requireContext(), anchor)
         popupMenu.menuInflater.inflate(R.menu.settings_menu, popupMenu.menu)
         popupMenu.setOnMenuItemClickListener { item ->
@@ -79,5 +82,10 @@ class StudentsFragment : Fragment() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // Avoid memory leaks
     }
 }

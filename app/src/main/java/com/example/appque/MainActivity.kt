@@ -13,6 +13,7 @@ import com.example.appque.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.content.SharedPreferences
+import android.view.View
 
 class MainActivity : AppCompatActivity() {
 
@@ -39,26 +40,12 @@ class MainActivity : AppCompatActivity() {
 
             if (!validateInputs(enteredEmail, enteredPassword)) return@setOnClickListener
 
+            showLoading(true) // Show the loading circle
             loginUser(enteredEmail, enteredPassword)
         }
 
         binding.signUpLink.setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        if (preventAutoLogin) {
-            Log.d("MainActivity", "Auto-login prevented after explicit logout.")
-            sharedPreferences.edit().putBoolean("logged_out", false).apply()
-            return
-        }
-
-        val currentUser = auth.currentUser
-        currentUser?.let {
-            fetchUserRole(it.uid)
         }
     }
 
@@ -83,6 +70,7 @@ class MainActivity : AppCompatActivity() {
     private fun loginUser(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
+                showLoading(false) // Hide the loading circle
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
                     userId?.let {
@@ -101,11 +89,12 @@ class MainActivity : AppCompatActivity() {
                 if (document.exists()) {
                     val role = document.getString("role") ?: "student"
                     val name = document.getString("name") ?: "User"
+                    val id = document.getString("id") ?: "Unknown"
                     val course = document.getString("course")
                     val year = document.getString("year")
 
-                    Log.d("MainActivity", "User data -> Name: $name, Course: $course, Year: $year")
-                    navigateBasedOnRole(role, name, course, year)
+                    Log.d("MainActivity", "User data -> Name: $name, ID: $id, Course: $course, Year: $year")
+                    navigateBasedOnRole(role, name, id, course, year)
                 } else {
                     showCustomToast("No user details found. Please contact admin.")
                 }
@@ -116,7 +105,7 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun navigateBasedOnRole(role: String, name: String, course: String?, year: String?) {
+    private fun navigateBasedOnRole(role: String, name: String, id: String, course: String?, year: String?) {
         val destination = when (role) {
             "admin" -> AdminActivity::class.java
             "staff" -> CashierActivity::class.java
@@ -126,11 +115,16 @@ class MainActivity : AppCompatActivity() {
 
         val intent = Intent(this, destination).apply {
             putExtra("name", name)
+            putExtra("id", id)
             putExtra("course", course)
             putExtra("year", year)
         }
         startActivity(intent)
         finish()
+    }
+
+    private fun showLoading(show: Boolean) {
+        binding.loginProgressBar.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     private fun showCustomToast(message: String) {
@@ -153,3 +147,5 @@ class MainActivity : AppCompatActivity() {
         finishAffinity()
     }
 }
+
+

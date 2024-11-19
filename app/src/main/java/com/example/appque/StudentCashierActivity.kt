@@ -4,13 +4,14 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.appque.databinding.ActivityStudentCashierBinding
 import com.google.firebase.auth.FirebaseAuth
 
 class StudentCashierActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityStudentCashierBinding
     private var userName: String? = null
     private var userIdNumber: String? = null
     private var userCourse: String? = null
@@ -18,11 +19,12 @@ class StudentCashierActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_cashier)
+        binding = ActivityStudentCashierBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Retrieve user data passed from WindowSelectionActivity
         userName = intent.getStringExtra("name")
-        userIdNumber = intent.getStringExtra("idNumber")
+        userIdNumber = intent.getStringExtra("id")
         userCourse = intent.getStringExtra("course")
         userYear = intent.getStringExtra("year")
 
@@ -32,12 +34,12 @@ class StudentCashierActivity : AppCompatActivity() {
         )
 
         // Back arrow button functionality
-        findViewById<ImageButton>(R.id.backArrowButton).setOnClickListener {
+        binding.backArrowButton.setOnClickListener {
             finish()
         }
 
         // Settings button functionality
-        findViewById<ImageButton>(R.id.settingsButton).setOnClickListener {
+        binding.settingsButton.setOnClickListener {
             showSettingsMenu()
         }
     }
@@ -58,7 +60,7 @@ class StudentCashierActivity : AppCompatActivity() {
     private fun navigateToProfileActivity() {
         val intent = Intent(this, ProfileActivity::class.java).apply {
             putExtra("name", userName ?: "N/A")
-            putExtra("idNumber", userIdNumber ?: "N/A")
+            putExtra("id", userIdNumber ?: "N/A")
             putExtra("course", userCourse ?: "N/A")
             putExtra("year", userYear ?: "N/A")
         }

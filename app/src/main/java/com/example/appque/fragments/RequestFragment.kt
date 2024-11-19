@@ -6,32 +6,32 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageButton
 import android.widget.PopupMenu
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.appque.MainActivity
 import com.example.appque.R
+import com.example.appque.databinding.FragmentRequestBinding
 import com.google.firebase.auth.FirebaseAuth
 
 class RequestFragment : Fragment(R.layout.fragment_request) {
+
+    private var _binding: FragmentRequestBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_request, container, false)
+        // Initialize View Binding
+        _binding = FragmentRequestBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Find the settings button
-        val settingsButton: ImageButton = view.findViewById(R.id.settingsButton)
-
         // Set up the click listener for the settings menu
-        settingsButton.setOnClickListener {
+        binding.settingsButton.setOnClickListener {
             showSettingsMenu(it)
         }
     }
@@ -71,5 +71,10 @@ class RequestFragment : Fragment(R.layout.fragment_request) {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null // Avoid memory leaks
     }
 }

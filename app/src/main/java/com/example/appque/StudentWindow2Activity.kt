@@ -4,13 +4,14 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.example.appque.databinding.ActivityStudentWindow2Binding
 import com.google.firebase.auth.FirebaseAuth
 
 class StudentWindow2Activity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityStudentWindow2Binding
     private var userName: String? = null
     private var userIdNumber: String? = null
     private var userCourse: String? = null
@@ -18,26 +19,27 @@ class StudentWindow2Activity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_student_window2)
+        binding = ActivityStudentWindow2Binding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         // Retrieve user data passed from WindowSelectionActivity
         userName = intent.getStringExtra("name")
-        userIdNumber = intent.getStringExtra("idNumber")
+        userIdNumber = intent.getStringExtra("id")
         userCourse = intent.getStringExtra("course")
         userYear = intent.getStringExtra("year")
 
         Log.d(
-            "StudentWindow2Activity",
+            "StudentCashierActivity",
             "Received Data -> Name: $userName, ID: $userIdNumber, Course: $userCourse, Year: $userYear"
         )
 
         // Back arrow button functionality
-        findViewById<ImageButton>(R.id.backArrowButton).setOnClickListener {
+        binding.backArrowButton.setOnClickListener {
             finish()
         }
 
         // Settings button functionality
-        findViewById<ImageButton>(R.id.settingsButton).setOnClickListener {
+        binding.settingsButton.setOnClickListener {
             showSettingsMenu()
         }
     }
@@ -57,10 +59,10 @@ class StudentWindow2Activity : AppCompatActivity() {
 
     private fun navigateToProfileActivity() {
         val intent = Intent(this, ProfileActivity::class.java).apply {
-            putExtra("name", userName)
-            putExtra("idNumber", userIdNumber)
-            putExtra("course", userCourse)
-            putExtra("year", userYear)
+            putExtra("name", userName ?: "N/A")
+            putExtra("id", userIdNumber ?: "N/A")
+            putExtra("course", userCourse ?: "N/A")
+            putExtra("year", userYear ?: "N/A")
         }
         startActivity(intent)
     }
@@ -71,12 +73,13 @@ class StudentWindow2Activity : AppCompatActivity() {
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
                 FirebaseAuth.getInstance().signOut()
-                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
 
-                val intent = Intent(this, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
+                val intent = Intent(this, MainActivity::class.java).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                }
                 startActivity(intent)
-                finish()
+                finishAffinity()
+                Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
         builder.create().show()
