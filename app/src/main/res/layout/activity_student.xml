@@ -18,7 +18,7 @@
             android:layout_alignParentStart="true"
             android:padding="16dp"
             android:gravity="start|center_vertical"
-            android:text="Welcome to Aces Appointment"
+            android:text="Welcome to Aces Appointment 😊"
             android:textColor="@android:color/white"
             android:textSize="15sp"
             android:textStyle="bold" />
