@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.example.appque.fragments.WindowsFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -55,7 +56,6 @@ class SplashActivity : AppCompatActivity() {
         val destinationClass = when (role) {
             "admin" -> AdminActivity::class.java
             "staff" -> CashierActivity::class.java
-            "staff1" -> Window1Activity::class.java
             "staff2" -> Window2Activity::class.java
             "staff3" -> Window3Activity::class.java
             "staff4" -> Window4Activity::class.java
@@ -64,7 +64,7 @@ class SplashActivity : AppCompatActivity() {
             "staff7" -> Window7Activity::class.java
             "staff8" -> Window8Activity::class.java
 
-            "student" -> WindowSelectionActivity::class.java
+            "student" -> StudentActivity::class.java
 
             else -> MainActivity::class.java // Fallback to login screen
         }

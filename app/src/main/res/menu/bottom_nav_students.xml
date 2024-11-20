@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_windows"
+        android:icon="@drawable/ic_windows"
+        android:title="Windows" />
+    <item
+        android:id="@+id/nav_reminders"
+        android:icon="@drawable/ic_reminders"
+        android:title="reminders" />
+    <item
+        android:id="@+id/nav_me"
+        android:icon="@drawable/ic_me"
+        android:title="Me" />
+</menu>

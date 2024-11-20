@@ -16,6 +16,10 @@
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
 
 
+
+        <activity
+            android:name=".StudentActivity"
+            android:exported="false" />
         <activity
             android:name=".Window7Activity"
             android:exported="true" />
@@ -35,12 +39,8 @@
             android:name=".Window2Activity"
             android:exported="true" />
         <activity
-            android:name=".Window1Activity"
-            android:exported="true" />
-        <activity
             android:name=".Window8Activity"
-            android:exported="false" />
-        <!-- Firebase Metadata -->
+            android:exported="false" /> <!-- Firebase Metadata -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/logo" />
@@ -50,6 +50,7 @@
         <activity
             android:name=".SplashActivity"
             android:exported="true">
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -68,15 +69,11 @@
         <activity
             android:name=".CashierActivity"
             android:exported="true" /> <!-- Window Selection Activity -->
-        <activity
-            android:name=".WindowSelectionActivity"
-            android:exported="false" /> <!-- Student Cashier Activity -->
+
         <activity
             android:name=".StudentCashierActivity"
             android:exported="false" /> <!-- Student Window Activities -->
-        <activity
-            android:name=".StudentWindow1Activity"
-            android:exported="false" />
+
         <activity
             android:name=".StudentWindow2Activity"
             android:exported="false" />

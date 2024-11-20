@@ -12,5 +12,7 @@
         <color name="Charcoal">#000000</color>
         <color name="purple_500">#6200EE</color> <!-- Main color -->
         <color name="purple_700">#3700B3</color> <!-- Darker shade of purple -->
+    <color name="custom_purple">#A83ED2</color>
+    <color name="deep_purple">#491279</color>
 
 </resources>

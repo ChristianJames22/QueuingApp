@@ -109,7 +109,14 @@ class MainActivity : AppCompatActivity() {
         val destination = when (role) {
             "admin" -> AdminActivity::class.java
             "staff" -> CashierActivity::class.java
-            "student" -> WindowSelectionActivity::class.java
+            "staff2" -> Window2Activity::class.java
+            "staff3" -> Window3Activity::class.java
+            "staff4" -> Window4Activity::class.java
+            "staff5" -> Window5Activity::class.java
+            "staff6" -> Window6Activity::class.java
+            "staff7" -> Window7Activity::class.java
+            "staff8" -> Window8Activity::class.java
+            "student" -> StudentActivity::class.java
             else -> MainActivity::class.java
         }
 
@@ -147,5 +154,3 @@ class MainActivity : AppCompatActivity() {
         finishAffinity()
     }
 }
-
-
