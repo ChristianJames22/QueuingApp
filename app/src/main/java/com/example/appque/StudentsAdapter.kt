@@ -18,19 +18,14 @@ class StudentsAdapter(private val studentsList: MutableList<Student>) :
 
     override fun onBindViewHolder(holder: StudentViewHolder, position: Int) {
         val student = studentsList[position]
-        holder.nameTextView.text = "Name: ${student.name}"
-        holder.idTextView.text = "ID no.: ${student.id}"
-        holder.emailTextView.text = "Email: ${student.email}"
-        holder.courseTextView.text = "Course: ${student.course}"
-        holder.yearTextView.text = "Year: ${student.year}"
+        holder.nameTextView.text = student.name // Dynamically set student name
+        holder.idTextView.text = "ID: ${student.id}" // Add "ID:" dynamically
+        holder.emailTextView.text = "Email: ${student.email}" // Add "Email:" dynamically
+        holder.courseTextView.text = "Course: ${student.course}" // Add "Course:" dynamically
+        holder.yearTextView.text = "Year: ${student.year}" // Add "Year:" dynamically
     }
 
     override fun getItemCount() = studentsList.size
-
-    fun addStudent(student: Student) {
-        studentsList.add(student)
-        notifyItemInserted(studentsList.size - 1)
-    }
 
     class StudentViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)

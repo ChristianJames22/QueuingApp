@@ -14,6 +14,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.content.SharedPreferences
 import android.view.View
+import android.app.AlertDialog
 
 class MainActivity : AppCompatActivity() {
 

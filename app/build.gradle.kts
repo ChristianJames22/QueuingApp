@@ -28,39 +28,34 @@ android {
     }
 
     // Enable view binding
-    buildFeatures{
-
-        viewBinding =true
+    buildFeatures {
+        viewBinding = true
     }
 }
 
 dependencies {
+    // Replace with a valid version of Media3
+    implementation("androidx.media3:media3-common:1.0.0") // Example version
 
-    implementation(libs.material.v140)
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
-    implementation(libs.androidx.activity)
-    implementation(libs.androidx.constraintlayout)
-    implementation(libs.firebase.firestore.ktx)
-    implementation(libs.androidx.gridlayout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-
-    implementation ("com.google.android.gms:play-services-base:18.5.0")
-    implementation ("com.google.android.gms:play-services-auth:20.0.0")
-    implementation ("com.google.firebase:firebase-firestore")
-    implementation ("com.google.firebase:firebase-firestore:24.5.0")
-    implementation ("com.google.firebase:firebase-auth:22.0.1")
-
-    // Import the BoM for the Firebase platform
+    // Firebase dependencies
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-    implementation ("com.google.firebase:firebase-auth:23.1.0")
-    // Add the dependency for the Firebase Authentication library
-    // When using the BoM, you don't specify versions in Firebase library dependencies
-    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation ("androidx.gridlayout:gridlayout:1.0.0")
 
-    // Also add the dependency for the Google Play services library and specify its version
+
+    // Core Android libraries
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
+    // Material Design
+    implementation("com.google.android.material:material:1.9.0")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
 
 }
+
