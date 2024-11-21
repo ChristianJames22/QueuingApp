@@ -56,15 +56,25 @@ class StudentsFragment : Fragment() {
             .whereEqualTo("role", "student")
             .addSnapshotListener { snapshot, error ->
                 binding.progressBar.visibility = View.GONE
+
                 if (error != null) {
-                    android.util.Log.e("Firestore", "Error: ${error.message}")
+                    Log.e("Firestore", "Error fetching students: ${error.message}")
                     Toast.makeText(requireContext(), "Error fetching students: ${error.message}", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
                 snapshot?.let {
                     studentsList.clear()
-                    it.documents.mapNotNullTo(studentsList) { doc -> doc.toObject(Student::class.java) }
+                    Log.d("Firestore", "Fetched students: ${snapshot.documents.size} documents")
+                    it.documents.forEach { doc ->
+                        val student = doc.toObject(Student::class.java)
+                        if (student != null) {
+                            studentsList.add(student)
+                        } else {
+                            Log.e("Firestore", "Error mapping document to Student: ${doc.id}")
+                        }
+                    }
+
                     studentsAdapter.notifyDataSetChanged()
 
                     if (studentsList.isEmpty()) {
@@ -77,8 +87,6 @@ class StudentsFragment : Fragment() {
                 }
             }
     }
-
-
 
     private fun showAddStudentDialog() {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_student, null)
@@ -107,7 +115,17 @@ class StudentsFragment : Fragment() {
             val confirmPassword = confirmPasswordInput.text.toString().trim()
 
             if (validateInputs(id, name, email, course, year, password, confirmPassword)) {
-                saveStudentToFirestore(id, name, email, course, year, password, dialog)
+                // Show confirmation dialog
+                AlertDialog.Builder(requireContext())
+                    .setMessage("Are you sure you want to add this student?")
+                    .setPositiveButton("Yes") { _, _ ->
+                        saveStudentToFirestore(id, name, email, course, year, dialog)
+                    }
+                    .setNegativeButton("No") { confirmationDialog, _ ->
+                        confirmationDialog.dismiss()
+                    }
+                    .create()
+                    .show()
             }
         }
 
@@ -172,7 +190,6 @@ class StudentsFragment : Fragment() {
         email: String,
         course: String,
         year: String,
-        password: String,
         dialog: AlertDialog
     ) {
         val student = mapOf(
@@ -185,28 +202,16 @@ class StudentsFragment : Fragment() {
         )
 
         firestore.collection("users")
-            .whereEqualTo("role", "student")
-            .get()
-            .addOnSuccessListener { snapshot ->
-                binding.progressBar.visibility = View.GONE
-                studentsList.clear()
-                snapshot.documents.mapNotNullTo(studentsList) { it.toObject(Student::class.java) }
-                studentsAdapter.notifyDataSetChanged()
-
-                if (studentsList.isEmpty()) {
-                    binding.emptyListTextView.visibility = View.VISIBLE
-                    binding.studentsRecyclerView.visibility = View.GONE
-                } else {
-                    binding.emptyListTextView.visibility = View.GONE
-                    binding.studentsRecyclerView.visibility = View.VISIBLE
-                }
+            .add(student)
+            .addOnSuccessListener {
+                dialog.dismiss()
+                Toast.makeText(requireContext(), "Student added successfully!", Toast.LENGTH_SHORT).show()
+                fetchStudents()
             }
             .addOnFailureListener { exception ->
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(requireContext(), "Failed to fetch students: ${exception.message}", Toast.LENGTH_SHORT).show()
+                Log.e("Firestore", "Failed to add student: ${exception.message}")
+                Toast.makeText(requireContext(), "Failed to add student: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
-
-
     }
 
     override fun onDestroyView() {

@@ -9,13 +9,23 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Add Student Header -->
+        <TextView
+            android:id="@+id/addStudentHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Student"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
         <!-- ID No. -->
         <EditText
             android:id="@+id/idInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="ID No."
-            android:background="@drawable/rounded_edittext"
             android:padding="12dp"
             android:layout_marginBottom="8dp" />
 
@@ -25,7 +35,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Name"
-            android:background="@drawable/rounded_edittext"
             android:padding="12dp"
             android:layout_marginBottom="8dp" />
 
@@ -34,7 +43,6 @@
             android:id="@+id/courseSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_edittext"
             android:padding="12dp"
             android:layout_marginBottom="8dp" />
 
@@ -43,17 +51,15 @@
             android:id="@+id/yearSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_edittext"
             android:padding="12dp"
             android:layout_marginBottom="8dp" />
 
-        <!-- Email/Username -->
+        <!-- Email -->
         <EditText
             android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email/Username"
-            android:background="@drawable/rounded_edittext"
+            android:hint="Email"
             android:padding="12dp"
             android:layout_marginBottom="8dp" />
 
@@ -64,7 +70,6 @@
             android:layout_height="wrap_content"
             android:hint="Password"
             android:inputType="textPassword"
-            android:background="@drawable/rounded_edittext"
             android:padding="12dp"
             android:layout_marginBottom="8dp" />
 
@@ -75,7 +80,6 @@
             android:layout_height="wrap_content"
             android:hint="Confirm Password"
             android:inputType="textPassword"
-            android:background="@drawable/rounded_edittext"
             android:padding="12dp"
             android:layout_marginBottom="16dp" />
 
