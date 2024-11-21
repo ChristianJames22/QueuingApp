@@ -3,18 +3,6 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <!-- Title for Student List -->
-    <TextView
-        android:id="@+id/studentListTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="60dp"
-    android:text="Student List"
-    android:textSize="20sp"
-    android:textStyle="bold"
-    android:textColor="@android:color/black" />
-
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/studentsRecyclerView"
@@ -23,10 +11,9 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
-        android:layout_below="@id/studentListTitle"
-        android:layout_marginTop="8dp"
-        android:overScrollMode="never"
-        android:clipToPadding="false" />
+        android:layout_marginTop="60dp" 
+    android:overScrollMode="never"
+    android:clipToPadding="false" />
 
     <!-- Empty List Placeholder -->
     <TextView

@@ -2,7 +2,6 @@ package com.example.appque
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.ImageButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -12,6 +11,7 @@ import com.example.appque.fragments.RequestFragment
 import com.example.appque.fragments.StaffFragment
 import com.example.appque.fragments.StudentsFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class AdminActivity : AppCompatActivity() {
 
@@ -22,12 +22,12 @@ class AdminActivity : AppCompatActivity() {
         binding = ActivityAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set up Logout Button
+        verifyAdminRole()
+
         binding.logoutButton.setOnClickListener {
             showLogoutConfirmationDialog()
         }
 
-        // Set up BottomNavigationView with View Binding
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_students -> {
@@ -46,14 +46,37 @@ class AdminActivity : AppCompatActivity() {
             }
         }
 
-        // Load the default fragment
         loadFragment(StudentsFragment())
     }
 
+    private fun verifyAdminRole() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            FirebaseFirestore.getInstance().collection("users")
+                .document(currentUser.uid)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document.exists() && document.getString("role") != "admin") {
+                        Toast.makeText(this, "Access Denied", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this, MainActivity::class.java))
+                        finish()
+                    }
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Error verifying user role", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+        } else {
+            Toast.makeText(this, "No logged-in user found", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+    }
+
     private fun loadFragment(fragment: Fragment) {
-        supportFragmentManager.popBackStack(null, androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE)
         supportFragmentManager.beginTransaction()
             .replace(binding.fragmentContainer.id, fragment)
+            .addToBackStack(null)
             .commit()
     }
 
@@ -63,8 +86,6 @@ class AdminActivity : AppCompatActivity() {
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
                 FirebaseAuth.getInstance().signOut()
-
-                // Navigate to MainActivity (login screen)
                 val intent = Intent(this, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
                 }

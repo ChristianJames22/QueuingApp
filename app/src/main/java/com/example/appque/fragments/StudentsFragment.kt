@@ -14,6 +14,8 @@ import com.example.appque.R
 import com.example.appque.StudentsAdapter
 import com.example.appque.databinding.FragmentStudentsBinding
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ListenerRegistration
 
 class StudentsFragment : Fragment() {
 
@@ -23,6 +25,8 @@ class StudentsFragment : Fragment() {
     private lateinit var studentsAdapter: StudentsAdapter
     private val studentsList = mutableListOf<Student>()
     private val firestore = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
+    private var snapshotListener: ListenerRegistration? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,55 +39,42 @@ class StudentsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Setup RecyclerView and Adapter
         studentsAdapter = StudentsAdapter(studentsList)
         binding.studentsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.studentsRecyclerView.adapter = studentsAdapter
 
-        // Add Student button click listener
         binding.addStudentButton.setOnClickListener {
             showAddStudentDialog()
         }
 
-        // Fetch the initial list of students
         fetchStudents()
     }
 
     private fun fetchStudents() {
         binding.progressBar.visibility = View.VISIBLE
 
-        firestore.collection("users")
+        snapshotListener?.remove()
+        snapshotListener = firestore.collection("users")
             .whereEqualTo("role", "student")
             .addSnapshotListener { snapshot, error ->
                 binding.progressBar.visibility = View.GONE
 
                 if (error != null) {
                     Log.e("Firestore", "Error fetching students: ${error.message}")
-                    Toast.makeText(requireContext(), "Error fetching students: ${error.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(), "Error fetching students", Toast.LENGTH_SHORT).show()
                     return@addSnapshotListener
                 }
 
-                snapshot?.let {
+                if (snapshot != null) {
                     studentsList.clear()
-                    Log.d("Firestore", "Fetched students: ${snapshot.documents.size} documents")
-                    it.documents.forEach { doc ->
+                    snapshot.documents.forEach { doc ->
                         val student = doc.toObject(Student::class.java)
-                        if (student != null) {
-                            studentsList.add(student)
-                        } else {
-                            Log.e("Firestore", "Error mapping document to Student: ${doc.id}")
-                        }
+                        if (student != null) studentsList.add(student)
                     }
 
                     studentsAdapter.notifyDataSetChanged()
-
-                    if (studentsList.isEmpty()) {
-                        binding.emptyListTextView.visibility = View.VISIBLE
-                        binding.studentsRecyclerView.visibility = View.GONE
-                    } else {
-                        binding.emptyListTextView.visibility = View.GONE
-                        binding.studentsRecyclerView.visibility = View.VISIBLE
-                    }
+                    binding.emptyListTextView.visibility = if (studentsList.isEmpty()) View.VISIBLE else View.GONE
+                    binding.studentsRecyclerView.visibility = if (studentsList.isEmpty()) View.GONE else View.VISIBLE
                 }
             }
     }
@@ -95,15 +86,29 @@ class StudentsFragment : Fragment() {
             .setCancelable(true)
             .create()
 
-        val courseSpinner = dialogView.findViewById<Spinner>(R.id.courseSpinner)
-        val yearSpinner = dialogView.findViewById<Spinner>(R.id.yearSpinner)
         val idInput = dialogView.findViewById<EditText>(R.id.idInput)
         val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
         val emailInput = dialogView.findViewById<EditText>(R.id.emailInput)
         val passwordInput = dialogView.findViewById<EditText>(R.id.passwordInput)
         val confirmPasswordInput = dialogView.findViewById<EditText>(R.id.confirmPasswordInput)
+        val courseSpinner = dialogView.findViewById<Spinner>(R.id.courseSpinner)
+        val yearSpinner = dialogView.findViewById<Spinner>(R.id.yearSpinner)
 
-        setupCourseSpinner(courseSpinner, yearSpinner)
+        val courses = resources.getStringArray(R.array.course_options)
+        val courseAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, courses)
+        courseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        courseSpinner.adapter = courseAdapter
+
+        courseSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedCourse = courses[position]
+                setupYearSpinner(yearSpinner, selectedCourse)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        setupYearSpinner(yearSpinner, courses[0])
 
         dialogView.findViewById<Button>(R.id.addButton).setOnClickListener {
             val id = idInput.text.toString().trim()
@@ -115,17 +120,7 @@ class StudentsFragment : Fragment() {
             val confirmPassword = confirmPasswordInput.text.toString().trim()
 
             if (validateInputs(id, name, email, course, year, password, confirmPassword)) {
-                // Show confirmation dialog
-                AlertDialog.Builder(requireContext())
-                    .setMessage("Are you sure you want to add this student?")
-                    .setPositiveButton("Yes") { _, _ ->
-                        saveStudentToFirestore(id, name, email, course, year, dialog)
-                    }
-                    .setNegativeButton("No") { confirmationDialog, _ ->
-                        confirmationDialog.dismiss()
-                    }
-                    .create()
-                    .show()
+                addStudent(id, name, email, course, year, password, dialog)
             }
         }
 
@@ -136,22 +131,7 @@ class StudentsFragment : Fragment() {
         dialog.show()
     }
 
-    private fun setupCourseSpinner(courseSpinner: Spinner, yearSpinner: Spinner) {
-        val courses = resources.getStringArray(R.array.course_options)
-        val courseAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, courses)
-        courseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        courseSpinner.adapter = courseAdapter
-
-        courseSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateYearOptions(courses[position], yearSpinner)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-    }
-
-    private fun updateYearOptions(selectedCourse: String, yearSpinner: Spinner) {
+    private fun setupYearSpinner(yearSpinner: Spinner, selectedCourse: String) {
         val years = when (selectedCourse) {
             "SHS" -> arrayOf("Select Year", "G-11", "G-12")
             else -> arrayOf("Select Year", "1st", "2nd", "3rd", "4th")
@@ -184,38 +164,49 @@ class StudentsFragment : Fragment() {
         }
     }
 
-    private fun saveStudentToFirestore(
+    private fun addStudent(
         id: String,
         name: String,
         email: String,
         course: String,
         year: String,
+        password: String,
         dialog: AlertDialog
     ) {
-        val student = mapOf(
-            "id" to id,
-            "name" to name,
-            "email" to email,
-            "course" to course,
-            "year" to year,
-            "role" to "student"
-        )
-
-        firestore.collection("users")
-            .add(student)
-            .addOnSuccessListener {
-                dialog.dismiss()
-                Toast.makeText(requireContext(), "Student added successfully!", Toast.LENGTH_SHORT).show()
-                fetchStudents()
-            }
-            .addOnFailureListener { exception ->
-                Log.e("Firestore", "Failed to add student: ${exception.message}")
-                Toast.makeText(requireContext(), "Failed to add student: ${exception.message}", Toast.LENGTH_SHORT).show()
+        auth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { authTask ->
+                if (authTask.isSuccessful) {
+                    val userId = authTask.result?.user?.uid
+                    if (userId != null) {
+                        val student = mapOf(
+                            "id" to id,
+                            "name" to name,
+                            "email" to email,
+                            "course" to course,
+                            "year" to year,
+                            "role" to "student"
+                        )
+                        firestore.collection("users")
+                            .document(userId)
+                            .set(student)
+                            .addOnSuccessListener {
+                                dialog.dismiss()
+                                Toast.makeText(requireContext(), "Student added successfully!", Toast.LENGTH_SHORT).show()
+                                fetchStudents()
+                            }
+                            .addOnFailureListener {
+                                Toast.makeText(requireContext(), "Failed to add student.", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                } else {
+                    Toast.makeText(requireContext(), "Error: ${authTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
             }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        snapshotListener?.remove()
         _binding = null
     }
 }

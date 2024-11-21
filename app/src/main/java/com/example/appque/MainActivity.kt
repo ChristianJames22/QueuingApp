@@ -6,6 +6,7 @@ import android.util.Log
 import android.util.Patterns
 import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -13,8 +14,6 @@ import com.example.appque.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import android.content.SharedPreferences
-import android.view.View
-import android.app.AlertDialog
 
 class MainActivity : AppCompatActivity() {
 
@@ -33,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         firestore = FirebaseFirestore.getInstance()
         sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
+        // Check if user logged out manually
         preventAutoLogin = sharedPreferences.getBoolean("logged_out", false)
 
         binding.loginButton.setOnClickListener {
@@ -79,7 +79,14 @@ class MainActivity : AppCompatActivity() {
                     } ?: showCustomToast("Failed to retrieve user ID.")
                 } else {
                     Log.e("MainActivity", "Login failed: ${task.exception?.message}")
-                    showCustomToast("Invalid email or password. Please try again.")
+                    val errorMessage = when (task.exception?.message) {
+                        "There is no user record corresponding to this identifier." ->
+                            "No account found with this email."
+                        "The password is invalid or the user does not have a password." ->
+                            "Invalid password. Please try again."
+                        else -> "Login failed. Please try again later."
+                    }
+                    showCustomToast(errorMessage)
                 }
             }
     }
@@ -95,6 +102,10 @@ class MainActivity : AppCompatActivity() {
                     val year = document.getString("year")
 
                     Log.d("MainActivity", "User data -> Name: $name, ID: $id, Course: $course, Year: $year")
+
+                    // Clear logged_out flag
+                    sharedPreferences.edit().putBoolean("logged_out", false).apply()
+
                     navigateBasedOnRole(role, name, id, course, year)
                 } else {
                     showCustomToast("No user details found. Please contact admin.")
@@ -102,7 +113,7 @@ class MainActivity : AppCompatActivity() {
             }
             .addOnFailureListener {
                 Log.e("MainActivity", "Error fetching user role: ${it.message}")
-                showCustomToast("Failed to fetch user details.")
+                showCustomToast("Failed to fetch user details. Please try again.")
             }
     }
 
