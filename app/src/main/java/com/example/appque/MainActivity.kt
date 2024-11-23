@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         val currentUser = auth.currentUser
         val loggedOut = sharedPreferences.getBoolean("logged_out", false)
         if (currentUser != null && !loggedOut) {
-            navigateToSplashScreen() // Skip login screen
+            navigateBasedOnRole() // Skip login screen
         }
 
         binding.loginButton.setOnClickListener {
@@ -80,15 +80,13 @@ class MainActivity : AppCompatActivity() {
                     val userId = auth.currentUser?.uid
                     userId?.let {
                         sharedPreferences.edit().putBoolean("logged_out", false).apply()
-                        fetchUserRole(it)
+                        navigateBasedOnRole() // Navigate based on role
                     } ?: showCustomToast("Failed to retrieve user ID.")
                 } else {
                     Log.e("MainActivity", "Login failed: ${task.exception?.message}")
                     val errorMessage = when (task.exception?.message) {
-                        "There is no user record corresponding to this identifier." ->
-                            "No account found with this email."
-                        "The password is invalid or the user does not have a password." ->
-                            "Invalid password. Please try again."
+                        "There is no user record corresponding to this identifier." -> "No account found with this email."
+                        "The password is invalid or the user does not have a password." -> "Invalid password. Please try again."
                         else -> "Login failed. Please try again later."
                     }
                     showCustomToast(errorMessage)
@@ -96,27 +94,22 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    private fun fetchUserRole(uid: String) {
-        database.child("users").child(uid).get()
-            .addOnSuccessListener { snapshot ->
-                if (snapshot.exists()) {
+    // Fetch user role from Firebase and navigate to appropriate activity
+    private fun navigateBasedOnRole() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            database.child("users").child(currentUser.uid).get()
+                .addOnSuccessListener { snapshot ->
                     val role = snapshot.child("role").value.toString()
-                    val name = snapshot.child("name").value.toString()
-                    val id = snapshot.child("id").value.toString()
-                    val course = snapshot.child("course").value?.toString()
-                    val year = snapshot.child("year").value?.toString()
-
-                    navigateBasedOnRole(role, name, id, course, year)
-                } else {
-                    showCustomToast("No user details found. Please contact admin.")
+                    navigateToActivityBasedOnRole(role)
                 }
-            }
-            .addOnFailureListener {
-                showCustomToast("Failed to fetch user details. Please try again.")
-            }
+                .addOnFailureListener {
+                    showCustomToast("Error retrieving user role. Please try again.")
+                }
+        }
     }
 
-    private fun navigateBasedOnRole(role: String, name: String, id: String, course: String?, year: String?) {
+    private fun navigateToActivityBasedOnRole(role: String) {
         val destination = when (role) {
             "admin" -> AdminActivity::class.java
             "staff" -> CashierActivity::class.java
@@ -130,14 +123,7 @@ class MainActivity : AppCompatActivity() {
             "student" -> StudentActivity::class.java
             else -> MainActivity::class.java
         }
-
-        val intent = Intent(this, destination).apply {
-            putExtra("name", name)
-            putExtra("id", id)
-            putExtra("course", course)
-            putExtra("year", year)
-        }
-        startActivity(intent)
+        startActivity(Intent(this, destination))
         finish()
     }
 
@@ -158,12 +144,6 @@ class MainActivity : AppCompatActivity() {
             setGravity(Gravity.CENTER, 0, 0)
             show()
         }
-    }
-
-    private fun navigateToSplashScreen() {
-        val intent = Intent(this, SplashActivity::class.java)
-        startActivity(intent)
-        finish()
     }
 
     override fun onBackPressed() {
