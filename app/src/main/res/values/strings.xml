@@ -15,6 +15,9 @@
         <item>BEED</item>
         <item>SHS</item>
     </string-array>
+    <string name="staff_name">Name: %s</string>
+    <string name="staff_id">ID: %s</string>
+    <string name="staff_email">Email: %s</string>
 
     <!-- Predefined Year Options -->
     <string-array name="year_options">

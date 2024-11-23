@@ -1,6 +1,7 @@
 package com.example.appque
 
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
@@ -12,16 +13,15 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appque.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import android.content.SharedPreferences
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
+    private lateinit var database: DatabaseReference
     private lateinit var sharedPreferences: SharedPreferences
-    private var preventAutoLogin = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,11 +29,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
+        database = FirebaseDatabase.getInstance().reference
         sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
-        // Check if user logged out manually
-        preventAutoLogin = sharedPreferences.getBoolean("logged_out", false)
+        // Auto-login if the user is already authenticated
+        val currentUser = auth.currentUser
+        val loggedOut = sharedPreferences.getBoolean("logged_out", false)
+        if (currentUser != null && !loggedOut) {
+            navigateToSplashScreen() // Skip login screen
+        }
 
         binding.loginButton.setOnClickListener {
             val enteredEmail = binding.emailInput.text.toString().trim()
@@ -41,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
             if (!validateInputs(enteredEmail, enteredPassword)) return@setOnClickListener
 
-            showLoading(true) // Show the loading circle
+            showLoading(true)
             loginUser(enteredEmail, enteredPassword)
         }
 
@@ -71,10 +75,11 @@ class MainActivity : AppCompatActivity() {
     private fun loginUser(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-                showLoading(false) // Hide the loading circle
+                showLoading(false)
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
                     userId?.let {
+                        sharedPreferences.edit().putBoolean("logged_out", false).apply()
                         fetchUserRole(it)
                     } ?: showCustomToast("Failed to retrieve user ID.")
                 } else {
@@ -92,19 +97,14 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun fetchUserRole(uid: String) {
-        firestore.collection("users").document(uid).get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    val role = document.getString("role") ?: "student"
-                    val name = document.getString("name") ?: "User"
-                    val id = document.getString("id") ?: "Unknown"
-                    val course = document.getString("course")
-                    val year = document.getString("year")
-
-                    Log.d("MainActivity", "User data -> Name: $name, ID: $id, Course: $course, Year: $year")
-
-                    // Clear logged_out flag
-                    sharedPreferences.edit().putBoolean("logged_out", false).apply()
+        database.child("users").child(uid).get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    val role = snapshot.child("role").value.toString()
+                    val name = snapshot.child("name").value.toString()
+                    val id = snapshot.child("id").value.toString()
+                    val course = snapshot.child("course").value?.toString()
+                    val year = snapshot.child("year").value?.toString()
 
                     navigateBasedOnRole(role, name, id, course, year)
                 } else {
@@ -112,7 +112,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
             .addOnFailureListener {
-                Log.e("MainActivity", "Error fetching user role: ${it.message}")
                 showCustomToast("Failed to fetch user details. Please try again.")
             }
     }
@@ -148,8 +147,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun showCustomToast(message: String) {
         val inflater: LayoutInflater = layoutInflater
-        val layout =
-            inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
+        val layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
 
         val text: TextView = layout.findViewById(R.id.toastText)
         text.text = message
@@ -160,6 +158,12 @@ class MainActivity : AppCompatActivity() {
             setGravity(Gravity.CENTER, 0, 0)
             show()
         }
+    }
+
+    private fun navigateToSplashScreen() {
+        val intent = Intent(this, SplashActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 
     override fun onBackPressed() {

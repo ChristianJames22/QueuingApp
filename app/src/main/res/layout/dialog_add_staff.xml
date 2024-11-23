@@ -9,25 +9,27 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Add Student Header -->
+        <!-- Add Staff Header -->
         <TextView
-            android:id="@+id/addStudentHeader"
+            android:id="@+id/addStaffHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Student"
+            android:text="Add Staff"
             android:textSize="20sp"
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginBottom="16dp" />
 
-        <!-- ID No. -->
+        <!-- ID -->
         <EditText
             android:id="@+id/idInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="ID No."
+            android:hint="Staff ID"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="12dp"
+            android:textSize="16sp" />
 
         <!-- Name -->
         <EditText
@@ -36,32 +38,29 @@
             android:layout_height="wrap_content"
             android:hint="Name"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="12dp"
+            android:textSize="16sp" />
 
-        <!-- Course -->
+        <!-- Role -->
         <Spinner
-            android:id="@+id/courseSpinner"
+            android:id="@+id/roleSpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
-
-        <!-- Year -->
-        <Spinner
-            android:id="@+id/yearSpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="12dp" />
 
         <!-- Email -->
         <EditText
             android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Email"
+            android:hint="Email/Username"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="12dp"
+            android:textSize="16sp" />
 
         <!-- Password -->
         <EditText
@@ -71,7 +70,9 @@
             android:hint="Password"
             android:inputType="textPassword"
             android:padding="12dp"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="12dp"
+            android:textSize="16sp" />
 
         <!-- Confirm Password -->
         <EditText
@@ -81,7 +82,9 @@
             android:hint="Confirm Password"
             android:inputType="textPassword"
             android:padding="12dp"
-            android:layout_marginBottom="16dp" />
+            android:background="@drawable/rounded_edittext"
+            android:layout_marginBottom="16dp"
+            android:textSize="16sp" />
 
         <!-- Buttons -->
         <LinearLayout

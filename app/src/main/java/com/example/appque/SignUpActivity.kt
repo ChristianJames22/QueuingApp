@@ -11,26 +11,24 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.appque.databinding.ActivitySignUpBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 class SignUpActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivitySignUpBinding
     private lateinit var auth: FirebaseAuth
-    private lateinit var firestore: FirebaseFirestore
+    private lateinit var database: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize Firebase Auth and Firestore
         auth = FirebaseAuth.getInstance()
-        firestore = FirebaseFirestore.getInstance()
+        database = FirebaseDatabase.getInstance().reference
 
-        // Initialize View Binding
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Adjust for edge-to-edge layout using View Binding
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             binding.main.setPadding(
@@ -42,18 +40,16 @@ class SignUpActivity : AppCompatActivity() {
             insets
         }
 
-        // Set up spinners for Course and Year
         setupCourseSpinner()
         setupYearSpinner()
 
-        // Set click listener for the "Continue" button
         binding.continueButton.setOnClickListener {
             handleSignUp()
         }
     }
 
     private fun setupCourseSpinner() {
-        val courses = resources.getStringArray(R.array.course_options) // Example: ["Select Course", "BSIT", "HM", "BEED", "SHS"]
+        val courses = resources.getStringArray(R.array.course_options)
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, courses)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.courseSpinner.adapter = adapter
@@ -63,14 +59,12 @@ class SignUpActivity : AppCompatActivity() {
                 updateYearOptions(courses[position])
             }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Do nothing
-            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
     }
 
     private fun setupYearSpinner() {
-        updateYearOptions("Select Course") // Default year options
+        updateYearOptions("Select Course")
     }
 
     private fun updateYearOptions(selectedCourse: String) {
@@ -134,7 +128,7 @@ class SignUpActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
                     if (userId != null) {
-                        saveUserToFirestore(userId, id, name, course, year, email)
+                        saveUserToDatabase(userId, id, name, course, year, email)
                     } else {
                         showToast("User registration failed")
                     }
@@ -146,25 +140,24 @@ class SignUpActivity : AppCompatActivity() {
             }
     }
 
-    private fun saveUserToFirestore(userId: String, id: String, name: String, course: String, year: String, email: String) {
+    private fun saveUserToDatabase(userId: String, id: String, name: String, course: String, year: String, email: String) {
         val user = mapOf(
             "id" to id,
             "name" to name,
             "course" to course,
             "year" to year,
             "email" to email,
-            "role" to "student" // Default role
+            "role" to "student"
         )
 
-        firestore.collection("users").document(userId)
-            .set(user)
+        database.child("users").child(userId).setValue(user)
             .addOnSuccessListener {
                 showToast("Student registered successfully")
-                finish() // Navigate back to the login screen
+                finish()
             }
             .addOnFailureListener { e ->
                 showToast("Failed to save user details")
-                Log.e("SignUpActivity", "Error saving user to Firestore: ${e.message}")
+                Log.e("SignUpActivity", "Error saving user to Realtime Database: ${e.message}")
             }
     }
 

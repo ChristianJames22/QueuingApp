@@ -1,6 +1,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Title -->
     <TextView
@@ -11,7 +12,8 @@
         android:textColor="@android:color/black"
         android:textStyle="bold"
         android:textSize="18sp"
-        android:layout_margin="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="60dp"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
 
@@ -21,7 +23,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/requestTitle"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        android:overScrollMode="never"
+        android:clipToPadding="false" />
+
+    <!-- Empty List Placeholder -->
+    <TextView
+        android:id="@+id/emptyListTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="No requests available."
+        android:visibility="gone"
+        android:textColor="@android:color/darker_gray"
+        android:textStyle="italic" />
+
+    <!-- ProgressBar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+
+    <!-- Add Button -->
+    <ImageButton
+        android:id="@+id/addRequestButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:clipToPadding="false"
-        android:overScrollMode="never" />
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/addbtutton"
+        android:contentDescription="Add Request"
+        app:tint="@android:color/holo_purple" />
 </RelativeLayout>

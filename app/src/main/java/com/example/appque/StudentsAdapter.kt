@@ -7,8 +7,10 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class StudentsAdapter(private val studentsList: MutableList<Student>) :
-    RecyclerView.Adapter<StudentsAdapter.StudentViewHolder>() {
+class StudentsAdapter(
+    private val studentsList: MutableList<Student>,
+    private val onItemClicked: (Student) -> Unit
+) : RecyclerView.Adapter<StudentsAdapter.StudentViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudentViewHolder {
         val itemView = LayoutInflater.from(parent.context)
@@ -18,11 +20,16 @@ class StudentsAdapter(private val studentsList: MutableList<Student>) :
 
     override fun onBindViewHolder(holder: StudentViewHolder, position: Int) {
         val student = studentsList[position]
-        holder.nameTextView.text = student.name // Dynamically set student name
-        holder.idTextView.text = "ID: ${student.id}" // Add "ID:" dynamically
-        holder.emailTextView.text = "Email: ${student.email}" // Add "Email:" dynamically
-        holder.courseTextView.text = "Course: ${student.course}" // Add "Course:" dynamically
-        holder.yearTextView.text = "Year: ${student.year}" // Add "Year:" dynamically
+        holder.nameTextView.text = student.name
+        holder.idTextView.text = "ID: ${student.id}"
+        holder.emailTextView.text = "Email: ${student.email}"
+        holder.courseTextView.text = "Course: ${student.course}"
+        holder.yearTextView.text = "Year: ${student.year}"
+
+        // Handle item click
+        holder.itemView.setOnClickListener {
+            onItemClicked(student)
+        }
     }
 
     override fun getItemCount() = studentsList.size

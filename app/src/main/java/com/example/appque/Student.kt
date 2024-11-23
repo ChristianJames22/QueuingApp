@@ -1,7 +1,8 @@
 data class Student(
-    val id: String = "",
+    var id: String = "",
     val name: String = "",
+    val email: String = "",
     val course: String = "",
     val year: String = "",
-    val email: String = ""
+    val role: String = ""
 )

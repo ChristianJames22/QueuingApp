@@ -1,86 +1,27 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/rounded_edittext"
+    android:layout_margin="8dp">
 
-    <!-- Admin Control Header -->
-    <RelativeLayout
-        android:id="@+id/adminControlHeader"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/purple_500"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingTop="8dp"
-        android:paddingBottom="8dp">
-
-        <TextView
-            android:id="@+id/adminControlText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Admin Control"
-            android:textColor="@android:color/white"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true" />
-
-        <!-- Settings Button -->
-        <ImageButton
-            android:id="@+id/settingsButton"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentEnd="true"
-            android:layout_centerVertical="true"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/settings"
-            android:src="@android:drawable/ic_menu_manage"
-            app:tint="@android:color/white" />
-    </RelativeLayout>
-
-    <!-- Title with Margin -->
     <TextView
-        android:id="@+id/studentsTitle"
+        android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Request List:"
-        android:textColor="@color/purple_700"
         android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_below="@id/adminControlHeader"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp" />
+        android:textSize="16sp" />
 
-    <!-- RecyclerView with Margin -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/studentsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/studentsTitle"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:overScrollMode="never"
-        android:clipToPadding="false" />
+    <TextView
+        android:id="@+id/idTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp" />
 
-    <!-- Floating Add Button -->
-    <ImageButton
-        android:id="@+id/addStudentButton"
-        android:layout_width="104dp"
-        android:layout_height="110dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:backgroundTint="@android:color/holo_purple"
-        android:contentDescription="Add Student"
-        android:src="@drawable/addbtutton" />
-</RelativeLayout>
+    <TextView
+        android:id="@+id/emailTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="14sp" />
+</LinearLayout>

@@ -1,38 +1,56 @@
 package com.example.appque
 
-import Staff // Ensure this is the correct model class for staff
+import Staff
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class StaffAdapter(private val staffList: MutableList<Staff>) :
-    RecyclerView.Adapter<StaffAdapter.StaffViewHolder>() {
+class StaffAdapter(
+    private val staffList: MutableList<Staff>,
+    private val onItemClick: (Staff) -> Unit
+) : RecyclerView.Adapter<StaffAdapter.StaffViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StaffViewHolder {
-        val itemView = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_staff, parent, false) // Ensure this layout exists
-        return StaffViewHolder(itemView)
+        val view = LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_staff, parent, false)
+        return StaffViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: StaffViewHolder, position: Int) {
         val staff = staffList[position]
-        holder.nameTextView.text = "Name: ${staff.name}"
-        holder.idTextView.text = "ID no.: ${staff.id}"
-        holder.emailTextView.text = "Email: ${staff.email}"
+        holder.bind(staff)
     }
 
-    override fun getItemCount() = staffList.size
-
-    fun addStaff(staff: Staff) {
-        staffList.add(staff)
-        notifyItemInserted(staffList.size - 1)
+    override fun getItemCount(): Int {
+        return staffList.size
     }
 
-    class StaffViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
-        val idTextView: TextView = itemView.findViewById(R.id.idTextView)
-        val emailTextView: TextView = itemView.findViewById(R.id.emailTextView)
+    /**
+     * Optional: Method to update the data and refresh the RecyclerView
+     */
+    fun updateData(newList: List<Staff>) {
+        staffList.clear()
+        staffList.addAll(newList)
+        notifyDataSetChanged() // Refresh the entire RecyclerView
+    }
+
+    inner class StaffViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
+        private val idTextView: TextView = itemView.findViewById(R.id.idTextView)
+        private val emailTextView: TextView = itemView.findViewById(R.id.emailTextView)
+
+        fun bind(staff: Staff) {
+            // Use string resources or String.format() for better localization
+            nameTextView.text = itemView.context.getString(R.string.staff_name, staff.name)
+            idTextView.text = itemView.context.getString(R.string.staff_id, staff.id)
+            emailTextView.text = itemView.context.getString(R.string.staff_email, staff.email)
+
+            // Handle click events
+            itemView.setOnClickListener {
+                onItemClick(staff)
+            }
+        }
     }
 }
