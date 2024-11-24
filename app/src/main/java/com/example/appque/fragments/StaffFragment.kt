@@ -129,9 +129,11 @@ class StaffFragment : Fragment() {
 
         // Pre-fill existing staff details
         idInput.setText(staff.id)
+        idInput.isEnabled = false // Make the ID field non-editable
         nameInput.setText(staff.name)
         emailInput.setText(staff.email)
         emailInput.isEnabled = false // Disallow editing the email
+
         val roles = arrayOf("Select Role", "Staff1", "Staff2", "Staff3", "Staff4", "Staff5", "Staff6", "Staff7", "Staff8")
         val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
@@ -151,22 +153,25 @@ class StaffFragment : Fragment() {
 
                 val updatedStaff = staff.copy(name = updatedName, role = updatedRole)
 
-                // Update Firebase
-                database.child("users").child(staff.id).setValue(updatedStaff)
-                    .addOnSuccessListener {
-                        dialog.dismiss()
-                        Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
+                // Update Firebase: Use `firebaseUid` as the key for the user
+                database.child("users").child(staff.firebaseUid).updateChildren(
+                    mapOf(
+                        "name" to updatedName,
+                        "role" to updatedRole
+                    )
+                ).addOnSuccessListener {
+                    dialog.dismiss()
+                    Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
 
-                        // Update local list and notify adapter
-                        val index = staffList.indexOfFirst { it.id == staff.id }
-                        if (index != -1) {
-                            staffList[index] = updatedStaff
-                            staffAdapter.notifyItemChanged(index)
-                        }
+                    // Update local list and notify adapter
+                    val index = staffList.indexOfFirst { it.firebaseUid == staff.firebaseUid }
+                    if (index != -1) {
+                        staffList[index] = updatedStaff
+                        staffAdapter.notifyItemChanged(index) // Notify only the updated item
                     }
-                    .addOnFailureListener { exception ->
-                        Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    }
+                }.addOnFailureListener { exception ->
+                    Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -176,6 +181,8 @@ class StaffFragment : Fragment() {
 
         dialog.show()
     }
+
+
 
 
 

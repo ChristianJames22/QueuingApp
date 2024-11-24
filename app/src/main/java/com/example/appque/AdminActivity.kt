@@ -20,6 +20,8 @@ class AdminActivity : AppCompatActivity() {
     private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
+    private var currentFragmentId: Int? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAdminBinding.inflate(layoutInflater)
@@ -31,8 +33,10 @@ class AdminActivity : AppCompatActivity() {
         verifyAdminRole()
         setupListeners()
 
-        // Load the default fragment (StudentsFragment)
-        loadFragment(StudentsFragment())
+        // Load the default fragment only if it's the first load
+        if (savedInstanceState == null) {
+            loadFragment(StudentsFragment(), R.id.nav_students)
+        }
     }
 
     private fun verifyAdminRole() {
@@ -42,16 +46,16 @@ class AdminActivity : AppCompatActivity() {
                 .addOnSuccessListener { snapshot ->
                     val role = snapshot.child("role").value?.toString()
                     if (role != "admin") {
-                        Toast.makeText(this, "Access Denied. Admin role required.", Toast.LENGTH_SHORT).show()
+                        showToast("Access Denied. Admin role required.")
                         redirectToLogin()
                     }
                 }
                 .addOnFailureListener {
-                    Toast.makeText(this, "Error verifying user role.", Toast.LENGTH_SHORT).show()
+                    showToast("Error verifying user role.")
                     redirectToLogin()
                 }
         } else {
-            Toast.makeText(this, "No logged-in user found.", Toast.LENGTH_SHORT).show()
+            showToast("No logged-in user found.")
             redirectToLogin()
         }
     }
@@ -69,28 +73,33 @@ class AdminActivity : AppCompatActivity() {
 
         // Bottom navigation listener
         binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_students -> {
-                    loadFragment(StudentsFragment())
-                    true
+            if (currentFragmentId != item.itemId) {
+                when (item.itemId) {
+                    R.id.nav_students -> {
+                        loadFragment(StudentsFragment(), item.itemId)
+                        true
+                    }
+                    R.id.nav_staff -> {
+                        loadFragment(StaffFragment(), item.itemId)
+                        true
+                    }
+                    R.id.nav_request -> {
+                        loadFragment(RequestFragment(), item.itemId)
+                        true
+                    }
+                    else -> false
                 }
-                R.id.nav_staff -> {
-                    loadFragment(StaffFragment())
-                    true
-                }
-                R.id.nav_request -> {
-                    loadFragment(RequestFragment())
-                    true
-                }
-                else -> false
+            } else {
+                false
             }
         }
     }
 
-    private fun loadFragment(fragment: Fragment) {
+    private fun loadFragment(fragment: Fragment, fragmentId: Int) {
         supportFragmentManager.beginTransaction()
             .replace(binding.fragmentContainer.id, fragment)
             .commit()
+        currentFragmentId = fragmentId
     }
 
     private fun showLogoutConfirmationDialog() {
@@ -100,10 +109,14 @@ class AdminActivity : AppCompatActivity() {
             .setPositiveButton("Yes") { _, _ ->
                 auth.signOut()
                 redirectToLogin()
-                Toast.makeText(this, "Logged out successfully.", Toast.LENGTH_SHORT).show()
+                showToast("Logged out successfully.")
             }
             .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
             .create()
             .show()
+    }
+
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 }

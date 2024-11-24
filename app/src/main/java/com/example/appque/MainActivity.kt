@@ -36,7 +36,15 @@ class MainActivity : AppCompatActivity() {
         val currentUser = auth.currentUser
         val loggedOut = sharedPreferences.getBoolean("logged_out", false)
         if (currentUser != null && !loggedOut) {
-            navigateBasedOnRole() // Skip login screen
+            currentUser.reload()
+                .addOnCompleteListener { reloadTask ->
+                    if (reloadTask.isSuccessful) {
+                        navigateBasedOnRole()
+                    } else {
+                        showCustomToast("Session expired. Please log in again.")
+                        auth.signOut()
+                    }
+                }
         }
 
         binding.loginButton.setOnClickListener {
@@ -78,15 +86,17 @@ class MainActivity : AppCompatActivity() {
                 showLoading(false)
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
-                    userId?.let {
+                    if (userId != null) {
                         sharedPreferences.edit().putBoolean("logged_out", false).apply()
-                        navigateBasedOnRole() // Navigate based on role
-                    } ?: showCustomToast("Failed to retrieve user ID.")
+                        navigateBasedOnRole()
+                    } else {
+                        showCustomToast("Login successful, but failed to retrieve user data.")
+                    }
                 } else {
                     Log.e("MainActivity", "Login failed: ${task.exception?.message}")
-                    val errorMessage = when (task.exception?.message) {
-                        "There is no user record corresponding to this identifier." -> "No account found with this email."
+                    val errorMessage = when (task.exception?.localizedMessage) {
                         "The password is invalid or the user does not have a password." -> "Invalid password. Please try again."
+                        "There is no user record corresponding to this identifier." -> "No account found with this email."
                         else -> "Login failed. Please try again later."
                     }
                     showCustomToast(errorMessage)
@@ -94,13 +104,12 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    // Fetch user role from Firebase and navigate to appropriate activity
     private fun navigateBasedOnRole() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             database.child("users").child(currentUser.uid).get()
                 .addOnSuccessListener { snapshot ->
-                    val role = snapshot.child("role").value.toString()
+                    val role = snapshot.child("role").value?.toString() ?: "unknown"
                     navigateToActivityBasedOnRole(role)
                 }
                 .addOnFailureListener {
@@ -121,7 +130,10 @@ class MainActivity : AppCompatActivity() {
             "staff7" -> Window7Activity::class.java
             "staff8" -> Window8Activity::class.java
             "student" -> StudentActivity::class.java
-            else -> MainActivity::class.java
+            else -> {
+                showCustomToast("Unknown role. Navigating back to login.")
+                MainActivity::class.java
+            }
         }
         startActivity(Intent(this, destination))
         finish()
@@ -132,17 +144,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCustomToast(message: String) {
-        val inflater: LayoutInflater = layoutInflater
-        val layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
+        try {
+            val inflater: LayoutInflater = layoutInflater
+            val layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
 
-        val text: TextView = layout.findViewById(R.id.toastText)
-        text.text = message
+            val text: TextView = layout.findViewById(R.id.toastText)
+            text.text = message
 
-        Toast(applicationContext).apply {
-            duration = Toast.LENGTH_SHORT
-            view = layout
-            setGravity(Gravity.CENTER, 0, 0)
-            show()
+            Toast(applicationContext).apply {
+                duration = Toast.LENGTH_SHORT
+                view = layout
+                setGravity(Gravity.CENTER, 0, 0)
+                show()
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Custom toast error: ${e.message}")
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 
