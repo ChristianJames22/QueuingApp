@@ -12,23 +12,57 @@ import com.example.appque.fragments.MeFragments
 import com.example.appque.fragments.RemindersFragment
 import com.example.appque.fragments.WindowsFragment
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 
 class StudentActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityStudentBinding
+    private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStudentBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Retrieve user data passed from the previous activity
-        val userName = intent.getStringExtra("name") ?: "N/A"
-        val userId = intent.getStringExtra("id") ?: "N/A"
-        val userCourse = intent.getStringExtra("course") ?: "N/A"
-        val userYear = intent.getStringExtra("year") ?: "N/A"
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference
 
-        // Set up BottomNavigationView
+        // Retrieve the current user ID
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+
+            // Fetch user data from Firebase Realtime Database
+            database.child("users").child(userId).get()
+                .addOnSuccessListener { snapshot ->
+                    val userName = snapshot.child("name").value?.toString() ?: "N/A"
+                    val userCourse = snapshot.child("course").value?.toString() ?: "N/A"
+                    val userYear = snapshot.child("year").value?.toString() ?: "N/A"
+
+                    // Pass user data to fragments via BottomNavigationView
+                    setupBottomNavigation(userName, userId, userCourse, userYear)
+                }
+                .addOnFailureListener {
+                    Toast.makeText(this, "Failed to load user data.", Toast.LENGTH_SHORT).show()
+                }
+        } else {
+            Toast.makeText(this, "User not logged in.", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+
+        // Set up Logout Button
+        val logoutButton: ImageButton = findViewById(R.id.logoutButton)
+        logoutButton.setOnClickListener {
+            showLogoutConfirmationDialog()
+        }
+
+        // Load default fragment
+        loadFragment(WindowsFragment())
+    }
+
+    private fun setupBottomNavigation(name: String, id: String, course: String, year: String) {
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_windows -> {
@@ -42,10 +76,10 @@ class StudentActivity : AppCompatActivity() {
                 R.id.nav_me -> {
                     val meFragment = MeFragments().apply {
                         arguments = Bundle().apply {
-                            putString("name", userName)
-                            putString("id", userId)
-                            putString("course", userCourse)
-                            putString("year", userYear)
+                            putString("name", name)
+                            putString("id", id)
+                            putString("course", course)
+                            putString("year", year)
                         }
                     }
                     loadFragment(meFragment) // Me fragment with user data
@@ -54,17 +88,7 @@ class StudentActivity : AppCompatActivity() {
                 else -> false
             }
         }
-
-        // Set up Logout Button
-        val logoutButton: ImageButton = findViewById(R.id.logoutButton)
-        logoutButton.setOnClickListener {
-            showLogoutConfirmationDialog()
-        }
-
-        // Load default fragment
-        loadFragment(WindowsFragment())
     }
-
 
     private fun loadFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction()

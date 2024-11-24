@@ -1,5 +1,4 @@
 package com.example.appque.fragments
-
 import Staff
 import android.app.AlertDialog
 import android.os.Bundle
@@ -82,8 +81,6 @@ class StaffFragment : Fragment() {
                 }
             })
     }
-
-
 
     private fun showStaffInfoDialog(staff: Staff) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_staff_info, null)
@@ -181,10 +178,6 @@ class StaffFragment : Fragment() {
 
         dialog.show()
     }
-
-
-
-
 
     private fun showDeleteConfirmationDialog(staff: Staff) {
         AlertDialog.Builder(requireContext())

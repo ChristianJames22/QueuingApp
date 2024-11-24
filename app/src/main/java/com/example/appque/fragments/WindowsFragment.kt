@@ -17,11 +17,15 @@ import com.example.appque.StudentWindow6Activity
 import com.example.appque.StudentWindow7Activity
 import com.example.appque.StudentWindow8Activity
 import com.example.appque.databinding.FragmentWindowsBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
 
 class WindowsFragment : Fragment(R.layout.fragment_windows) {
 
     private var _binding: FragmentWindowsBinding? = null
     private val binding get() = _binding!!
+    private val auth = FirebaseAuth.getInstance()
+    private val database = FirebaseDatabase.getInstance().reference
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

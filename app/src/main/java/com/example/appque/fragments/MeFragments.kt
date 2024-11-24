@@ -5,34 +5,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.appque.databinding.FragmentsMeBinding
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class MeFragments : Fragment() {
 
     private var _binding: FragmentsMeBinding? = null
     private val binding get() = _binding!!
 
-    private var userName: String? = null
-    private var userIdNumber: String? = null
-    private var userCourse: String? = null
-    private var userYear: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // Retrieve user data from arguments
-        arguments?.let {
-            userName = it.getString("name")
-            userIdNumber = it.getString("id")
-            userCourse = it.getString("course")
-            userYear = it.getString("year")
-        }
-
-        Log.d(
-            "MeFragments",
-            "Received Data -> Name: $userName, ID: $userIdNumber, Course: $userCourse, Year: $userYear"
-        )
-    }
+    private val database = FirebaseDatabase.getInstance().reference
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -45,17 +31,40 @@ class MeFragments : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val userName = arguments?.getString("name") ?: "N/A"
-        val userIdNumber = arguments?.getString("id") ?: "N/A"
-        val userCourse = arguments?.getString("course") ?: "N/A"
-        val userYear = arguments?.getString("year") ?: "N/A"
-
-        binding.textName.text = "Name: $userName"
-        binding.textIdNumber.text = "ID No.: $userIdNumber"
-        binding.textCourse.text = "Course: $userCourse"
-        binding.textYear.text = "Year: $userYear"
+        // Assume the user ID is passed as an argument
+        val userId = arguments?.getString("id") ?: "N/A"
+        if (userId != "N/A") {
+            fetchUserData(userId)
+        } else {
+            Toast.makeText(requireContext(), "User ID not found", Toast.LENGTH_SHORT).show()
+        }
     }
 
+    private fun fetchUserData(userId: String) {
+        database.child("users").child(userId)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val name = snapshot.child("name").getValue(String::class.java) ?: "N/A"
+                        val id = snapshot.child("id").getValue(String::class.java) ?: "N/A"
+                        val course = snapshot.child("course").getValue(String::class.java) ?: "N/A"
+                        val year = snapshot.child("year").getValue(String::class.java) ?: "N/A"
+
+                        // Update UI with data
+                        binding.textName.text = "Name: $name"
+                        binding.textIdNumber.text = "ID No.: $id"
+                        binding.textCourse.text = "Course: $course"
+                        binding.textYear.text = "Year: $year"
+                    } else {
+                        Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(requireContext(), "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
