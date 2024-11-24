@@ -36,7 +36,7 @@ class SplashActivity : AppCompatActivity() {
     private fun navigateBasedOnRole(role: String) {
         val destination = when (role) {
             "admin" -> AdminActivity::class.java
-            "staff" -> CashierActivity::class.java
+            "staff1" -> CashierActivity::class.java
             "staff2" -> Window2Activity::class.java
             "staff3" -> Window3Activity::class.java
             "staff4" -> Window4Activity::class.java

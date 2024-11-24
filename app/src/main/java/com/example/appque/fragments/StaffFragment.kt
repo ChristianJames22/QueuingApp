@@ -26,7 +26,7 @@ class StaffFragment : Fragment() {
     private val database = FirebaseDatabase.getInstance().reference
     private val auth = FirebaseAuth.getInstance()
     private val VALID_ROLES = listOf(
-        "Staff1", "Staff2", "Staff3", "Staff4", "Staff5", "Staff6", "Staff7", "Staff8"
+        "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8"
     )
 
     override fun onCreateView(
@@ -134,7 +134,7 @@ class StaffFragment : Fragment() {
         emailInput.setText(staff.email)
         emailInput.isEnabled = false // Disallow editing the email
 
-        val roles = arrayOf("Select Role", "Staff1", "Staff2", "Staff3", "Staff4", "Staff5", "Staff6", "Staff7", "Staff8")
+        val roles = arrayOf("Select Role", "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8")
         val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         roleSpinner.adapter = roleAdapter
@@ -227,7 +227,7 @@ class StaffFragment : Fragment() {
         val roleSpinner = dialogView.findViewById<Spinner>(R.id.roleSpinner)
 
         val roles = arrayOf(
-            "Select Role", "Staff1", "Staff2", "Staff3", "Staff4", "Staff5", "Staff6", "Staff7", "Staff8"
+            "Select Role", "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8"
         )
         val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
