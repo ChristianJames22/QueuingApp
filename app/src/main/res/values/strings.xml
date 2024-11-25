@@ -15,9 +15,77 @@
         <item>BEED</item>
         <item>SHS</item>
     </string-array>
+
     <string name="staff_name">Name: %s</string>
     <string name="staff_id">ID: %s</string>
     <string name="staff_email">Email: %s</string>
+
+    <string name="select_appointment_prompt">Select an Appointment</string>
+
+    <string-array name="spinner_cashier">
+            <item>Select</item>
+            <item>Payment</item>
+            <item>Receipt</item>
+            <item>Permit Number</item>
+            <item>Balance Inquiry</item>
+        </string-array>
+
+    <string-array name="spinner_window2">
+        <item>Select</item>
+        <item>Inquire</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+    </string-array>
+
+    <string-array name="spinner_window3">
+        <item>Select</item>
+        <item>Inquire</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+    </string-array>
+
+    <string-array name="spinner_window4">
+        <item>Select</item>
+        <item>Clearance </item>
+        <item>Scholarship Program</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+    </string-array>
+
+    <string-array name="spinner_window5">
+        <item>Select</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+    </string-array>
+
+    <string-array name="spinner_window6">
+        <item>Select</item>
+        <item>Class Scheduling</item>
+        <item>Grades, Evaluate</item>
+        <item>Academic Policies</item>
+        <item>Enrollment Verification</item>
+        <item>Credentials</item>
+    </string-array>
+
+    <string-array name="spinner_window7">
+        <item>Select</item>
+        <item>Statement of account</item>
+        <item>Wela</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+    </string-array>
+
+    <string-array name="spinner_window8">
+        <item>Select</item>
+        <item>SHS Credentials</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+        <item>Unknown</item>
+    </string-array>
 
     <!-- Predefined Year Options -->
     <string-array name="year_options">
@@ -29,4 +97,6 @@
         <item>G-11</item>
         <item>G-12</item>
     </string-array>
+
+
 </resources>

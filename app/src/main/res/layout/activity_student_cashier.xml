@@ -17,15 +17,18 @@
         android:contentDescription="Back"
         android:src="@android:drawable/ic_menu_revert"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="#505050" />
 
-    <!-- Title for Cashier -->
+
+
+    <!-- Title for Cashier with Shadow and Floating Effect -->
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Cashier"
-        android:textColor="#3F51B5"
+        android:textColor="@color/deep_purple"
         android:textSize="30sp"
         android:textStyle="bold"
         app:layout_constraintTop_toTopOf="parent"
@@ -33,21 +36,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/tvServingLabel" />
 
-    <!-- Settings Button on the right side -->
-
+    <!-- Serving Label -->
     <TextView
         android:id="@+id/tvServingLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Serving now.."
         android:textSize="18sp"
+        android:textColor="@color/custom_purple"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.059"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.229" />
+        app:layout_constraintVertical_bias="0.162" />
 
     <TextView
         android:id="@+id/tvServingNow"
@@ -56,16 +59,25 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/text_view_border"
         android:gravity="center"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:shadowColor="#55000000"
+        android:shadowDx="4"
+        android:shadowDy="4"
+        android:shadowRadius="8"
+        android:elevation="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvServingLabel" />
+
 
     <TextView
         android:id="@+id/tvNextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Next:"
+        android:textColor="@color/custom_purple"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/tvNextInLine"
@@ -81,40 +93,63 @@
         android:layout_height="150dp"
         android:background="@drawable/text_view_border"
         android:gravity="center"
+        android:textColor="#000000"
+        android:textSize="18sp"
+        android:shadowColor="#55000000"
+        android:shadowDx="4"
+        android:shadowDy="4"
+        android:shadowRadius="8"
+        android:elevation="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
-        app:layout_constraintVertical_bias="0.244" />
+        app:layout_constraintVertical_bias="0.107" />
 
+
+
+    <!-- Add Appointment Label -->
     <TextView
         android:id="@+id/tvaddApoinment1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add Appointment:"
+        android:textColor="@color/purple_500"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/addButton"
-        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintHorizontal_bias="0.402"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
-        app:layout_constraintVertical_bias="0.611" />
+        app:layout_constraintVertical_bias="0.472" />
 
+    <!-- Spinner for Appointment Options -->
+    <Spinner
+        android:id="@+id/spinnerAppointmentOptions"
+        android:layout_width="155dp"
+        android:layout_height="41dp"
+        android:layout_marginTop="4dp"
+        android:entries="@array/spinner_cashier"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.077"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvaddApoinment1" />
+
+    <!-- Add Button -->
     <Button
         android:id="@+id/addButton"
-        android:layout_width="89dp"
-        android:layout_height="53dp"
-        android:backgroundTint="@color/blue"
+        android:layout_width="82dp"
+        android:layout_height="41dp"
+        android:backgroundTint="@color/colorGreen"
         android:text="Add"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.734"
+        app:layout_constraintHorizontal_bias="0.663"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvNextInLine"
-        app:layout_constraintVertical_bias="0.098" />
-
+        app:layout_constraintVertical_bias="0.214" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

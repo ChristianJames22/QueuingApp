@@ -1,7 +1,6 @@
 package com.example.appque.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -51,7 +50,7 @@ class MeFragments : Fragment() {
                         val year = snapshot.child("year").getValue(String::class.java) ?: "N/A"
 
                         // Update UI with data
-                        binding.textName.text = "Name: $name"
+                        binding.textName.text = name // Only display the name
                         binding.textIdNumber.text = "ID No.: $id"
                         binding.textCourse.text = "Course: $course"
                         binding.textYear.text = "Year: $year"

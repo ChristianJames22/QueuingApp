@@ -1,48 +1,31 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
-
-    <!-- Header Text -->
-
-    <!-- Grid Layout for Buttons -->
-
-    <TextView
-        android:id="@+id/textSelectWindow"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="57dp"
-        android:gravity="center"
-        android:text="Select Window Transaction"
-        android:textColor="@color/purple_700"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.506"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+    android:padding="16dp"
+    android:background="@drawable/ggb">
 
     <androidx.gridlayout.widget.GridLayout
         android:id="@+id/gridLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="18dp"
+        android:layout_width="340dp"
+        android:layout_height="620dp"
+        android:foregroundGravity="center"
+        android:padding="16dp"
         app:columnCount="2"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/textSelectWindow"
-        app:layout_constraintVertical_bias="0.0"
-        app:rowCount="4">
+        app:rowCount="4"
+        tools:layout_editor_absoluteY="43dp"
+        tools:ignore="MissingConstraints">
 
-        <!-- Cashier Button -->
+        <!-- Button 1: Cashier -->
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -58,8 +41,15 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:text="Cashier"
-                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textColor="@color/black"
                     android:textStyle="bold" />
+
+                <!-- Horizontal Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black" />
 
                 <ImageView
                     android:id="@+id/buttonCashier"
@@ -70,11 +60,12 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Window 2 Button -->
+        <!-- Button 2: Window 2 -->
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -90,8 +81,15 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:text="Window 2"
-                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textColor="@color/black"
                     android:textStyle="bold" />
+
+                <!-- Horizontal Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black" />
 
                 <ImageView
                     android:id="@+id/buttonWindow2"
@@ -102,11 +100,12 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Window 3 Button -->
+        <!-- Button 3: Window 3 -->
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -122,8 +121,16 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:text="Window 3"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
+
+                <!-- Horizontal Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+
+                    android:background="@color/black" />
 
                 <ImageView
                     android:id="@+id/buttonWindow3"
@@ -134,11 +141,12 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Window 4 Button -->
+        <!-- Button 4: Window 4 -->
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -154,8 +162,15 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:text="Window 4"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
+
+                <!-- Horizontal Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black" />
 
                 <ImageView
                     android:id="@+id/buttonWindow4"
@@ -166,11 +181,12 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Window 5 Button -->
+        <!-- Button 5: Window 5 -->
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -186,8 +202,15 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:text="Window 5"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
+
+                <!-- Horizontal Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black" />
 
                 <ImageView
                     android:id="@+id/buttonWindow5"
@@ -198,11 +221,12 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Window 6 Button -->
+        <!-- Button 6: Window 6 -->
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -218,8 +242,15 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:text="Window 6"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
+
+                <!-- Horizontal Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black" />
 
                 <ImageView
                     android:id="@+id/buttonWindow6"
@@ -230,11 +261,12 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Window 7 Button -->
+        <!-- Button 7: Window 7 -->
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -250,8 +282,15 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:text="Window 7"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
+
+                <!-- Horizontal Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black" />
 
                 <ImageView
                     android:id="@+id/buttonWindow7"
@@ -262,11 +301,12 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Window 8 Button -->
+        <!-- Button 8: Window 8 -->
         <androidx.cardview.widget.CardView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
+            app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="8dp">
 
@@ -282,8 +322,15 @@
                     android:layout_marginBottom="4dp"
                     android:gravity="center"
                     android:text="Window 8"
-                    android:textColor="#000000"
+                    android:textColor="@color/black"
+                    android:textSize="20sp"
                     android:textStyle="bold" />
+
+                <!-- Horizontal Line -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/black" />
 
                 <ImageView
                     android:id="@+id/buttonWindow8"
@@ -293,5 +340,6 @@
                     android:src="@drawable/logo" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>
+
     </androidx.gridlayout.widget.GridLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

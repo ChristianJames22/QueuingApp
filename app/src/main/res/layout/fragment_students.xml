@@ -52,13 +52,16 @@
     <!-- Add Button -->
     <ImageButton
         android:id="@+id/addStudentButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:background="@drawable/circle_background1"
         android:src="@drawable/addbtutton"
         android:contentDescription="Add Student"
-        app:tint="@android:color/holo_purple" />
+        app:tint="@android:color/white" />
+
+
+
 </RelativeLayout>
