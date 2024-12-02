@@ -7,6 +7,7 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!-- Title -->
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
@@ -21,6 +22,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Settings Button -->
     <ImageButton
         android:id="@+id/settingsButton"
         android:layout_width="50dp"
@@ -35,11 +37,13 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
+
     <TextView
         android:id="@+id/tvServingLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Serving now.."
+        android:textColor="@color/deep_purple"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -47,7 +51,7 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.235" />
+        app:layout_constraintVertical_bias="0.17" />
 
     <TextView
         android:id="@+id/tvServingNow"
@@ -55,51 +59,69 @@
         android:layout_height="100dp"
         android:layout_marginTop="8dp"
         android:background="@drawable/text_view_border"
-        android:gravity="center"
+        android:gravity="start|center_vertical"
+        android:padding="8dp"
+        android:textColor="#000000"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvServingLabel" />
 
+    <!-- Next Label -->
     <TextView
         android:id="@+id/tvNextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
         android:text="Next:"
+        android:textColor="@color/deep_purple"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/tvNextInLine"
+        app:layout_constraintBottom_toTopOf="@+id/scrollViewNext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
         app:layout_constraintVertical_bias="1.0" />
 
-    <TextView
-        android:id="@+id/tvNextInLine"
+    <!-- Scrollable Next Section -->
+    <ScrollView
+        android:id="@+id/scrollViewNext"
         android:layout_width="0dp"
-        android:layout_height="150dp"
+        android:layout_height="300dp"
         android:background="@drawable/text_view_border"
-        android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
-        app:layout_constraintVertical_bias="0.244" />
+        app:layout_constraintTop_toBottomOf="@id/tvNextLabel">
+
+        <TextView
+            android:id="@+id/tvNextInLine"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:padding="8dp"
+            android:textColor="#000000"
+            android:textSize="18sp" />
+    </ScrollView>
+
+    <!-- Reset Button -->
+
+    <!-- Next Button -->
 
     <Button
         android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="68dp"
+        android:layout_marginStart="84dp"
         android:backgroundTint="@android:color/holo_red_dark"
         android:text="Reset"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvNextLabel"
-        app:layout_constraintVertical_bias="0.548" />
+        app:layout_constraintTop_toBottomOf="@+id/scrollViewNext"
+        app:layout_constraintVertical_bias="0.091" />
 
     <Button
         android:id="@+id/nextButton"
@@ -110,10 +132,9 @@
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.548"
+        app:layout_constraintHorizontal_bias="0.361"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
-        app:layout_constraintTop_toBottomOf="@+id/tvNextInLine"
-        app:layout_constraintVertical_bias="0.088" />
-
+        app:layout_constraintTop_toBottomOf="@+id/scrollViewNext"
+        app:layout_constraintVertical_bias="0.091" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

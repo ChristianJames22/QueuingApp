@@ -68,9 +68,10 @@ class StudentsFragment : Fragment() {
                         }
                     }
 
+                    // Replace the list with a reversed order for stack-like display
                     if (newStudentsList != studentsList) {
                         studentsList.clear()
-                        studentsList.addAll(newStudentsList)
+                        studentsList.addAll(newStudentsList.reversed())
                         studentsAdapter.notifyDataSetChanged()
                     }
 
@@ -85,7 +86,6 @@ class StudentsFragment : Fragment() {
                 }
             })
     }
-
 
     private fun showAddStudentDialog() {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_student, null)
@@ -128,7 +128,7 @@ class StudentsFragment : Fragment() {
             val confirmPassword = confirmPasswordInput.text.toString().trim()
 
             if (validateInputs(id, name, email, course, year, password, confirmPassword)) {
-                addStudent(id, name, email, course, year, password, dialog)
+                addStudentToList(id, name, email, course, year, dialog)
             }
         }
 
@@ -139,68 +139,22 @@ class StudentsFragment : Fragment() {
         dialog.show()
     }
 
-    private fun addStudent(
+    private fun addStudentToList(
         id: String,
         name: String,
         email: String,
         course: String,
         year: String,
-        password: String,
         dialog: AlertDialog
     ) {
-        database.child("users").orderByChild("id").equalTo(id)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        // If the student already exists, update their record
-                        for (childSnapshot in snapshot.children) {
-                            val userKey = childSnapshot.key
-                            if (userKey != null) {
-                                val updatedStudent = Student(id, name, email, course, year, "student")
-                                database.child("users").child(userKey).setValue(updatedStudent)
-                                    .addOnSuccessListener {
-                                        dialog.dismiss()
-                                        Toast.makeText(requireContext(), "Student updated successfully!", Toast.LENGTH_SHORT).show()
-                                        fetchStudents()
-                                    }
-                                    .addOnFailureListener { exception ->
-                                        Toast.makeText(requireContext(), "Failed to update student: ${exception.message}", Toast.LENGTH_SHORT).show()
-                                    }
-                            }
-                        }
-                    } else {
-                        // If the student doesn't exist, add them as a new record
-                        auth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { authTask ->
-                                if (authTask.isSuccessful) {
-                                    val userId = authTask.result?.user?.uid
-                                    if (userId != null) {
-                                        val newStudent = Student(id, name, email, course, year, "student")
-                                        database.child("users").child(userId).setValue(newStudent)
-                                            .addOnSuccessListener {
-                                                dialog.dismiss()
-                                                Toast.makeText(requireContext(), "Student added successfully!", Toast.LENGTH_SHORT).show()
-                                                fetchStudents()
-                                            }
-                                            .addOnFailureListener { exception ->
-                                                Toast.makeText(requireContext(), "Failed to add student: ${exception.message}", Toast.LENGTH_SHORT).show()
-                                            }
-                                    }
-                                } else {
-                                    Toast.makeText(requireContext(), "Error: ${authTask.exception?.message}", Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                    }
-                }
+        val newStudent = Student(id, name, email, course, year, "student")
+        studentsList.add(0, newStudent)
+        studentsAdapter.notifyItemInserted(0)
+        binding.studentsRecyclerView.scrollToPosition(0)
 
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
+        Toast.makeText(requireContext(), "Student added successfully!", Toast.LENGTH_SHORT).show()
+        dialog.dismiss()
     }
-
-
-
 
     private fun showUpdateStudentDialog(student: Student) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_student, null)
@@ -211,12 +165,15 @@ class StudentsFragment : Fragment() {
 
         val idInput = dialogView.findViewById<EditText>(R.id.idInput)
         val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
+        val emailInput = dialogView.findViewById<EditText>(R.id.emailInput)
         val courseSpinner = dialogView.findViewById<Spinner>(R.id.courseSpinner)
         val yearSpinner = dialogView.findViewById<Spinner>(R.id.yearSpinner)
 
         // Pre-fill fields with existing data
         idInput.setText(student.id)
-        idInput.isEnabled = false // Make the ID field non-editable
+        idInput.isEnabled = false
+        emailInput.setText(student.email)
+        emailInput.isEnabled = false // Disable email for updates
         nameInput.setText(student.name)
 
         val courses = resources.getStringArray(R.array.course_options)
@@ -247,29 +204,11 @@ class StudentsFragment : Fragment() {
                     year = yearSpinner.selectedItem.toString()
                 )
 
-                database.child("users").orderByChild("id").equalTo(student.id)
-                    .addListenerForSingleValueEvent(object : ValueEventListener {
-                        override fun onDataChange(snapshot: DataSnapshot) {
-                            for (childSnapshot in snapshot.children) {
-                                val userKey = childSnapshot.key
-                                if (userKey != null) {
-                                    database.child("users").child(userKey).setValue(updatedStudent)
-                                        .addOnSuccessListener {
-                                            dialog.dismiss()
-                                            Toast.makeText(requireContext(), "Student updated successfully!", Toast.LENGTH_SHORT).show()
-                                            fetchStudents()
-                                        }
-                                        .addOnFailureListener { exception ->
-                                            Toast.makeText(requireContext(), "Failed to update student: ${exception.message}", Toast.LENGTH_SHORT).show()
-                                        }
-                                }
-                            }
-                        }
-
-                        override fun onCancelled(error: DatabaseError) {
-                            Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
-                        }
-                    })
+                studentsList.remove(student)
+                studentsList.add(0, updatedStudent)
+                studentsAdapter.notifyDataSetChanged()
+                Toast.makeText(requireContext(), "Student updated successfully!", Toast.LENGTH_SHORT).show()
+                dialog.dismiss()
             }
         }
 
@@ -279,7 +218,6 @@ class StudentsFragment : Fragment() {
 
         dialog.show()
     }
-
 
     private fun showStudentInfoDialog(student: Student) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_student_info, null)
@@ -318,46 +256,30 @@ class StudentsFragment : Fragment() {
             .setMessage("Are you sure you want to delete ${student.name}?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
-                // Find the Firebase key for the student ID and delete the record
+                // Find the student in the database using their unique ID
                 database.child("users").orderByChild("id").equalTo(student.id)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
                             if (snapshot.exists()) {
                                 for (childSnapshot in snapshot.children) {
-                                    // Delete the record
                                     childSnapshot.ref.removeValue()
                                         .addOnSuccessListener {
+                                            // Remove the student from the local list and notify the adapter
                                             studentsList.remove(student)
                                             studentsAdapter.notifyDataSetChanged()
-                                            Toast.makeText(
-                                                requireContext(),
-                                                "Student deleted successfully!",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                            Toast.makeText(requireContext(), "Student deleted successfully!", Toast.LENGTH_SHORT).show()
                                         }
-                                        .addOnFailureListener {
-                                            Toast.makeText(
-                                                requireContext(),
-                                                "Failed to delete student.",
-                                                Toast.LENGTH_SHORT
-                                            ).show()
+                                        .addOnFailureListener { exception ->
+                                            Toast.makeText(requireContext(), "Failed to delete student: ${exception.message}", Toast.LENGTH_SHORT).show()
                                         }
                                 }
                             } else {
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Student not found in the database.",
-                                    Toast.LENGTH_SHORT
-                                ).show()
+                                Toast.makeText(requireContext(), "Student not found in database.", Toast.LENGTH_SHORT).show()
                             }
                         }
 
                         override fun onCancelled(error: DatabaseError) {
-                            Toast.makeText(
-                                requireContext(),
-                                "Error deleting student: ${error.message}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(requireContext(), "Error deleting student: ${error.message}", Toast.LENGTH_SHORT).show()
                         }
                     })
             }

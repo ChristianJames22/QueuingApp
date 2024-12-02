@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.appque.R
 import com.example.appque.StudentCashierActivity
@@ -26,6 +27,7 @@ class WindowsFragment : Fragment(R.layout.fragment_windows) {
     private val binding get() = _binding!!
     private val auth = FirebaseAuth.getInstance()
     private val database = FirebaseDatabase.getInstance().reference
+    private var userName: String? = null // To store the user's name
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -39,8 +41,30 @@ class WindowsFragment : Fragment(R.layout.fragment_windows) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        // Fetch the user's name from Firebase
+        fetchUserName()
+
         // Set up button listeners
         setupButtonListeners()
+    }
+
+    private fun fetchUserName() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            database.child("users").child(userId)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    userName = snapshot.child("name").getValue(String::class.java) ?: "Unknown User"
+                }
+                .addOnFailureListener {
+                    Toast.makeText(requireContext(), "Failed to fetch user data", Toast.LENGTH_SHORT).show()
+                    userName = "Unknown User"
+                }
+        } else {
+            Toast.makeText(requireContext(), "No authenticated user found", Toast.LENGTH_SHORT).show()
+            userName = "Unknown User"
+        }
     }
 
     private fun setupButtonListeners() {
@@ -72,9 +96,15 @@ class WindowsFragment : Fragment(R.layout.fragment_windows) {
     }
 
     private fun navigateToActivity(destination: Class<*>) {
-        Log.d("WindowsFragment", "Navigating to $destination")
-        val intent = Intent(requireContext(), destination)
-        startActivity(intent)
+        if (userName != null) {
+            Log.d("WindowsFragment", "Navigating to $destination with userName: $userName")
+            val intent = Intent(requireContext(), destination).apply {
+                putExtra("userName", userName) // Pass the user's name
+            }
+            startActivity(intent)
+        } else {
+            Toast.makeText(requireContext(), "Fetching user name. Please try again.", Toast.LENGTH_SHORT).show()
+        }
     }
 
     override fun onDestroyView() {

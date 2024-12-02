@@ -1,48 +1,155 @@
 package com.example.appque
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageButton
-import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.example.appque.databinding.ActivityWindow8Binding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.*
 
 class Window8Activity : AppCompatActivity() {
 
     private lateinit var binding: ActivityWindow8Binding
+    private lateinit var database: DatabaseReference
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize FirebaseAuth
-        auth = FirebaseAuth.getInstance()
-
-        // Inflate the layout using view binding
         binding = ActivityWindow8Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val toggledId = intent.getStringExtra("toggledId")
+        auth = FirebaseAuth.getInstance()
+        database = FirebaseDatabase.getInstance().reference.child("window8Queue") // Node for Window8
 
-        // Access the settings button and other views through binding
-        binding.settingsButton.setOnClickListener {
-            showSettingsMenu()
-        }
+        // Real-time listener for queue updates
+        database.child("appointments").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                updateDisplay(snapshot)
+            }
 
-        // Example: Accessing other views using binding
-        binding.tvServingLabel.text = "Serving now..." // Set text programmatically
-        binding.resetButton.setOnClickListener {
-            Toast.makeText(this, "Reset clicked", Toast.LENGTH_SHORT).show()
-        }
+            override fun onCancelled(error: DatabaseError) {
+                Toast.makeText(this@Window8Activity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+
+        // Set up button listeners
         binding.nextButton.setOnClickListener {
-            Toast.makeText(this, "Next clicked", Toast.LENGTH_SHORT).show()
+            database.child("appointments").get().addOnSuccessListener { snapshot ->
+                if (snapshot.exists() && snapshot.childrenCount > 0) {
+                    showNextConfirmationDialog()
+                } else {
+                    Toast.makeText(this, "No appointments in the queue.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        binding.resetButton.setOnClickListener {
+            database.child("appointments").get().addOnSuccessListener { snapshot ->
+                if (snapshot.exists() && snapshot.childrenCount > 0) {
+                    showResetConfirmationDialog()
+                } else {
+                    Toast.makeText(this, "No appointments to reset.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        fetchUserData()
+
+        // Settings button functionality
+        findViewById<ImageButton>(R.id.settingsButton).setOnClickListener {
+            showSettingsMenu()
         }
     }
 
-    // Function to show the settings menu with a profile and logout option
+    private fun showNextConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Confirm Next")
+            .setMessage("Are you sure you want to move to the next appointment?")
+            .setPositiveButton("Yes") { _, _ ->
+                moveToNextAppointment()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun moveToNextAppointment() {
+        database.child("appointments").get().addOnSuccessListener { snapshot ->
+            val appointments = snapshot.children.toList()
+            if (appointments.isNotEmpty()) {
+                val firstKey = appointments.first().key
+                firstKey?.let { database.child("appointments").child(it).removeValue() }
+                Toast.makeText(this, "Moved to the next appointment.", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener {
+            Toast.makeText(this, "Failed to move to the next appointment.", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showResetConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Confirm Reset")
+            .setMessage("Are you sure you want to reset the queue?")
+            .setPositiveButton("Yes") { _, _ ->
+                resetQueue()
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
+
+    private fun resetQueue() {
+        database.child("appointments").removeValue()
+        database.child("currentQueueNumber").setValue(0)
+            .addOnSuccessListener {
+                Toast.makeText(this, "Queue has been reset and starts from 1.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(this, "Failed to reset the queue.", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun fetchUserData() {
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            FirebaseDatabase.getInstance().reference.child("users").child(userId).get()
+                .addOnSuccessListener { snapshot ->
+                    if (snapshot.exists()) {
+                        val userName = snapshot.child("name").value?.toString() ?: "Unknown"
+                        val userIdNumber = snapshot.child("id").value?.toString() ?: "N/A"
+                        val userCourse = snapshot.child("course").value?.toString() ?: "N/A"
+                        val userYear = snapshot.child("year").value?.toString() ?: "N/A"
+
+                        findViewById<TextView>(R.id.textName)?.text = "Name: $userName"
+                        findViewById<TextView>(R.id.textIdNumber)?.text = "ID No.: $userIdNumber"
+                        findViewById<TextView>(R.id.textCourse)?.text = "Course: $userCourse"
+                        findViewById<TextView>(R.id.textYear)?.text = "Year: $userYear"
+                    }
+                }
+        }
+    }
+
+    private fun updateDisplay(snapshot: DataSnapshot) {
+        val appointments = snapshot.children.map { it.value.toString() }
+        if (appointments.isEmpty()) {
+            binding.tvServingNow.text = "No appointment"
+            binding.tvNextInLine.text = ""
+        } else {
+            binding.tvServingNow.text = appointments.firstOrNull()
+            binding.tvNextInLine.text = appointments.drop(1).joinToString("\n")
+        }
+    }
+
     private fun showSettingsMenu() {
         val options = arrayOf("Profile", "Logout")
         AlertDialog.Builder(this)
@@ -57,30 +164,47 @@ class Window8Activity : AppCompatActivity() {
     }
 
     private fun navigateToProfileActivity() {
-        // Logic for navigating to profile activity, modify as needed
-        Toast.makeText(this, "Profile selected", Toast.LENGTH_SHORT).show()
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            FirebaseDatabase.getInstance().reference.child("users").child(userId).get()
+                .addOnSuccessListener { snapshot ->
+                    if (snapshot.exists()) {
+                        val userName = snapshot.child("name").value?.toString() ?: "Unknown"
+                        val userIdNumber = snapshot.child("id").value?.toString() ?: "N/A"
+                        val userCourse = snapshot.child("course").value?.toString() ?: "N/A"
+                        val userYear = snapshot.child("year").value?.toString() ?: "N/A"
+
+                        val intent = Intent(this, ProfileActivity::class.java).apply {
+                            putExtra("name", userName)
+                            putExtra("id", userIdNumber)
+                            putExtra("course", userCourse)
+                            putExtra("year", userYear)
+                        }
+                        startActivity(intent)
+                    }
+                }
+        }
     }
 
     private fun showLogoutConfirmationDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setMessage("Are you sure you want to log out?")
+        AlertDialog.Builder(this)
+            .setMessage("Are you sure you want to log out?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
-                performLogout()
+                FirebaseAuth.getInstance().signOut()
+                navigateToLogin()
             }
             .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-        builder.create().show()
+            .create()
+            .show()
     }
 
-    private fun performLogout() {
-        auth.signOut()
-
+    private fun navigateToLogin() {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
         startActivity(intent)
         finishAffinity()
-
-        Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
     }
 }

@@ -1,4 +1,5 @@
 package com.example.appque.fragments
+
 import Staff
 import android.app.AlertDialog
 import android.os.Bundle
@@ -66,7 +67,7 @@ class StaffFragment : Fragment() {
                         if (staff?.role in VALID_ROLES) {
                             staff?.let {
                                 it.firebaseUid = childSnapshot.key ?: "" // Attach Firebase UID
-                                staffList.add(0, it)
+                                staffList.add(0, it) // Add to top of the list
                             }
                         }
                     }
@@ -80,129 +81,6 @@ class StaffFragment : Fragment() {
                     Toast.makeText(requireContext(), "Error fetching staff: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             })
-    }
-
-    private fun showStaffInfoDialog(staff: Staff) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_staff_info, null)
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
-
-        val nameTextView = dialogView.findViewById<TextView>(R.id.nameText)
-        val idTextView = dialogView.findViewById<TextView>(R.id.idText)
-        val emailTextView = dialogView.findViewById<TextView>(R.id.emailText)
-        val updateButton = dialogView.findViewById<Button>(R.id.updateButton)
-        val deleteButton = dialogView.findViewById<Button>(R.id.deleteButton)
-
-        nameTextView.text = "Name: ${staff.name}"
-        idTextView.text = "ID: ${staff.id}"
-        emailTextView.text = "Email: ${staff.email}"
-
-        updateButton.setOnClickListener {
-            dialog.dismiss()
-            showUpdateStaffDialog(staff)
-        }
-
-        deleteButton.setOnClickListener {
-            dialog.dismiss()
-            showDeleteConfirmationDialog(staff)
-        }
-
-        dialog.show()
-    }
-
-    private fun showUpdateStaffDialog(staff: Staff) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_staff, null)
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
-
-        val idInput = dialogView.findViewById<EditText>(R.id.idInput)
-        val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
-        val emailInput = dialogView.findViewById<EditText>(R.id.emailInput)
-        val roleSpinner = dialogView.findViewById<Spinner>(R.id.roleSpinner)
-
-        // Pre-fill existing staff details
-        idInput.setText(staff.id)
-        idInput.isEnabled = false // Make the ID field non-editable
-        nameInput.setText(staff.name)
-        emailInput.setText(staff.email)
-        emailInput.isEnabled = false // Disallow editing the email
-
-        val roles = arrayOf("Select Role", "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8")
-        val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
-        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        roleSpinner.adapter = roleAdapter
-        roleSpinner.setSelection(roles.indexOf(staff.role))
-
-        dialogView.findViewById<Button>(R.id.addButton).apply {
-            text = "Update"
-            setOnClickListener {
-                val updatedName = nameInput.text.toString().trim()
-                val updatedRole = roleSpinner.selectedItem.toString()
-
-                if (updatedName.isEmpty() || updatedRole == "Select Role") {
-                    Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                val updatedStaff = staff.copy(name = updatedName, role = updatedRole)
-
-                // Update Firebase: Use `firebaseUid` as the key for the user
-                database.child("users").child(staff.firebaseUid).updateChildren(
-                    mapOf(
-                        "name" to updatedName,
-                        "role" to updatedRole
-                    )
-                ).addOnSuccessListener {
-                    dialog.dismiss()
-                    Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
-
-                    // Update local list and notify adapter
-                    val index = staffList.indexOfFirst { it.firebaseUid == staff.firebaseUid }
-                    if (index != -1) {
-                        staffList[index] = updatedStaff
-                        staffAdapter.notifyItemChanged(index) // Notify only the updated item
-                    }
-                }.addOnFailureListener { exception ->
-                    Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-
-        dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
-            dialog.dismiss()
-        }
-
-        dialog.show()
-    }
-
-    private fun showDeleteConfirmationDialog(staff: Staff) {
-        AlertDialog.Builder(requireContext())
-            .setMessage("Are you sure you want to delete ${staff.name}?")
-            .setCancelable(false)
-            .setPositiveButton("Yes") { _, _ ->
-                val firebaseUid = staff.firebaseUid
-                if (firebaseUid.isNotEmpty()) {
-                    database.child("users").child(firebaseUid).removeValue()
-                        .addOnSuccessListener {
-                            staffList.remove(staff)
-                            staffAdapter.notifyDataSetChanged()
-                            Toast.makeText(requireContext(), "${staff.name} deleted successfully!", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener { exception ->
-                            Log.e("DeleteStaff", "Failed to delete: ${exception.message}")
-                            Toast.makeText(requireContext(), "Failed to delete staff: ${exception.message}", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(requireContext(), "Invalid staff UID. Cannot delete.", Toast.LENGTH_SHORT).show()
-                }
-            }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-            .create()
-            .show()
     }
 
     private fun showAddStaffDialog() {
@@ -269,6 +147,124 @@ class StaffFragment : Fragment() {
                     Toast.makeText(requireContext(), "Error: ${authTask.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun showStaffInfoDialog(staff: Staff) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_staff_info, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        val nameTextView = dialogView.findViewById<TextView>(R.id.nameText)
+        val idTextView = dialogView.findViewById<TextView>(R.id.idText)
+        val emailTextView = dialogView.findViewById<TextView>(R.id.emailText)
+        val updateButton = dialogView.findViewById<Button>(R.id.updateButton)
+        val deleteButton = dialogView.findViewById<Button>(R.id.deleteButton)
+
+        nameTextView.text = "Name: ${staff.name}"
+        idTextView.text = "ID: ${staff.id}"
+        emailTextView.text = "Email: ${staff.email}"
+
+        updateButton.setOnClickListener {
+            dialog.dismiss()
+            showUpdateStaffDialog(staff)
+        }
+
+        deleteButton.setOnClickListener {
+            dialog.dismiss()
+            showDeleteConfirmationDialog(staff)
+        }
+
+        dialog.show()
+    }
+
+    private fun showUpdateStaffDialog(staff: Staff) {
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_staff, null)
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        val idInput = dialogView.findViewById<EditText>(R.id.idInput)
+        val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
+        val emailInput = dialogView.findViewById<EditText>(R.id.emailInput)
+        val roleSpinner = dialogView.findViewById<Spinner>(R.id.roleSpinner)
+
+        idInput.setText(staff.id)
+        idInput.isEnabled = false // Make the ID field non-editable
+        nameInput.setText(staff.name)
+        emailInput.setText(staff.email)
+        emailInput.isEnabled = false // Disallow editing the email
+
+        val roles = arrayOf("Select Role", "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8")
+        val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
+        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        roleSpinner.adapter = roleAdapter
+        roleSpinner.setSelection(roles.indexOf(staff.role))
+
+        dialogView.findViewById<Button>(R.id.addButton).apply {
+            text = "Update"
+            setOnClickListener {
+                val updatedName = nameInput.text.toString().trim()
+                val updatedRole = roleSpinner.selectedItem.toString()
+
+                if (updatedName.isEmpty() || updatedRole == "Select Role") {
+                    Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+
+                val updatedStaff = staff.copy(name = updatedName, role = updatedRole)
+
+                database.child("users").child(staff.firebaseUid).updateChildren(
+                    mapOf(
+                        "name" to updatedName,
+                        "role" to updatedRole
+                    )
+                ).addOnSuccessListener {
+                    dialog.dismiss()
+                    Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
+
+                    staffList.remove(staff)
+                    staffList.add(0, updatedStaff)
+                    staffAdapter.notifyDataSetChanged()
+                }.addOnFailureListener { exception ->
+                    Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+
+        dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showDeleteConfirmationDialog(staff: Staff) {
+        AlertDialog.Builder(requireContext())
+            .setMessage("Are you sure you want to delete ${staff.name}?")
+            .setCancelable(false)
+            .setPositiveButton("Yes") { _, _ ->
+                val firebaseUid = staff.firebaseUid
+                if (firebaseUid.isNotEmpty()) {
+                    database.child("users").child(firebaseUid).removeValue()
+                        .addOnSuccessListener {
+                            staffList.remove(staff)
+                            staffAdapter.notifyDataSetChanged()
+                            Toast.makeText(requireContext(), "${staff.name} deleted successfully!", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { exception ->
+                            Log.e("DeleteStaff", "Failed to delete: ${exception.message}")
+                            Toast.makeText(requireContext(), "Failed to delete staff: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    Toast.makeText(requireContext(), "Invalid staff UID. Cannot delete.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+            .create()
+            .show()
     }
 
     private fun validateInputs(

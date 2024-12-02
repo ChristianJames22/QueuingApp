@@ -11,9 +11,11 @@
     <string-array name="course_options">
         <item>Select Course</item>
         <item>BSIT</item>
-        <item>HM</item>
+        <item>BSHM</item>
         <item>BEED</item>
         <item>SHS</item>
+        <item>BSED</item>
+        <item>BSBA</item>
     </string-array>
 
     <string name="staff_name">Name: %s</string>
