@@ -1,37 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
     android:id="@+id/main"
     android:background="@android:color/white">
 
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/backButton"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@android:drawable/ic_menu_revert"
+        android:contentDescription="Back"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp" />
+
     <!-- Title Text for Sign Up -->
     <TextView
         android:id="@+id/signupTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sign up"
+        android:text="Create a new account"
         android:textSize="24sp"
         android:textStyle="bold"
-        android:textColor="@android:color/holo_blue_dark"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@android:color/black"
+        app:layout_constraintTop_toBottomOf="@id/backButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp" />
+        android:layout_marginTop="8dp" />
 
     <!-- ID Input -->
     <EditText
         android:id="@+id/idInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="25dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/rounded_edittext"
         android:hint="ID no."
         android:padding="12dp"
+        android:textSize="16sp"
+        android:singleLine="true"
+        android:inputType="text"
+        android:importantForAutofill="noExcludeDescendants"
+        android:autofillHints="none"
         app:layout_constraintTop_toBottomOf="@id/signupTitle"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -47,6 +67,8 @@
         android:hint="Name"
         android:background="@drawable/rounded_edittext"
         android:padding="12dp"
+        android:textSize="16sp"
+        android:singleLine="true"
         app:layout_constraintTop_toBottomOf="@id/idInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -84,8 +106,6 @@
         app:layout_constraintTop_toBottomOf="@id/courseSpinner" />
 
     <!-- Email Input -->
-
-    <!-- Password Input -->
     <EditText
         android:id="@+id/emailInput"
         android:layout_width="0dp"
@@ -96,11 +116,13 @@
         android:background="@drawable/rounded_edittext"
         android:hint="Email/Username"
         android:padding="12dp"
+        android:textSize="16sp"
+        android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/yearSpinner" />
 
+    <!-- Password Input -->
     <EditText
         android:id="@+id/passwordInput"
         android:layout_width="0dp"
@@ -112,6 +134,9 @@
         android:hint="Password"
         android:inputType="textPassword"
         android:padding="12dp"
+        android:textSize="16sp"
+        android:singleLine="true"
+        android:autofillHints="password"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/emailInput" />
@@ -128,21 +153,35 @@
         android:inputType="textPassword"
         android:background="@drawable/rounded_edittext"
         android:padding="12dp"
+        android:textSize="16sp"
+        android:singleLine="true"
         app:layout_constraintTop_toBottomOf="@id/passwordInput"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <!-- Progress Bar (Loading Spinner) -->
+    <ProgressBar
+        android:id="@+id/signupProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
 
     <!-- Continue Button -->
     <Button
         android:id="@+id/continueButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="50dp"
         android:backgroundTint="@android:color/holo_green_light"
         android:padding="12dp"
-        android:text="Continue"
+        android:text="Sign up"
         android:textColor="@android:color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

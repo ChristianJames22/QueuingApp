@@ -34,7 +34,6 @@
             android:contentDescription="Logout"
             android:src="@drawable/ic_logout"
             app:tint="@android:color/white" />
-
     </RelativeLayout>
 
     <!-- Fragment Container -->

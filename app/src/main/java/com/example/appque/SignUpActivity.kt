@@ -1,8 +1,10 @@
 package com.example.appque
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.util.Patterns
+import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
@@ -42,6 +44,11 @@ class SignUpActivity : AppCompatActivity() {
 
         setupCourseSpinner()
         setupYearSpinner()
+
+        // Navigate back to login activity
+        binding.backButton.setOnClickListener {
+            finish()
+        }
 
         binding.continueButton.setOnClickListener {
             handleSignUp()
@@ -88,6 +95,7 @@ class SignUpActivity : AppCompatActivity() {
         val confirmPassword = binding.confirmPasswordInput.text.toString().trim()
 
         if (validateInputs(id, name, course, year, email, password, confirmPassword)) {
+            showLoading(true)  // Show progress bar
             registerUser(email, password, id, name, course, year)
         }
     }
@@ -125,6 +133,7 @@ class SignUpActivity : AppCompatActivity() {
     private fun registerUser(email: String, password: String, id: String, name: String, course: String, year: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
+                showLoading(false)  // Hide progress bar once done
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
                     if (userId != null) {
@@ -163,5 +172,9 @@ class SignUpActivity : AppCompatActivity() {
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showLoading(show: Boolean) {
+        binding.signupProgressBar.visibility = if (show) View.VISIBLE else View.GONE
     }
 }

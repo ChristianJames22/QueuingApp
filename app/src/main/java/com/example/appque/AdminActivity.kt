@@ -7,6 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.appque.databinding.ActivityAdminBinding
+import com.example.appque.fragments.ReminderStudentFragment
 import com.example.appque.fragments.RequestFragment
 import com.example.appque.fragments.StaffFragment
 import com.example.appque.fragments.StudentsFragment
@@ -85,6 +86,10 @@ class AdminActivity : AppCompatActivity() {
                     }
                     R.id.nav_request -> {
                         loadFragment(RequestFragment(), item.itemId)
+                        true
+                    }
+                    R.id.nav_reminders -> {
+                        loadFragment(ReminderStudentFragment(), item.itemId)
                         true
                     }
                     else -> false

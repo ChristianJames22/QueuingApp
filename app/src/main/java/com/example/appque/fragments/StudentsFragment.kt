@@ -3,6 +3,8 @@ package com.example.appque.fragments
 import Student
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +25,7 @@ class StudentsFragment : Fragment() {
 
     private lateinit var studentsAdapter: StudentsAdapter
     private val studentsList = mutableListOf<Student>()
+    private val filteredList = mutableListOf<Student>() // List for filtered results
     private val database = FirebaseDatabase.getInstance().reference
     private val auth = FirebaseAuth.getInstance()
     private var valueEventListener: ValueEventListener? = null
@@ -38,11 +41,23 @@ class StudentsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        studentsAdapter = StudentsAdapter(studentsList) { student ->
+        // Set up RecyclerView with the filtered list
+        studentsAdapter = StudentsAdapter(filteredList) { student ->
             showStudentInfoDialog(student)
         }
         binding.studentsRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.studentsRecyclerView.adapter = studentsAdapter
+
+        // Add TextWatcher to handle search functionality
+        binding.searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filterStudents(s.toString())
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
         binding.addStudentButton.setOnClickListener {
             showAddStudentDialog()
@@ -68,10 +83,11 @@ class StudentsFragment : Fragment() {
                         }
                     }
 
-                    // Replace the list with a reversed order for stack-like display
                     if (newStudentsList != studentsList) {
                         studentsList.clear()
                         studentsList.addAll(newStudentsList.reversed())
+                        filteredList.clear()
+                        filteredList.addAll(studentsList)
                         studentsAdapter.notifyDataSetChanged()
                     }
 
@@ -85,6 +101,30 @@ class StudentsFragment : Fragment() {
                     Toast.makeText(requireContext(), "Error fetching students.", Toast.LENGTH_SHORT).show()
                 }
             })
+    }
+
+    private fun filterStudents(query: String) {
+        val lowerCaseQuery = query.lowercase()
+        filteredList.clear()
+
+        if (lowerCaseQuery.isEmpty()) {
+            filteredList.addAll(studentsList)
+        } else {
+            studentsList.forEach { student ->
+                if (student.name.lowercase().contains(lowerCaseQuery) ||
+                    student.id.lowercase().contains(lowerCaseQuery) ||
+                    student.email.lowercase().contains(lowerCaseQuery) ||
+                    student.course.lowercase().contains(lowerCaseQuery) ||
+                    student.year.lowercase().contains(lowerCaseQuery)
+                ) {
+                    filteredList.add(student)
+                }
+            }
+        }
+        studentsAdapter.notifyDataSetChanged()
+
+        binding.emptyListTextView.visibility =
+            if (filteredList.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun showAddStudentDialog() {
@@ -149,6 +189,7 @@ class StudentsFragment : Fragment() {
     ) {
         val newStudent = Student(id, name, email, course, year, "student")
         studentsList.add(0, newStudent)
+        filteredList.add(0, newStudent)
         studentsAdapter.notifyItemInserted(0)
         binding.studentsRecyclerView.scrollToPosition(0)
 
@@ -169,11 +210,10 @@ class StudentsFragment : Fragment() {
         val courseSpinner = dialogView.findViewById<Spinner>(R.id.courseSpinner)
         val yearSpinner = dialogView.findViewById<Spinner>(R.id.yearSpinner)
 
-        // Pre-fill fields with existing data
         idInput.setText(student.id)
         idInput.isEnabled = false
         emailInput.setText(student.email)
-        emailInput.isEnabled = false // Disable email for updates
+        emailInput.isEnabled = false
         nameInput.setText(student.name)
 
         val courses = resources.getStringArray(R.array.course_options)
@@ -206,6 +246,8 @@ class StudentsFragment : Fragment() {
 
                 studentsList.remove(student)
                 studentsList.add(0, updatedStudent)
+                filteredList.clear()
+                filteredList.addAll(studentsList)
                 studentsAdapter.notifyDataSetChanged()
                 Toast.makeText(requireContext(), "Student updated successfully!", Toast.LENGTH_SHORT).show()
                 dialog.dismiss()
@@ -256,7 +298,6 @@ class StudentsFragment : Fragment() {
             .setMessage("Are you sure you want to delete ${student.name}?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
-                // Find the student in the database using their unique ID
                 database.child("users").orderByChild("id").equalTo(student.id)
                     .addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(snapshot: DataSnapshot) {
@@ -264,8 +305,9 @@ class StudentsFragment : Fragment() {
                                 for (childSnapshot in snapshot.children) {
                                     childSnapshot.ref.removeValue()
                                         .addOnSuccessListener {
-                                            // Remove the student from the local list and notify the adapter
                                             studentsList.remove(student)
+                                            filteredList.clear()
+                                            filteredList.addAll(studentsList)
                                             studentsAdapter.notifyDataSetChanged()
                                             Toast.makeText(requireContext(), "Student deleted successfully!", Toast.LENGTH_SHORT).show()
                                         }
@@ -287,7 +329,6 @@ class StudentsFragment : Fragment() {
             .create()
             .show()
     }
-
 
     private fun setupYearSpinner(yearSpinner: Spinner, selectedCourse: String) {
         val years = when (selectedCourse) {

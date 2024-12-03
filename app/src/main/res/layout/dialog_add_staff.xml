@@ -29,7 +29,8 @@
             android:padding="12dp"
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="12dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:singleLine="true" />
 
         <!-- Name -->
         <EditText
@@ -40,7 +41,8 @@
             android:padding="12dp"
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="12dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:singleLine="true" />
 
         <!-- Role -->
         <Spinner
@@ -60,7 +62,8 @@
             android:padding="12dp"
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="12dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:singleLine="true" />
 
         <!-- Password -->
         <EditText
@@ -72,7 +75,8 @@
             android:padding="12dp"
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="12dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:singleLine="true" />
 
         <!-- Confirm Password -->
         <EditText
@@ -84,7 +88,8 @@
             android:padding="12dp"
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="16dp"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:singleLine="true" />
 
         <!-- Buttons -->
         <LinearLayout

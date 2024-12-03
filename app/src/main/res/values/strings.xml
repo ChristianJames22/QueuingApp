@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">ATCI Queue</string>
     <string name="logout">Logout</string>
     <string name="window_1">Window 1</string>
@@ -25,12 +25,12 @@
     <string name="select_appointment_prompt">Select an Appointment</string>
 
     <string-array name="spinner_cashier">
-            <item>Select</item>
-            <item>Payment</item>
-            <item>Receipt</item>
-            <item>Permit Number</item>
-            <item>Balance Inquiry</item>
-        </string-array>
+        <item>Select</item>
+        <item>Payment</item>
+        <item>Receipt</item>
+        <item>Permit Number</item>
+        <item>Balance Inquiry</item>
+    </string-array>
 
     <string-array name="spinner_window2">
         <item>Select</item>
@@ -100,5 +100,42 @@
         <item>G-12</item>
     </string-array>
 
+    <!-- Terms of Service and Privacy Policy -->
+    <string name="terms_of_service_content">
+        Here is the content for the Terms of Service.
+    </string>
 
+    <string name="privacy_policy_content">
+        <![CDATA[
+        <b>Privacy Policy for AppQue</b><br>
+        Effective Date: [Insert Date]<br><br>
+        AppQue ("we," "our," or "us") is committed to protecting your privacy.<br>
+        This policy explains how we collect, use, and protect your personal information when you use our queuing appointment system for [Your School Name].<br><br>
+        <b>1. What We Collect</b><br>
+        <b>Personal Information:</b> Name, Student ID, Email, Course, Year Level, Password.<br>
+        <b>Appointment Details:</b> Appointment date, time, and purpose.<br>
+        <b>Device Information:</b> Non-personal data like device type and usage.<br><br>
+        <b>2. How We Use Your Information</b><br>
+        - To manage your account and appointments.<br>
+        - To communicate updates and reminders.<br>
+        - To improve system functionality and security.<br><br>
+        <b>3. Data Sharing</b><br>
+        We only share your data with:<br>
+        - <b>School Administration:</b> To verify and manage appointments.<br>
+        - <b>Firebase Services:</b> For secure authentication and storage.<br><br>
+        <b>4. Data Security</b><br>
+        We use secure systems, including Firebase, to protect your information. While we take all reasonable precautions, no system is completely secure.<br><br>
+        <b>5. Your Rights</b><br>
+        You can:<br>
+        - Access or update your information.<br>
+        - Request deletion of your account.<br>
+        - Contact us at [Insert Email Address] to exercise these rights.<br><br>
+        <b>6. Changes to This Policy</b><br>
+        We may update this policy and will notify you of significant changes.<br><br>
+        <b>7. Contact Us</b><br>
+        For questions, contact us at:<br>
+        Email: [Insert Email Address]<br>
+        Phone: [Insert Phone Number]<br>
+        ]]>
+    </string>
 </resources>

@@ -11,4 +11,8 @@
         android:id="@+id/nav_request"
         android:icon="@drawable/ic_request"
         android:title="Request" />
+    <item
+        android:id="@+id/nav_reminders"
+        android:icon="@drawable/ic_reminders"
+        android:title="Reminders" />
 </menu>

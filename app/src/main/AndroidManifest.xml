@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -14,48 +15,88 @@
         android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
-
+        <activity
+            android:name=".fragments.ReminderStudentFragment"
+            android:exported="false" />
         <!-- Activities -->
-        <activity android:name=".StudentActivity" android:exported="false" />
-        <activity android:name=".Window7Activity" android:exported="true" />
-        <activity android:name=".Window6Activity" android:exported="true" />
-        <activity android:name=".Window5Activity" android:exported="true" />
-        <activity android:name=".Window4Activity" android:exported="true" />
-        <activity android:name=".Window3Activity" android:exported="true" />
-        <activity android:name=".Window2Activity" android:exported="true" />
-        <activity android:name=".Window8Activity" android:exported="false" />
-
-        <!-- Firebase Metadata -->
+        <activity
+            android:name=".StudentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Window7Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window6Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window5Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window4Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window3Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window2Activity"
+            android:exported="true" />
+        <activity
+            android:name=".Window8Activity"
+            android:exported="false" /> <!-- Firebase Metadata -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/logo" />
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/purple_500" />
-
-        <!-- Launcher Activity -->
+            android:resource="@color/purple_500" /> <!-- Launcher Activity -->
         <activity
             android:name=".SplashActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Other Activities -->
-        <activity android:name=".MainActivity" android:exported="true" />
-        <activity android:name=".SignUpActivity" android:exported="true" />
-        <activity android:name=".AdminActivity" android:exported="false" />
-        <activity android:name=".CashierActivity" android:exported="true" />
-        <activity android:name=".StudentCashierActivity" android:exported="false" />
-        <activity android:name=".StudentWindow2Activity" android:exported="false" />
-        <activity android:name=".StudentWindow3Activity" android:exported="false" />
-        <activity android:name=".StudentWindow4Activity" android:exported="false" />
-        <activity android:name=".StudentWindow5Activity" android:exported="false" />
-        <activity android:name=".StudentWindow6Activity" android:exported="false" />
-        <activity android:name=".StudentWindow7Activity" android:exported="false" />
-        <activity android:name=".StudentWindow8Activity" android:exported="false" />
-        <activity android:name=".ProfileActivity" android:exported="false" />
+        </activity> <!-- Other Activities -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true" />
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="true" />
+        <activity
+            android:name=".AdminActivity"
+            android:exported="false" />
+        <activity
+            android:name=".CashierActivity"
+            android:exported="true" />
+        <activity
+            android:name=".StudentCashierActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow2Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow3Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow4Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow5Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow6Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow7Activity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentWindow8Activity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
     </application>
+
 </manifest>

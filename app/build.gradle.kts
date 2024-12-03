@@ -52,6 +52,8 @@ dependencies {
 
     // Material Design
     implementation("com.google.android.material:material:1.9.0")
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
 
     // Testing
     testImplementation("junit:junit:4.13.2")

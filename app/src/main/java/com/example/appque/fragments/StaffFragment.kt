@@ -3,6 +3,8 @@ package com.example.appque.fragments
 import Staff
 import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +25,7 @@ class StaffFragment : Fragment() {
 
     private lateinit var staffAdapter: StaffAdapter
     private val staffList = mutableListOf<Staff>()
+    private val filteredList = mutableListOf<Staff>() // List for filtered results
     private val database = FirebaseDatabase.getInstance().reference
     private val auth = FirebaseAuth.getInstance()
     private val VALID_ROLES = listOf(
@@ -40,12 +43,23 @@ class StaffFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        staffAdapter = StaffAdapter(staffList) { staff ->
+        // Set up RecyclerView with filtered list
+        staffAdapter = StaffAdapter(filteredList) { staff ->
             showStaffInfoDialog(staff)
         }
-
         binding.staffRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.staffRecyclerView.adapter = staffAdapter
+
+        // Add TextWatcher to handle search functionality
+        binding.searchEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                filterStaff(s.toString())
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
 
         binding.addStaffButton.setOnClickListener {
             showAddStaffDialog()
@@ -71,6 +85,8 @@ class StaffFragment : Fragment() {
                             }
                         }
                     }
+                    filteredList.clear()
+                    filteredList.addAll(staffList)
                     staffAdapter.notifyDataSetChanged()
                     binding.emptyListTextView.visibility =
                         if (staffList.isEmpty()) View.VISIBLE else View.GONE
@@ -81,6 +97,29 @@ class StaffFragment : Fragment() {
                     Toast.makeText(requireContext(), "Error fetching staff: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             })
+    }
+
+    private fun filterStaff(query: String) {
+        val lowerCaseQuery = query.lowercase()
+        filteredList.clear()
+
+        if (lowerCaseQuery.isEmpty()) {
+            filteredList.addAll(staffList)
+        } else {
+            staffList.forEach { staff ->
+                if (staff.name.lowercase().contains(lowerCaseQuery) ||
+                    staff.id.lowercase().contains(lowerCaseQuery) ||
+                    staff.email.lowercase().contains(lowerCaseQuery) ||
+                    staff.role.lowercase().contains(lowerCaseQuery)
+                ) {
+                    filteredList.add(staff)
+                }
+            }
+        }
+        staffAdapter.notifyDataSetChanged()
+
+        binding.emptyListTextView.visibility =
+            if (filteredList.isEmpty()) View.VISIBLE else View.GONE
     }
 
     private fun showAddStaffDialog() {
@@ -136,6 +175,7 @@ class StaffFragment : Fragment() {
                                 dialog.dismiss()
                                 Toast.makeText(requireContext(), "Staff added successfully!", Toast.LENGTH_SHORT).show()
                                 staffList.add(0, staff)
+                                filteredList.add(0, staff)
                                 staffAdapter.notifyItemInserted(0)
                                 binding.staffRecyclerView.scrollToPosition(0)
                             }
@@ -192,10 +232,10 @@ class StaffFragment : Fragment() {
         val roleSpinner = dialogView.findViewById<Spinner>(R.id.roleSpinner)
 
         idInput.setText(staff.id)
-        idInput.isEnabled = false // Make the ID field non-editable
+        idInput.isEnabled = false
         nameInput.setText(staff.name)
         emailInput.setText(staff.email)
-        emailInput.isEnabled = false // Disallow editing the email
+        emailInput.isEnabled = false
 
         val roles = arrayOf("Select Role", "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8")
         val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
@@ -227,6 +267,8 @@ class StaffFragment : Fragment() {
 
                     staffList.remove(staff)
                     staffList.add(0, updatedStaff)
+                    filteredList.clear()
+                    filteredList.addAll(staffList)
                     staffAdapter.notifyDataSetChanged()
                 }.addOnFailureListener { exception ->
                     Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
@@ -251,6 +293,8 @@ class StaffFragment : Fragment() {
                     database.child("users").child(firebaseUid).removeValue()
                         .addOnSuccessListener {
                             staffList.remove(staff)
+                            filteredList.clear()
+                            filteredList.addAll(staffList)
                             staffAdapter.notifyDataSetChanged()
                             Toast.makeText(requireContext(), "${staff.name} deleted successfully!", Toast.LENGTH_SHORT).show()
                         }

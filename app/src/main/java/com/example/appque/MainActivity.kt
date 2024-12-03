@@ -1,4 +1,5 @@
 package com.example.appque
+
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -9,7 +10,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.text.HtmlCompat
 import com.example.appque.databinding.ActivityMainBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -46,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
+        // Login Button Click
         binding.loginButton.setOnClickListener {
             val enteredEmail = binding.emailInput.text.toString().trim()
             val enteredPassword = binding.passwordInput.text.toString().trim()
@@ -56,8 +60,15 @@ class MainActivity : AppCompatActivity() {
             loginUser(enteredEmail, enteredPassword)
         }
 
+        // Sign Up Link Click
         binding.signUpLink.setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))
+        }
+
+        // Terms and Privacy Link Click
+        binding.termsPrivacyLink.setOnClickListener {
+            val termsAndPrivacyContent = getString(R.string.terms_of_service_content) + "\n\n" + getString(R.string.privacy_policy_content)
+            showPopup("Terms of Service and Privacy Policy", termsAndPrivacyContent)
         }
     }
 
@@ -160,6 +171,15 @@ class MainActivity : AppCompatActivity() {
             Log.e("MainActivity", "Custom toast error: ${e.message}")
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun showPopup(title: String, message: String) {
+        AlertDialog.Builder(this)
+            .setTitle(title)
+            .setMessage(HtmlCompat.fromHtml(message, HtmlCompat.FROM_HTML_MODE_LEGACY))
+            .setPositiveButton("Close") { dialog, _ -> dialog.dismiss() }
+            .create()
+            .show()
     }
 
     override fun onBackPressed() {
