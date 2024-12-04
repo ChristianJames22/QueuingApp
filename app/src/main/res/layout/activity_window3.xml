@@ -2,7 +2,6 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp">
@@ -12,7 +11,7 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="48dp"
         android:text="Window 3"
         android:textColor="#3F51B5"
         android:textSize="30sp"
@@ -22,29 +21,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Settings Button -->
+    <!-- Serving Now Label -->
     <ImageButton
-        android:id="@+id/settingsButton"
+        android:id="@+id/burgerButton"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_marginEnd="76dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
-        android:contentDescription="Settings"
-        android:src="@android:drawable/ic_menu_manage"
-        app:layout_constraintBottom_toTopOf="@+id/title"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
-
+        android:contentDescription="Menu"
+        android:src="@drawable/ic_menu"
+        app:layout_constraintEnd_toStartOf="@+id/title"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tvServingLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Serving now.."
+        android:text="Serving now..."
         android:textColor="@color/deep_purple"
-        android:textSize="18sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -76,7 +71,7 @@
         android:layout_marginTop="15dp"
         android:text="Next:"
         android:textColor="@color/deep_purple"
-        android:textSize="18sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/scrollViewNext"
         app:layout_constraintEnd_toEndOf="parent"
@@ -107,34 +102,32 @@
     </ScrollView>
 
     <!-- Reset Button -->
-
-    <!-- Next Button -->
-
     <Button
         android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="84dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@android:color/holo_red_dark"
         android:text="Reset"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/nextButton"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollViewNext"
-        app:layout_constraintVertical_bias="0.091" />
+        app:layout_constraintTop_toBottomOf="@+id/scrollViewNext" />
 
+    <!-- Next Button -->
     <Button
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@color/Charcoal"
         android:text="Next"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.361"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
-        app:layout_constraintTop_toBottomOf="@+id/scrollViewNext"
-        app:layout_constraintVertical_bias="0.091" />
+        app:layout_constraintTop_toBottomOf="@+id/scrollViewNext" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,41 +9,51 @@ import com.google.firebase.database.*
 class StudentCashierActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityStudentCashierBinding
-    private lateinit var database: FirebaseDatabase
+    private lateinit var database: DatabaseReference
     private var currentQueueNumber = 0
-    private var userName: String? = null // To store the user's name
+    private var userName: String? = null
+    private var userHasAppointment = false // Track if the user has an appointment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStudentCashierBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize Firebase database
-        database = FirebaseDatabase.getInstance()
-
-        // Retrieve the user's name from intent
+        // Initialize Firebase database for queue
+        database = FirebaseDatabase.getInstance().reference.child("queue")
         userName = intent.getStringExtra("userName") ?: "Unknown User"
 
-        // Fetch the current queue number from Firebase
+        // Fetch the current queue number
         fetchCurrentQueueNumber()
 
-        // Back arrow button functionality
-        binding.backArrowButton.setOnClickListener {
-            finish()
-        }
+        // Check if the user already has an appointment
+        checkUserAppointmentStatus()
+
+        // Back button functionality
+        binding.backArrowButton.setOnClickListener { finish() }
 
         // Add appointment button functionality
         binding.addButton.setOnClickListener {
-            val selectedAppointment = binding.spinnerAppointmentOptions.selectedItem.toString()
-            if (selectedAppointment == "Select") {
-                Toast.makeText(this, "Please select an appointment type.", Toast.LENGTH_SHORT).show()
+            if (userHasAppointment) {
+                // Show a prompt if the user already has an appointment
+                Toast.makeText(
+                    this,
+                    "You already have an active appointment. You cannot add another.",
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
-                addAppointment(selectedAppointment)
+                val selectedAppointment = binding.spinnerAppointmentOptions.selectedItem.toString()
+                if (selectedAppointment == "Select") {
+                    Toast.makeText(this, "Please select an appointment type.", Toast.LENGTH_SHORT)
+                        .show()
+                } else {
+                    addAppointment(selectedAppointment)
+                }
             }
         }
 
-        // Real-time listener for appointment queue updates
-        database.getReference("queue").addValueEventListener(object : ValueEventListener {
+        // Real-time listener for queue updates
+        database.child("appointments").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 updateDisplay(snapshot)
             }
@@ -60,10 +70,9 @@ class StudentCashierActivity : AppCompatActivity() {
 
     private fun fetchCurrentQueueNumber() {
         // Fetch the last known queue number from Firebase
-        database.getReference("queue").child("currentQueueNumber")
+        database.child("currentQueueNumber")
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
-                    // If a queue number exists, set it; otherwise, default to 0
                     currentQueueNumber = snapshot.getValue(Int::class.java) ?: 0
                 }
 
@@ -77,33 +86,60 @@ class StudentCashierActivity : AppCompatActivity() {
             })
     }
 
+    private fun checkUserAppointmentStatus() {
+        // Check if the user already has an appointment in the queue
+        database.child("appointments")
+            .orderByValue()
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    // Check if any appointment matches the current user's name
+                    userHasAppointment = snapshot.children.any {
+                        it.value.toString().contains(userName ?: "")
+                    }
+
+                    if (userHasAppointment) {
+                        Toast.makeText(
+                            this@StudentCashierActivity,
+                            "You already have an active appointment.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(
+                        this@StudentCashierActivity,
+                        "Error checking appointment status: ${error.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            })
+    }
+
     private fun addAppointment(selectedAppointment: String) {
-        // Increment queue number
         currentQueueNumber++
 
-        // Create appointment entry
-        val appointment =
-            "Name: $userName - $selectedAppointment\nQueue No: $currentQueueNumber\n"
-        // Push the appointment to the database
-        database.getReference("queue").child("appointments").push().setValue(appointment)
-        database.getReference("queue").child("currentQueueNumber").setValue(currentQueueNumber)
+        val appointment = "Name: $userName - $selectedAppointment\nQueue No: $currentQueueNumber\n"
 
-        // Notify the user
+        database.child("appointments").push().setValue(appointment)
+        database.child("currentQueueNumber").setValue(currentQueueNumber)
+
         Toast.makeText(this, "Appointment added to queue.", Toast.LENGTH_SHORT).show()
+
+        // Re-check the user's appointment status
+        checkUserAppointmentStatus()
     }
 
     private fun updateDisplay(snapshot: DataSnapshot) {
-        // Fetch appointments from the database
-        val appointments = snapshot.child("appointments").children.map { it.value.toString() }
-
-        // Update the "Serving Now" and "Next" displays
+        val appointments = snapshot.children.map { it.value.toString() }
         if (appointments.isEmpty()) {
             binding.tvServingNow.text = "No appointment"
             binding.tvNextInLine.text = ""
+            // Re-enable the "Add Appointment" button if there are no appointments
+            userHasAppointment = false
         } else {
             binding.tvServingNow.text = appointments.firstOrNull()
-            binding.tvNextInLine.text =
-                appointments.drop(1).joinToString("\n")
+            binding.tvNextInLine.text = appointments.drop(1).joinToString("\n")
         }
     }
 }

@@ -37,18 +37,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="2dp" />
 
-    <!-- Logo Image -->
+
+    <!-- Email Input -->
     <ImageView
         android:id="@+id/logoImage"
         android:layout_width="150dp"
         android:layout_height="100dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/logo"
-        app:layout_constraintTop_toBottomOf="@id/titleText2"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        app:layout_constraintHorizontal_bias="0.502"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/titleText2" />
 
-    <!-- Email Input -->
     <EditText
         android:id="@+id/emailInput"
         android:layout_width="0dp"
