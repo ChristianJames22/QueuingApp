@@ -164,6 +164,11 @@ class StaffFragment : Fragment() {
     }
 
     private fun addStaff(id: String, name: String, email: String, role: String, password: String, dialog: AlertDialog) {
+        if (role == "Select Role" || role.isEmpty()) {
+            Toast.makeText(requireContext(), "Please select a valid role.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { authTask ->
                 if (authTask.isSuccessful) {
@@ -188,6 +193,7 @@ class StaffFragment : Fragment() {
                 }
             }
     }
+
 
     private fun showStaffInfoDialog(staff: Staff) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_staff_info, null)

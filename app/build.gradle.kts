@@ -43,7 +43,6 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation ("androidx.gridlayout:gridlayout:1.0.0")
     implementation ("com.google.firebase:firebase-database:20.2.3")
-    implementation ("com.google.android.material:material:1.9.0")
 
     implementation ("com.google.firebase:firebase-database:20.5.3")
 
