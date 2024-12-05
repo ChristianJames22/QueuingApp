@@ -26,68 +26,73 @@
 
     <string-array name="spinner_cashier">
         <item>Select</item>
-        <item>Payment</item>
-        <item>Receipt</item>
-        <item>Permit Number</item>
-        <item>Balance Inquiry</item>
+        <item>Enrollment Payments</item>
+        <item>Tuition Payments</item>
+        <item>Document Fees</item>
+        <item>Penalty Payments</item>
+        <item>Refund Processing</item>
+        <item>Miscellaneous Payments</item>
+        <item>Payment Plans</item>
+        <item>Balance Clearance</item>
+        <item>Financial Clearance</item>
     </string-array>
 
     <string-array name="spinner_window2">
         <item>Select</item>
-        <item>Inquire</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
+        <item>Student Enrollment</item>
+        <item>Record Updates</item>
+        <item>Certificate Requests</item>
+        <item>Transfer Processing</item>
     </string-array>
 
     <string-array name="spinner_window3">
         <item>Select</item>
-        <item>Inquire</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
+        <item>Transcript Requests</item>
+        <item>Grade Issuance</item>
+        <item>Academic Records</item>
+        <item>Room Assignments</item>
     </string-array>
 
     <string-array name="spinner_window4">
         <item>Select</item>
-        <item>Clearance </item>
-        <item>Scholarship Program</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
+        <item>Clearance Processing</item>
+        <item>Scholarship Assistance</item>
+        <item>Graduation Applications</item>
+        <item>Diploma Release</item>
     </string-array>
 
     <string-array name="spinner_window5">
         <item>Select</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
+        <item>Class Scheduling</item>
+        <item>Grade Evaluation</item>
+        <item>Academic Policies</item>
+        <item>Enrollment Verification</item>
     </string-array>
 
     <string-array name="spinner_window6">
         <item>Select</item>
-        <item>Class Scheduling</item>
-        <item>Grades, Evaluate</item>
-        <item>Academic Policies</item>
-        <item>Enrollment Verification</item>
-        <item>Credentials</item>
+        <item>SHS Credentials</item>
+        <item>Diploma Authentication</item>
+        <item>Certification Issuance</item>
+        <item>Document Release</item>
     </string-array>
 
     <string-array name="spinner_window7">
         <item>Select</item>
-        <item>Statement of account</item>
-        <item>Wela</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
+        <item>Statement of Account</item>
+        <item>Fee Adjustments</item>
+        <item>Payment Verification</item>
+        <item>Final Clearance</item>
     </string-array>
 
     <string-array name="spinner_window8">
         <item>Select</item>
-        <item>SHS Credentials</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
-        <item>Unknown</item>
+        <item>SHS Enrollment</item>
+        <item>SHS Transcript</item>
+        <item>SHS Certifications</item>
+        <item>SHS Diploma</item>
     </string-array>
+
 
     <!-- Predefined Year Options -->
     <string-array name="year_options">
