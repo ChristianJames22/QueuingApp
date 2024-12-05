@@ -91,6 +91,10 @@
         <item>SHS Transcript</item>
         <item>SHS Certifications</item>
         <item>SHS Diploma</item>
+        <item>College Transcript</item>
+        <item>College Certifications</item>
+        <item>College Diploma</item>
+        <item>College Credentials</item>
     </string-array>
 
 
