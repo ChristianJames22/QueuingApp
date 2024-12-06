@@ -89,7 +89,7 @@ class AdminActivity : AppCompatActivity() {
                         true
                     }
                     R.id.nav_reminders -> {
-                        loadFragment(ReminderStudentFragment(), item.itemId)
+                        loadFragment(ReminderStudentFragment<Any>(), item.itemId)
                         true
                     }
                     else -> false

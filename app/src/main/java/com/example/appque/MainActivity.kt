@@ -20,7 +20,6 @@ import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : AppCompatActivity() {
 
-    // Declare global variables
     private lateinit var binding: ActivityMainBinding
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
@@ -31,24 +30,20 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize FirebaseAuth and FirebaseDatabase
+        // Initialize Firebase Authentication and Database
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
-
-        // Initialize SharedPreferences
         sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
-        // Auto-login if user is already authenticated and not logged out
+        // Auto-login if user session exists
         val currentUser = auth.currentUser
         val loggedOut = sharedPreferences.getBoolean("logged_out", false)
         if (currentUser != null && !loggedOut) {
             currentUser.reload()
                 .addOnCompleteListener { reloadTask ->
                     if (reloadTask.isSuccessful) {
-                        // Navigate based on user role
                         navigateBasedOnRole()
                     } else {
-                        // Show toast and log the user out if session is expired
                         showCustomToast("Session expired. Please log in again.")
                         auth.signOut()
                     }
@@ -60,10 +55,8 @@ class MainActivity : AppCompatActivity() {
             val enteredEmail = binding.emailInput.text.toString().trim()
             val enteredPassword = binding.passwordInput.text.toString().trim()
 
-            // Validate inputs; return if invalid
             if (!validateInputs(enteredEmail, enteredPassword)) return@setOnClickListener
 
-            // Show loading indicator and log in the user
             showLoading(true)
             loginUser(enteredEmail, enteredPassword)
         }
@@ -80,21 +73,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Validate email and password inputs
+    // Validate email and password input
     private fun validateInputs(email: String, password: String): Boolean {
         return when {
             email.isEmpty() || password.isEmpty() -> {
-                // Show error if fields are empty
                 showCustomToast("Please fill in all fields.")
                 false
             }
             !Patterns.EMAIL_ADDRESS.matcher(email).matches() -> {
-                // Show error if email format is invalid
                 showCustomToast("Invalid email format.")
                 false
             }
             password.length < 6 -> {
-                // Show error if password is too short
                 showCustomToast("Password must be at least 6 characters.")
                 false
             }
@@ -102,7 +92,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    // Log in the user using Firebase Authentication
+    // Authenticate user and validate against Firebase Authentication
     private fun loginUser(email: String, password: String) {
         auth.signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
@@ -110,43 +100,52 @@ class MainActivity : AppCompatActivity() {
                 if (task.isSuccessful) {
                     val userId = auth.currentUser?.uid
                     if (userId != null) {
-                        // Update shared preferences and navigate based on role
-                        sharedPreferences.edit().putBoolean("logged_out", false).apply()
-                        navigateBasedOnRole()
+                        validateUserInDatabase(userId)
                     } else {
                         showCustomToast("Login successful, but failed to retrieve user data.")
                     }
                 } else {
-                    // Handle login failure and show error messages
-                    Log.e("MainActivity", "Login failed: ${task.exception?.message}")
-                    val errorMessage = when (task.exception?.localizedMessage) {
-                        "The password is invalid or the user does not have a password." -> "Invalid password. Please try again."
-                        "There is no user record corresponding to this identifier." -> "No account found with this email."
-                        else -> "Login failed. Please try again later."
-                    }
-                    showCustomToast(errorMessage)
+                    Log.e("MainActivity", "Authentication failed: ${task.exception?.message}")
+                    showCustomToast("Invalid email or password.")
                 }
             }
     }
 
-    // Navigate to the appropriate activity based on user role
+    // Validate user in Firebase Realtime Database
+    private fun validateUserInDatabase(userId: String) {
+        database.child("users").child(userId).get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot.exists()) {
+                    sharedPreferences.edit().putBoolean("logged_out", false).apply()
+                    val role = snapshot.child("role").value?.toString() ?: "unknown"
+                    navigateToActivityBasedOnRole(role)
+                } else {
+                    showCustomToast("Invalid email or password.")
+                    auth.signOut()
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("MainActivity", "Database error: ${exception.message}")
+                showCustomToast("Login failed. Please try again later.")
+            }
+    }
+
+    // Navigate based on user role
     private fun navigateBasedOnRole() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
-            // Retrieve role from Firebase Realtime Database
             database.child("users").child(currentUser.uid).get()
                 .addOnSuccessListener { snapshot ->
                     val role = snapshot.child("role").value?.toString() ?: "unknown"
                     navigateToActivityBasedOnRole(role)
                 }
                 .addOnFailureListener {
-                    // Show error if role retrieval fails
                     showCustomToast("Error retrieving user role. Please try again.")
                 }
         }
     }
 
-    // Map user role to activity and navigate
+    // Navigate user to appropriate activity based on their role
     private fun navigateToActivityBasedOnRole(role: String) {
         val destination = when (role) {
             "admin" -> AdminActivity::class.java
@@ -160,12 +159,10 @@ class MainActivity : AppCompatActivity() {
             "staff8" -> Window8Activity::class.java
             "student" -> StudentActivity::class.java
             else -> {
-                // Default to MainActivity for unknown roles
                 showCustomToast("Unknown role. Navigating back to login.")
                 MainActivity::class.java
             }
         }
-        // Start activity and finish current one
         startActivity(Intent(this, destination))
         finish()
     }
@@ -175,7 +172,7 @@ class MainActivity : AppCompatActivity() {
         binding.loginProgressBar.visibility = if (show) View.VISIBLE else View.GONE
     }
 
-    // Show a custom toast message
+    // Custom toast message
     private fun showCustomToast(message: String) {
         try {
             val inflater: LayoutInflater = layoutInflater
@@ -184,7 +181,6 @@ class MainActivity : AppCompatActivity() {
             val text: TextView = layout.findViewById(R.id.toastText)
             text.text = message
 
-            // Display the toast in the center of the screen
             Toast(applicationContext).apply {
                 duration = Toast.LENGTH_SHORT
                 view = layout
@@ -192,13 +188,12 @@ class MainActivity : AppCompatActivity() {
                 show()
             }
         } catch (e: Exception) {
-            // Fallback to default toast if custom toast fails
             Log.e("MainActivity", "Custom toast error: ${e.message}")
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
         }
     }
 
-    // Show a popup with given title and message
+    // Show popup for terms and privacy
     private fun showPopup(title: String, message: String) {
         AlertDialog.Builder(this)
             .setTitle(title)
@@ -208,7 +203,6 @@ class MainActivity : AppCompatActivity() {
             .show()
     }
 
-    // Override back button to close the app
     override fun onBackPressed() {
         finishAffinity()
     }

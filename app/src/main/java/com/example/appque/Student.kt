@@ -1,8 +1,9 @@
 data class Student(
-    var id: String = "", // Custom ID from database
-    var name: String = "",
-    var email: String = "",
-    var course: String = "",
-    var year: String = "",
-    var role: String = "student"
+    var uid: String = "",  // Firebase Authentication UID
+    val id: String = "",   // Student ID
+    val name: String = "",
+    val email: String = "",
+    val course: String = "",
+    val year: String = "",
+    val role: String = "student"
 )

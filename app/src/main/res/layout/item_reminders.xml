@@ -1,0 +1,15 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/rounded_edittext"
+    android:layout_margin="8dp">
+
+    <TextView
+        android:id="@+id/RemindersTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="16sp" />
+</LinearLayout>
