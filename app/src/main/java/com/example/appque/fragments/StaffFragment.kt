@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appque.R
 import com.example.appque.StaffAdapter
 import com.example.appque.databinding.FragmentStaffBinding
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
@@ -28,8 +29,8 @@ class StaffFragment : Fragment() {
     private val filteredList = mutableListOf<Staff>() // List for filtered results
     private val database = FirebaseDatabase.getInstance().reference
     private val auth = FirebaseAuth.getInstance()
-    private val VALID_ROLES = listOf(
-        "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8"
+    private val VALID_WINDOWS = listOf(
+        "window1", "window2", "window3", "window4", "window5", "window6", "window7", "window8"
     )
 
     override fun onCreateView(
@@ -68,7 +69,7 @@ class StaffFragment : Fragment() {
         fetchStaff()
     }
 
-    private fun fetchStaff() {
+     private fun fetchStaff() {
         binding.progressBar.visibility = View.VISIBLE
 
         database.child("users")
@@ -78,12 +79,13 @@ class StaffFragment : Fragment() {
                     staffList.clear()
                     for (childSnapshot in snapshot.children) {
                         val staff = childSnapshot.getValue(Staff::class.java)
-                        if (staff?.role in VALID_ROLES) {
+                        if (staff?.role in VALID_WINDOWS) {  // Adjusted to check for `window1` to `window8`
                             staff?.let {
                                 it.firebaseUid = childSnapshot.key ?: "" // Attach Firebase UID
-                                staffList.add(0, it) // Add to top of the list
+                                staffList.add(0, it)
                             }
                         }
+
                     }
                     filteredList.clear()
                     filteredList.addAll(staffList)
@@ -137,11 +139,12 @@ class StaffFragment : Fragment() {
         val roleSpinner = dialogView.findViewById<Spinner>(R.id.roleSpinner)
 
         val roles = arrayOf(
-            "Select Role", "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8"
+            "Select Window", "window1", "window2", "window3", "window4", "window5", "window6", "window7", "window8"
         )
         val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         roleSpinner.adapter = roleAdapter
+
 
         dialogView.findViewById<Button>(R.id.addButton).setOnClickListener {
             val id = idInput.text.toString().trim()
@@ -162,14 +165,29 @@ class StaffFragment : Fragment() {
 
         dialog.show()
     }
-
-    private fun addStaff(id: String, name: String, email: String, role: String, password: String, dialog: AlertDialog) {
-        if (role == "Select Role" || role.isEmpty()) {
-            Toast.makeText(requireContext(), "Please select a valid role.", Toast.LENGTH_SHORT).show()
+    private fun addStaff(
+        id: String,
+        name: String,
+        email: String,
+        role: String,
+        password: String,
+        dialog: AlertDialog
+    ) {
+        if (role == "Select Window" || role.isEmpty()) {
+            Toast.makeText(requireContext(), "Please select a valid window.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        auth.createUserWithEmailAndPassword(email, password)
+        // Initialize a secondary Firebase auth instance
+        val secondaryAuth = FirebaseAuth.getInstance(
+            FirebaseApp.getInstance("SecondaryApp") ?: FirebaseApp.initializeApp(
+                requireContext(),
+                FirebaseApp.getInstance().options,
+                "SecondaryApp"
+            )
+        )
+
+        secondaryAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { authTask ->
                 if (authTask.isSuccessful) {
                     val userId = authTask.result?.user?.uid
@@ -177,6 +195,9 @@ class StaffFragment : Fragment() {
                         val staff = Staff(id, name, email, role).apply { firebaseUid = userId }
                         database.child("users").child(userId).setValue(staff)
                             .addOnSuccessListener {
+                                // Sign out secondary auth to maintain admin session
+                                secondaryAuth.signOut()
+
                                 dialog.dismiss()
                                 Toast.makeText(requireContext(), "Staff added successfully!", Toast.LENGTH_SHORT).show()
                                 staffList.add(0, staff)
@@ -193,6 +214,7 @@ class StaffFragment : Fragment() {
                 }
             }
     }
+
 
 
     private fun showStaffInfoDialog(staff: Staff) {
@@ -226,68 +248,72 @@ class StaffFragment : Fragment() {
     }
 
     private fun showUpdateStaffDialog(staff: Staff) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_staff, null)
+        // Inflate the updated dialog layout
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_update_staff, null)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .setCancelable(true)
             .create()
 
-        val idInput = dialogView.findViewById<EditText>(R.id.idInput)
+        // Bind UI elements to the dialog
         val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
-        val emailInput = dialogView.findViewById<EditText>(R.id.emailInput)
         val roleSpinner = dialogView.findViewById<Spinner>(R.id.roleSpinner)
 
-        idInput.setText(staff.id)
-        idInput.isEnabled = false
+        // Pre-fill fields with staff data
         nameInput.setText(staff.name)
-        emailInput.setText(staff.email)
-        emailInput.isEnabled = false
 
-        val roles = arrayOf("Select Role", "staff1", "staff2", "staff3", "staff4", "staff5", "staff6", "staff7", "staff8")
+        // Set up role spinner with roles
+        val roles = arrayOf("Select Window", "window1", "window2", "window3", "window4", "window5", "window6", "window7", "window8")
         val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         roleSpinner.adapter = roleAdapter
         roleSpinner.setSelection(roles.indexOf(staff.role))
 
+        // Update button logic
         dialogView.findViewById<Button>(R.id.addButton).apply {
-            text = "Update"
+            text = "Update" // Change button text to "Update"
             setOnClickListener {
                 val updatedName = nameInput.text.toString().trim()
                 val updatedRole = roleSpinner.selectedItem.toString()
 
-                if (updatedName.isEmpty() || updatedRole == "Select Role") {
-                    Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
+                if (updatedName.isEmpty() || updatedRole == "Select Window") {
+                    Toast.makeText(requireContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show()
                     return@setOnClickListener
                 }
 
+                // Update staff data
                 val updatedStaff = staff.copy(name = updatedName, role = updatedRole)
 
+                // Update the database
                 database.child("users").child(staff.firebaseUid).updateChildren(
-                    mapOf(
-                        "name" to updatedName,
-                        "role" to updatedRole
-                    )
+                    mapOf("name" to updatedName, "role" to updatedRole)
                 ).addOnSuccessListener {
-                    dialog.dismiss()
-                    Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
-
+                    // Update local list
                     staffList.remove(staff)
                     staffList.add(0, updatedStaff)
                     filteredList.clear()
                     filteredList.addAll(staffList)
+
+                    // Notify adapter
                     staffAdapter.notifyDataSetChanged()
+
+                    Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
                 }.addOnFailureListener { exception ->
                     Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
+        // Cancel button logic
         dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
             dialog.dismiss()
         }
 
+        // Show the dialog
         dialog.show()
     }
+
 
     private fun showDeleteConfirmationDialog(staff: Staff) {
         AlertDialog.Builder(requireContext())
@@ -325,7 +351,7 @@ class StaffFragment : Fragment() {
         confirmPassword: String,
         role: String
     ): Boolean {
-        if (id.isEmpty() || name.isEmpty() || email.isEmpty() || role == "Select Role") {
+        if (id.isEmpty() || name.isEmpty() || email.isEmpty() || role == "Select Window") {
             Toast.makeText(requireContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show()
             return false
         }

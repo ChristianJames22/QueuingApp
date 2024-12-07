@@ -44,22 +44,22 @@ class SplashActivity : AppCompatActivity() {
     private fun navigateBasedOnRole(role: String) {
         val destination = when (role) {
             "admin" -> AdminActivity::class.java
-            "staff1" -> CashierActivity::class.java
-            "staff2" -> Window2Activity::class.java
-            "staff3" -> Window3Activity::class.java
-            "staff4" -> Window4Activity::class.java
-            "staff5" -> Window5Activity::class.java
-            "staff6" -> Window6Activity::class.java
-            "staff7" -> Window7Activity::class.java
-            "staff8" -> Window8Activity::class.java
+            "window1" -> CashierActivity::class.java
+            "window2" -> Window2Activity::class.java
+            "window3" -> Window3Activity::class.java
+            "window4" -> Window4Activity::class.java
+            "window5" -> Window5Activity::class.java
+            "window6" -> Window6Activity::class.java
+            "window7" -> Window7Activity::class.java
+            "window8" -> Window8Activity::class.java
             "student" -> StudentActivity::class.java
-            else -> MainActivity::class.java // Default to MainActivity for unknown roles
+            else -> MainActivity::class.java
         }
 
-        // Start the determined activity and finish the splash screen
         startActivity(Intent(this, destination))
         finish()
     }
+
 
     // Navigate to the login screen
     private fun navigateToLogin() {

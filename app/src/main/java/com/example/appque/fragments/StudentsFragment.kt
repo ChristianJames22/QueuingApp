@@ -181,31 +181,31 @@ class StudentsFragment : Fragment() {
     }
 
     private fun showUpdateStudentDialog(student: Student) {
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_student, null)
+        // Inflate the dialog layout
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_update_student, null)
         val dialog = AlertDialog.Builder(requireContext())
             .setView(dialogView)
             .setCancelable(true)
             .create()
 
-        val idInput = dialogView.findViewById<EditText>(R.id.idInput)
+        // Bind UI elements to the dialog
         val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
-        val emailInput = dialogView.findViewById<EditText>(R.id.emailInput)
         val courseSpinner = dialogView.findViewById<Spinner>(R.id.courseSpinner)
         val yearSpinner = dialogView.findViewById<Spinner>(R.id.yearSpinner)
 
-        idInput.setText(student.id)
-        idInput.isEnabled = false
-        emailInput.setText(student.email)
-        emailInput.isEnabled = false
+        // Populate the fields with existing student data
         nameInput.setText(student.name)
 
+        // Set up course spinner
         val courses = resources.getStringArray(R.array.course_options)
         val courseAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, courses)
         courseAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         courseSpinner.adapter = courseAdapter
         courseSpinner.setSelection(courses.indexOf(student.course))
 
+        // Set up year spinner based on initial course selection
         setupYearSpinner(yearSpinner, student.course)
+
         yearSpinner.setSelection(
             when (student.year) {
                 "G-11" -> 1
@@ -218,50 +218,64 @@ class StudentsFragment : Fragment() {
             }
         )
 
-        dialogView.findViewById<Button>(R.id.addButton).apply {
-            text = "Update"
-            setOnClickListener {
-                val updatedName = nameInput.text.toString().trim()
-                val updatedCourse = courseSpinner.selectedItem.toString()
-                val updatedYear = yearSpinner.selectedItem.toString()
-
-                if (updatedName.isEmpty() || updatedCourse == "Select Course" || updatedYear == "Select Year") {
-                    Toast.makeText(requireContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
-
-                val updatedStudent = student.copy(
-                    name = updatedName,
-                    course = updatedCourse,
-                    year = updatedYear
-                )
-
-                database.child("users").child(student.uid).setValue(updatedStudent)
-                    .addOnSuccessListener {
-                        studentsList.removeAll { it.uid == student.uid }
-                        filteredList.removeAll { it.uid == student.uid }
-
-                        studentsList.add(0, updatedStudent)
-                        filteredList.add(0, updatedStudent)
-
-                        studentsAdapter.notifyDataSetChanged()
-                        binding.studentsRecyclerView.scrollToPosition(0)
-
-                        Toast.makeText(requireContext(), "Student updated successfully!", Toast.LENGTH_SHORT).show()
-                        dialog.dismiss()
-                    }
-                    .addOnFailureListener { exception ->
-                        Toast.makeText(requireContext(), "Failed to update student: ${exception.message}", Toast.LENGTH_SHORT).show()
-                    }
+        // Handle course spinner selection changes
+        courseSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedCourse = courses[position]
+                setupYearSpinner(yearSpinner, selectedCourse)
             }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
+        // Update button logic
+        dialogView.findViewById<Button>(R.id.addButton).setOnClickListener {
+            val updatedName = nameInput.text.toString().trim()
+            val updatedCourse = courseSpinner.selectedItem.toString()
+            val updatedYear = yearSpinner.selectedItem.toString()
+
+            // Validate input fields
+            if (updatedName.isEmpty() || updatedCourse == "Select Course" || updatedYear == "Select Year") {
+                Toast.makeText(requireContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            // Create updated student object
+            val updatedStudent = student.copy(
+                name = updatedName,
+                course = updatedCourse,
+                year = updatedYear
+            )
+
+            // Update student in the database
+            database.child("users").child(student.uid).setValue(updatedStudent)
+                .addOnSuccessListener {
+                    studentsList.removeAll { it.uid == student.uid }
+                    filteredList.removeAll { it.uid == student.uid }
+
+                    studentsList.add(0, updatedStudent)
+                    filteredList.add(0, updatedStudent)
+
+                    studentsAdapter.notifyDataSetChanged()
+                    binding.studentsRecyclerView.scrollToPosition(0)
+
+                    Toast.makeText(requireContext(), "Student updated successfully!", Toast.LENGTH_SHORT).show()
+                    dialog.dismiss()
+                }
+                .addOnFailureListener { exception ->
+                    Toast.makeText(requireContext(), "Failed to update student: ${exception.message}", Toast.LENGTH_SHORT).show()
+                }
+        }
+
+        // Cancel button logic
         dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
             dialog.dismiss()
         }
 
+        // Show the dialog
         dialog.show()
     }
+
 
     private fun showDeleteConfirmationDialog(student: Student) {
         AlertDialog.Builder(requireContext())
