@@ -4,7 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -40,18 +42,24 @@ class ReminderStudentFragment<T> : Fragment() {
         // Initialize Firebase database reference
         database = FirebaseDatabase.getInstance().reference.child("reminders")
 
-        // Initialize RecyclerView and Adapter
-        adapter = RemindersAdapter(remindersList)
-        binding.remindersRecyclerView.layoutManager = LinearLayoutManager(context)
-        binding.remindersRecyclerView.adapter = adapter
+        // Set up RecyclerView and Adapter
+        setupRecyclerView()
 
-        // Load reminders from the database
+        // Load reminders from Firebase
         loadRemindersFromDatabase()
 
-        // Set click listener for add reminder button
+        // Add reminder button click listener
         binding.addRemindersButton.setOnClickListener {
             showAddReminderDialog()
         }
+    }
+
+    private fun setupRecyclerView() {
+        adapter = RemindersAdapter(remindersList) { reminder ->
+            showEditDeleteOptions(reminder)
+        }
+        binding.remindersRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.remindersRecyclerView.adapter = adapter
     }
 
     private fun loadRemindersFromDatabase() {
@@ -83,7 +91,7 @@ class ReminderStudentFragment<T> : Fragment() {
         }
 
         val titleInput = android.widget.EditText(context).apply {
-            hint = "Title"
+            hint = "Reminder"
         }
         inputLayout.addView(titleInput)
 
@@ -112,6 +120,99 @@ class ReminderStudentFragment<T> : Fragment() {
 
         builder.setNegativeButton("Cancel", null)
         builder.show()
+    }
+
+    private fun showEditDeleteOptions(reminder: Reminder) {
+        val builder = android.app.AlertDialog.Builder(context)
+        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_reminder_details, null)
+        builder.setView(dialogView)
+
+        val alertDialog = builder.create()
+
+        // Bind reminder details TextView
+        val reminderDetailsTextView = dialogView.findViewById<TextView>(R.id.reminderDetailsTextView)
+        reminderDetailsTextView.text = "Reminder: \n${reminder.title}\nTime: ${reminder.time}"
+
+        // Bind buttons
+        val updateButton = dialogView.findViewById<Button>(R.id.updateButton)
+        val deleteButton = dialogView.findViewById<Button>(R.id.deleteButton)
+
+        // Set button click listeners
+        updateButton.setOnClickListener {
+            alertDialog.dismiss() // Close the dialog before opening another
+            showEditReminderDialog(reminder)
+        }
+
+        deleteButton.setOnClickListener {
+            showDeleteConfirmationDialog(reminder) { success ->
+                if (success) {
+                    alertDialog.dismiss() // Close the dialog after successful deletion
+                }
+            }
+        }
+
+        alertDialog.show()
+    }
+
+    private fun showEditReminderDialog(reminder: Reminder) {
+        val builder = android.app.AlertDialog.Builder(context)
+        builder.setTitle("Edit Reminder")
+
+        val inputLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(16, 16, 16, 16)
+        }
+
+        val titleInput = android.widget.EditText(context).apply {
+            hint = "Reminder"
+            setText(reminder.title)
+        }
+        inputLayout.addView(titleInput)
+
+        builder.setView(inputLayout)
+
+        builder.setPositiveButton("Save") { _, _ ->
+            val updatedTitle = titleInput.text.toString()
+            if (updatedTitle.isNotEmpty()) {
+                // Get the updated timestamp
+                val updatedTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+
+                val updatedReminder = reminder.copy(title = updatedTitle, time = updatedTime)
+                database.child(reminder.id).setValue(updatedReminder).addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(context, "Reminder updated", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(context, "Failed to update reminder", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } else {
+                Toast.makeText(context, "Title cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        builder.setNegativeButton("Cancel", null)
+        builder.show()
+    }
+
+    private fun showDeleteConfirmationDialog(reminder: Reminder, onDelete: (Boolean) -> Unit) {
+        val builder = android.app.AlertDialog.Builder(context)
+        builder.setTitle("Delete Reminder")
+            .setMessage("Are you sure you want to delete this reminder?")
+            .setPositiveButton("Yes") { _, _ ->
+                database.child(reminder.id).removeValue().addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(context, "Reminder deleted", Toast.LENGTH_SHORT).show()
+                        onDelete(true) // Notify successful deletion
+                    } else {
+                        Toast.makeText(context, "Failed to delete reminder", Toast.LENGTH_SHORT).show()
+                        onDelete(false) // Notify failed deletion
+                    }
+                }
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     override fun onDestroyView() {

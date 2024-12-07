@@ -80,7 +80,6 @@ class StudentsFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 filterStudents(s.toString())
             }
-
             override fun afterTextChanged(s: Editable?) {}
         })
 
@@ -224,7 +223,6 @@ class StudentsFragment : Fragment() {
                 val selectedCourse = courses[position]
                 setupYearSpinner(yearSpinner, selectedCourse)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -276,7 +274,6 @@ class StudentsFragment : Fragment() {
         dialog.show()
     }
 
-
     private fun showDeleteConfirmationDialog(student: Student) {
         AlertDialog.Builder(requireContext())
             .setMessage("Are you sure you want to delete ${student.name}?")
@@ -324,7 +321,6 @@ class StudentsFragment : Fragment() {
                 val selectedCourse = courses[position]
                 setupYearSpinner(yearSpinner, selectedCourse)
             }
-
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -344,7 +340,16 @@ class StudentsFragment : Fragment() {
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
                             val userId = task.result?.user?.uid ?: return@addOnCompleteListener
-                            val newStudent = Student(id, name, email, course, year, "student")
+                            val newStudent = Student(
+                                id = id,
+                                name = name,
+                                email = email,
+                                course = course,
+                                year = year,
+                                timestamp = "student",
+                                uid = userId,
+                                s = "default_value" // Provide value for 's'
+                            )
 
                             database.child("users").child(userId).setValue(newStudent)
                                 .addOnSuccessListener {
@@ -372,6 +377,7 @@ class StudentsFragment : Fragment() {
 
         dialog.show()
     }
+
 
     private fun setupYearSpinner(yearSpinner: Spinner, selectedCourse: String) {
         val years = when (selectedCourse) {

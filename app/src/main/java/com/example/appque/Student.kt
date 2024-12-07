@@ -1,9 +1,10 @@
 data class Student(
-    var uid: String = "",  // Firebase Authentication UID
-    val id: String = "",   // Student ID
-    val name: String = "",
-    val email: String = "",
-    val course: String = "",
-    val year: String = "",
-    val role: String = "student"
+    var name: String = "",
+    var id: String = "",
+    var email: String = "",
+    var course: String = "",
+    var year: String = "",
+    var timestamp: String = null.toString(),
+    var uid: String = "",
+    val s: String = "" // Default value for s
 )

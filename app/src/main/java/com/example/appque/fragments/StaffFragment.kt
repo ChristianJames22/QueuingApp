@@ -145,7 +145,6 @@ class StaffFragment : Fragment() {
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         roleSpinner.adapter = roleAdapter
 
-
         dialogView.findViewById<Button>(R.id.addButton).setOnClickListener {
             val id = idInput.text.toString().trim()
             val name = nameInput.text.toString().trim()
@@ -155,7 +154,33 @@ class StaffFragment : Fragment() {
             val role = roleSpinner.selectedItem.toString()
 
             if (validateInputs(id, name, email, password, confirmPassword, role)) {
-                addStaff(id, name, email, role, password, dialog)
+                database.child("users").addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        var idExists = false
+                        var nameExists = false
+                        var emailExists = false
+
+                        for (childSnapshot in snapshot.children) {
+                            val staff = childSnapshot.getValue(Staff::class.java)
+                            if (staff != null) {
+                                if (staff.id == id) idExists = true
+                                if (staff.name == name) nameExists = true
+                                if (staff.email == email) emailExists = true
+                            }
+                        }
+
+                        when {
+                            idExists -> Toast.makeText(requireContext(), "ID already exists.", Toast.LENGTH_SHORT).show()
+                            nameExists -> Toast.makeText(requireContext(), "Name already exists.", Toast.LENGTH_SHORT).show()
+                            emailExists -> Toast.makeText(requireContext(), "Email already exists.", Toast.LENGTH_SHORT).show()
+                            else -> addStaff(id, name, email, role, password, dialog)
+                        }
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        Toast.makeText(requireContext(), "Error checking for duplicates: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
             }
         }
 
@@ -165,6 +190,7 @@ class StaffFragment : Fragment() {
 
         dialog.show()
     }
+
     private fun addStaff(
         id: String,
         name: String,

@@ -3,41 +3,36 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    >
-    <TextView
-        android:id="@+id/staffTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-    android:layout_marginStart="16dp"
-    android:layout_marginEnd="16dp"
-    android:text="Reminders:"
-    android:textColor="@color/purple_700"
-    android:textStyle="bold"
-    android:textSize="18sp" />
-
-    <!-- RecyclerView with Correct ID -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/staffRecyclerView"
+    <!-- Scrollable content -->
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/staffTitle"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:overScrollMode="never"
-        android:clipToPadding="false" />
+        android:fillViewport="true">
 
-    <ImageButton
-        android:id="@+id/addRemindersButton"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:background="@drawable/circle_background1"
-        android:src="@drawable/addbtutton"
-        android:contentDescription="Add Reminders"
-        app:tint="@android:color/white" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
 
+            <!-- Title -->
+            <TextView
+                android:id="@+id/staffTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reminders:"
+                android:textColor="@color/purple_700"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:layout_marginBottom="10dp" />
+
+            <!-- RecyclerView -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/staffRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:clipToPadding="false" />
+        </LinearLayout>
+    </ScrollView>
 </RelativeLayout>

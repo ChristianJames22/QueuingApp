@@ -8,8 +8,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.appque.R
 import com.example.appque.fragments.Reminder
 
-class RemindersAdapter(private val remindersList: List<Reminder>) :
-    RecyclerView.Adapter<RemindersAdapter.ReminderViewHolder>() {
+class RemindersAdapter(
+    private val remindersList: List<Reminder>,
+    private val onReminderClick: (Reminder) -> Unit
+) : RecyclerView.Adapter<RemindersAdapter.ReminderViewHolder>() {
 
     class ReminderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val titleTextView: TextView = view.findViewById(R.id.RemindersTextView)
@@ -24,6 +26,9 @@ class RemindersAdapter(private val remindersList: List<Reminder>) :
     override fun onBindViewHolder(holder: ReminderViewHolder, position: Int) {
         val reminder = remindersList[position]
         holder.titleTextView.text = "${reminder.title} - ${reminder.time}"
+        holder.itemView.setOnClickListener {
+            onReminderClick(reminder)
+        }
     }
 
     override fun getItemCount(): Int = remindersList.size
