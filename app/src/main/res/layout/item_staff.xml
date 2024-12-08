@@ -3,8 +3,10 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="12dp"
-    android:background="@drawable/rounded_edittext"
-    android:layout_margin="8dp">
+    android:layout_marginBottom="8dp"
+    android:layout_marginStart="5dp"
+    android:layout_marginEnd="5dp"
+    android:background="@drawable/rounded_edittext">
 
     <TextView
         android:id="@+id/nameTextView"

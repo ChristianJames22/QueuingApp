@@ -1,14 +1,15 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <!-- Header Layout -->
     <RelativeLayout
+        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/deep_purple">
+        android:background="@color/deep_purple"
+        android:elevation="4dp">
 
         <!-- Admin Control Text -->
         <TextView
@@ -41,9 +42,8 @@
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/headerWelcome"
-        android:layout_above="@id/bottomNavigation"
-        tools:ignore="NotSibling" />
+        android:layout_below="@id/headerLayout"
+        android:layout_above="@id/bottomNavigation" />
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView

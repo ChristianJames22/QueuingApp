@@ -23,7 +23,7 @@
         android:id="@+id/studentTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="OVERVIEW"
+        android:text="Student List:"
         android:textColor="@android:color/black"
         android:textStyle="bold"
         android:elevation="10dp"
