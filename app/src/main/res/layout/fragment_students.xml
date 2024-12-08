@@ -1,48 +1,170 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#FFFFFF"
+    android:clipChildren="false">
 
     <!-- Search Bar -->
     <EditText
         android:id="@+id/searchEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginEnd="25dp"
-        android:layout_marginTop="65dp"
+        android:layout_alignParentTop="true"
+        android:layout_margin="8dp"
         android:hint="Search students..."
-        android:padding="10dp"
+        android:padding="8dp"
         android:background="@drawable/rounded_edittext"
-    android:inputType="text"
-    android:drawableStart="@android:drawable/ic_menu_search" />
+        android:inputType="text"
+        android:drawableStart="@android:drawable/ic_menu_search" />
 
-    <!-- Title -->
+    <!-- Student List Title -->
     <TextView
         android:id="@+id/studentTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Student List:"
+        android:text="OVERVIEW"
         android:textColor="@android:color/black"
         android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="14dp"
+        android:elevation="10dp"
+        android:textSize="16sp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
         android:layout_below="@id/searchEditText"
         android:layout_alignParentStart="true" />
+
+    <!-- Card Container -->
+    <LinearLayout
+        android:id="@+id/cardContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="8dp"
+        android:layout_below="@id/studentTitle"
+        android:weightSum="2"
+        android:baselineAligned="false">
+
+        <!-- Total Students Card -->
+        <RelativeLayout
+            android:id="@+id/totalStudentsCard"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:background="@drawable/card_background_purple"
+            android:elevation="6dp"
+            android:layout_marginEnd="4dp">
+
+            <TextView
+                android:id="@+id/totalStudentsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Students:"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/studentCountsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/totalStudentsTitle"
+                android:text="SHS: 1\nBSHM: 1\nBSIT: 3\nBEED: 0\nBSBA: 0\nTotal: 5"
+                android:textColor="@android:color/black"
+                android:textSize="12sp"
+                android:lineSpacingExtra="2dp" />
+        </RelativeLayout>
+
+        <!-- Total Levels Card -->
+        <RelativeLayout
+            android:id="@+id/totalLevelsCard"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:background="@drawable/card_background_orange"
+            android:elevation="6dp"
+            android:layout_marginStart="4dp">
+
+            <TextView
+                android:id="@+id/totalLevelsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Total Levels:"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="14sp"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/levelCountsTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/totalLevelsTitle"
+                android:text="G-12: 0\nG-11: 1\n1st: 0\n2nd: 1\n3rd: 2\n4th: 1"
+                android:textColor="@android:color/black"
+                android:textSize="12sp"
+                android:lineSpacingExtra="2dp" />
+        </RelativeLayout>
+    </LinearLayout>
+
+    <!-- Recently Added Section -->
+    <RelativeLayout
+        android:id="@+id/recentlyAddedContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/cardContainer"
+        android:layout_margin="8dp"
+        android:padding="8dp"
+        android:background="@drawable/card_background_blue"
+        android:elevation="6dp">
+
+        <TextView
+            android:id="@+id/recentlyAddedTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recently Added:"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/recentlyAddedList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/recentlyAddedTitle"
+            android:layout_marginTop="4dp"
+            android:text="Loading..."
+            android:textColor="@android:color/black"
+            android:textSize="12sp"
+            android:lineSpacingExtra="2dp" />
+    </RelativeLayout>
+
+    <!-- Divider Line -->
+    <View
+        android:id="@+id/recyclerViewDivider"
+        android:layout_width="match_parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_height="1dp"
+        android:layout_below="@id/recentlyAddedContainer"
+        android:layout_marginTop="8dp"
+        android:background="#BDBDBD" />
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/studentsRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/studentTitle"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-        android:layout_marginTop="10dp"
-        android:overScrollMode="never"
-        android:clipToPadding="false" />
+        android:layout_height="wrap_content"
+        android:layout_below="@id/recyclerViewDivider"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="4dp"
+        android:clipToPadding="true"
+        android:paddingTop="8dp"
+    android:paddingBottom="8dp" />
 
     <!-- Empty List Placeholder -->
     <TextView
@@ -66,11 +188,11 @@
     <!-- Add Button -->
     <ImageButton
         android:id="@+id/addStudentButton"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
+        android:layout_margin="12dp"
         android:background="@drawable/circle_background1"
         android:src="@drawable/addbtutton"
         android:contentDescription="Add Student"

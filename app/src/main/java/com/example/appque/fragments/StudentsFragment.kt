@@ -1,3 +1,5 @@
+
+
 package com.example.appque.fragments
 
 import Student
@@ -95,7 +97,6 @@ class StudentsFragment : Fragment() {
     private fun fetchStudents() {
         binding.progressBar.visibility = View.VISIBLE
 
-        // Set up the ValueEventListener
         valueEventListener = database.child("users").orderByChild("role").equalTo("student")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
@@ -116,6 +117,12 @@ class StudentsFragment : Fragment() {
 
                     binding.emptyListTextView.visibility =
                         if (studentsList.isEmpty()) View.VISIBLE else View.GONE
+
+                    // Update the Recently Added section
+                    updateRecentlyAdded()
+
+                    // Update the counts after data is fetched
+                    updateStudentCounts()
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -124,6 +131,65 @@ class StudentsFragment : Fragment() {
                 }
             })
     }
+
+    private fun updateRecentlyAdded() {
+        // Get the last 5 recently added students
+        val recentlyAdded = studentsList.take(5).joinToString("\n") { it.name }
+
+        // Update the UI for recently added students
+        if (recentlyAdded.isNotEmpty()) {
+            binding.recentlyAddedList.text = recentlyAdded
+        } else {
+            binding.recentlyAddedList.text = "No recent students."
+        }
+    }
+
+    private fun updateStudentCounts() {
+        // Create a map to hold counts for each course and level
+        val courseCounts = mutableMapOf(
+            "SHS" to 0,
+            "BSHM" to 0,
+            "BSIT" to 0,
+            "BEED" to 0,
+            "BSBA" to 0
+        )
+        val levelCounts = mutableMapOf(
+            "G-12" to 0,
+            "G-11" to 0,
+            "1st" to 0,
+            "2nd" to 0,
+            "3rd" to 0,
+            "4th" to 0
+        )
+        var totalStudents = 0
+
+        // Count students in each course and level
+        for (student in studentsList) {
+            courseCounts[student.course] = courseCounts.getOrDefault(student.course, 0) + 1
+            levelCounts[student.year.replace(" Year", "")] = levelCounts.getOrDefault(student.year.replace(" Year", ""), 0) + 1
+            totalStudents++
+        }
+
+        // Build the display text for Total Students
+        val studentCountsText = StringBuilder("")
+        for ((course, count) in courseCounts) {
+            studentCountsText.append("$course: $count\n")
+        }
+        studentCountsText.append("Total: $totalStudents")
+
+        // Update the Total Students UI
+        binding.studentCountsTextView.text = studentCountsText.toString()
+
+        // Build the display text for Total Levels
+        val levelCountsText = StringBuilder("")
+        for ((level, count) in levelCounts) {
+            levelCountsText.append("$level: $count\n")
+        }
+
+        // Update the Total Levels UI
+        binding.levelCountsTextView.text = levelCountsText.toString()
+    }
+
 
     private fun filterStudents(query: String) {
         val lowerCaseQuery = query.lowercase()
@@ -423,3 +489,4 @@ class StudentsFragment : Fragment() {
         _binding = null
     }
 }
+

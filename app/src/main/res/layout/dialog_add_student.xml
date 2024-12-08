@@ -35,7 +35,7 @@
             android:id="@+id/nameInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name"
+            android:hint="Fullname"
             android:padding="10dp"
             android:background="@drawable/rounded_edittext"
             android:layout_marginBottom="8dp" />
