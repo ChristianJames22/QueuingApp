@@ -20,7 +20,7 @@ class StudentCashierActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         // Initialize Firebase database for queue
-        database = FirebaseDatabase.getInstance().reference.child("queue")
+        database = FirebaseDatabase.getInstance().reference.child("window1Queue                                                                                                                                                                                                                                               ")
         userName = intent.getStringExtra("userName") ?: "Unknown User"
 
         // Fetch the current queue number

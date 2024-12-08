@@ -27,7 +27,7 @@ class CashierActivity : AppCompatActivity() {
         database = FirebaseDatabase.getInstance().reference
 
         // Real-time listener for queue updates
-        database.child("queue").addValueEventListener(object : ValueEventListener {
+        database.child("window1Queue").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 updateDisplay(snapshot)
             }
@@ -39,7 +39,7 @@ class CashierActivity : AppCompatActivity() {
 
         // Set up button listeners
         binding.nextButton.setOnClickListener {
-            database.child("queue").child("appointments").get().addOnSuccessListener { snapshot ->
+            database.child("window1Queue").child("appointments").get().addOnSuccessListener { snapshot ->
                 if (snapshot.exists() && snapshot.childrenCount > 0) {
                     showNextConfirmationDialog()
                 } else {
@@ -49,7 +49,7 @@ class CashierActivity : AppCompatActivity() {
         }
 
         binding.resetButton.setOnClickListener {
-            database.child("queue").child("appointments").get().addOnSuccessListener { snapshot ->
+            database.child("window1Queue").child("appointments").get().addOnSuccessListener { snapshot ->
                 if (snapshot.exists() && snapshot.childrenCount > 0) {
                     showResetConfirmationDialog()
                 } else {
@@ -81,11 +81,11 @@ class CashierActivity : AppCompatActivity() {
     }
 
     private fun moveToNextAppointment() {
-        database.child("queue").child("appointments").get().addOnSuccessListener { snapshot ->
+        database.child("window1Queue").child("appointments").get().addOnSuccessListener { snapshot ->
             val appointments = snapshot.children.toList()
             if (appointments.isNotEmpty()) {
                 val firstKey = appointments.first().key
-                firstKey?.let { database.child("queue").child("appointments").child(it).removeValue() }
+                firstKey?.let { database.child("window1Queue").child("appointments").child(it).removeValue() }
                 Toast.makeText(this, "Moved to the next appointment.", Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener {
@@ -108,8 +108,8 @@ class CashierActivity : AppCompatActivity() {
     }
 
     private fun resetQueue() {
-        database.child("queue").child("appointments").removeValue()
-        database.child("queue").child("currentQueueNumber").setValue(0)
+        database.child("window1Queue").child("appointments").removeValue()
+        database.child("window1Queue").child("currentQueueNumber").setValue(0)
             .addOnSuccessListener {
                 Toast.makeText(this, "Queue has been reset and starts from 1.", Toast.LENGTH_SHORT).show()
             }

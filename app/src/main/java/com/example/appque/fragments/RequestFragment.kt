@@ -163,7 +163,6 @@ class RequestFragment : Fragment() {
             return
         }
 
-        // Use secondaryAuth to create the user
         secondaryAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -180,16 +179,12 @@ class RequestFragment : Fragment() {
                         database.child("users").child(userId).setValue(user)
                             .addOnSuccessListener {
                                 removeRequestFromFirebase(request)
-                                secondaryAuth.signOut() // Log out the newly created user
+                                secondaryAuth.signOut()
 
                                 // Re-authenticate the admin
                                 auth.signInWithEmailAndPassword(adminEmail, adminPassword)
-                                    .addOnCompleteListener { loginTask ->
-                                        if (loginTask.isSuccessful) {
-                                            showToast("Request accepted. Admin session restored.")
-                                        } else {
-                                            showToast("Failed to restore admin session.")
-                                        }
+                                    .addOnCompleteListener {
+                                        showToast("Request successfully added.")
                                         showLoading(false)
                                     }
                             }
@@ -204,6 +199,7 @@ class RequestFragment : Fragment() {
                 }
             }
     }
+
 
     private fun deleteRequest(position: Int) {
         val request = requestList[position]
@@ -220,7 +216,7 @@ class RequestFragment : Fragment() {
                         child.ref.removeValue()
                     }
                     removeRequestFromList(request)
-                    showToast("Request deleted.")
+                    showToast("Request successfully deleted.")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
@@ -228,6 +224,7 @@ class RequestFragment : Fragment() {
                 }
             })
     }
+
 
     private fun removeRequestFromList(request: Map<String, String>) {
         val position = requestList.indexOf(request)
