@@ -1,8 +1,6 @@
 package com.example.appque.fragments
 
 import android.app.AlertDialog
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,7 +12,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.appque.databinding.FragmentRequestBinding
 import com.example.appque.databinding.ItemRequestBinding
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
@@ -23,10 +20,8 @@ class RequestFragment : Fragment() {
     private var _binding: FragmentRequestBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var auth: FirebaseAuth
     private lateinit var secondaryAuth: FirebaseAuth
     private lateinit var database: DatabaseReference
-    private lateinit var sharedPreferences: SharedPreferences
 
     companion object {
         val requestList = mutableListOf<Map<String, String>>() // Holds pending user requests
@@ -37,7 +32,6 @@ class RequestFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentRequestBinding.inflate(inflater, container, false)
-        sharedPreferences = requireContext().getSharedPreferences("AdminPrefs", Context.MODE_PRIVATE)
         return binding.root
     }
 
@@ -45,8 +39,7 @@ class RequestFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         // Initialize Firebase
-        auth = FirebaseAuth.getInstance()
-        initializeSecondaryAuth()
+        secondaryAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
 
         // Set up RecyclerView
@@ -57,53 +50,33 @@ class RequestFragment : Fragment() {
         fetchRequestsFromFirebase()
     }
 
-    private fun initializeSecondaryAuth() {
-        try {
-            val secondaryApp = FirebaseApp.getInstance("SecondaryApp")
-            secondaryAuth = FirebaseAuth.getInstance(secondaryApp)
-        } catch (e: IllegalStateException) {
-            val secondaryApp = FirebaseApp.initializeApp(
-                requireContext(),
-                FirebaseApp.getInstance().options,
-                "SecondaryApp"
-            )
-            secondaryAuth = FirebaseAuth.getInstance(secondaryApp!!)
-        }
-    }
-
     private fun fetchRequestsFromFirebase() {
         showLoading(true)
-        database.child("temp_requests")
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    requestList.clear()
-                    for (child in snapshot.children) {
-                        val request = child.value as? Map<String, String>
-                        if (request != null) {
-                            requestList.add(request)
-                        }
+        database.child("temp_requests").addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                requestList.clear()
+                for (child in snapshot.children) {
+                    val request = child.value as? Map<String, String>
+                    if (request != null) {
+                        requestList.add(request)
                     }
-                    binding.requestRecyclerView.adapter?.notifyDataSetChanged()
-                    updateEmptyState()
-                    showLoading(false)
                 }
+                binding.requestRecyclerView.adapter?.notifyDataSetChanged()
+                updateEmptyState()
+                showLoading(false)
+            }
 
-                override fun onCancelled(error: DatabaseError) {
-                    showLoading(false)
-                    Log.e("RequestFragment", "Error fetching requests: ${error.message}")
-                    Toast.makeText(context, "Error fetching requests. Try again.", Toast.LENGTH_SHORT).show()
-                }
-            })
+            override fun onCancelled(error: DatabaseError) {
+                showLoading(false)
+                Log.e("RequestFragment", "Error fetching requests: ${error.message}")
+                showToast("Error fetching requests. Try again.")
+            }
+        })
     }
 
     private fun updateEmptyState() {
-        if (requestList.isEmpty()) {
-            binding.emptyListTextView.visibility = View.VISIBLE
-            binding.requestRecyclerView.visibility = View.GONE
-        } else {
-            binding.emptyListTextView.visibility = View.GONE
-            binding.requestRecyclerView.visibility = View.VISIBLE
-        }
+        binding.emptyListTextView.visibility = if (requestList.isEmpty()) View.VISIBLE else View.GONE
+        binding.requestRecyclerView.visibility = if (requestList.isEmpty()) View.GONE else View.VISIBLE
     }
 
     inner class RequestAdapter : RecyclerView.Adapter<RequestAdapter.RequestViewHolder>() {
@@ -155,67 +128,52 @@ class RequestFragment : Fragment() {
         val course = request["course"] ?: return
         val year = request["year"] ?: return
 
-        val adminEmail = sharedPreferences.getString("admin_email", null)
-        val adminPassword = sharedPreferences.getString("admin_password", null)
+        val userMap = hashMapOf(
+            "id" to id,
+            "name" to name,
+            "email" to email,
+            "course" to course,
+            "year" to year,
+            "role" to "student", // Default role
+            "timestamp" to System.currentTimeMillis()
+        )
 
-        if (adminEmail == null || adminPassword == null) {
-            showToast("Admin credentials not found. Please log in again.")
-            return
-        }
+        showLoading(true)
 
-        secondaryAuth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val userId = task.result?.user?.uid
-                    if (userId != null) {
-                        val user = mapOf(
-                            "id" to id,
-                            "name" to name,
-                            "course" to course,
-                            "year" to year,
-                            "email" to email,
-                            "role" to "student"
-                        )
-                        database.child("users").child(userId).setValue(user)
-                            .addOnSuccessListener {
-                                removeRequestFromFirebase(request)
-                                secondaryAuth.signOut()
-
-                                // Re-authenticate the admin
-                                auth.signInWithEmailAndPassword(adminEmail, adminPassword)
-                                    .addOnCompleteListener {
-                                        showToast("Request successfully added.")
-                                        showLoading(false)
-                                    }
-                            }
-                            .addOnFailureListener { e ->
-                                showToast("Failed to save user: ${e.message}")
-                                showLoading(false)
-                            }
-                    }
-                } else {
-                    showToast("Error creating user: ${task.exception?.message}")
-                    showLoading(false)
-                }
+        // Push user data to a "pending_users" node for processing
+        database.child("temp_request").push().setValue(userMap)
+            .addOnSuccessListener {
+                // Remove request after successful push
+                removeRequestFromFirebase(email)
+                showToast("Request accepted. User will be created shortly.")
+                showLoading(false)
+            }
+            .addOnFailureListener { e ->
+                showLoading(false)
+                Log.e("RequestFragment", "Error accepting request: ${e.message}")
+                showToast("Failed to accept request: ${e.message}")
             }
     }
 
 
     private fun deleteRequest(position: Int) {
         val request = requestList[position]
-        removeRequestFromFirebase(request)
+        val email = request["email"] ?: return
+        removeRequestFromFirebase(email)
     }
 
-    private fun removeRequestFromFirebase(request: Map<String, String>) {
+    private fun removeRequestFromFirebase(email: String) {
         database.child("temp_requests")
             .orderByChild("email")
-            .equalTo(request["email"])
+            .equalTo(email)
             .addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (child in snapshot.children) {
                         child.ref.removeValue()
                     }
-                    removeRequestFromList(request)
+                    requestList.removeIf { it["email"] == email }
+                    binding.requestRecyclerView.adapter?.notifyDataSetChanged()
+                    updateEmptyState()
                     showToast("Request successfully deleted.")
                 }
 
@@ -223,16 +181,6 @@ class RequestFragment : Fragment() {
                     showToast("Error deleting request: ${error.message}")
                 }
             })
-    }
-
-
-    private fun removeRequestFromList(request: Map<String, String>) {
-        val position = requestList.indexOf(request)
-        if (position >= 0) {
-            requestList.removeAt(position)
-            binding.requestRecyclerView.adapter?.notifyItemRemoved(position)
-            updateEmptyState()
-        }
     }
 
     private fun showLoading(show: Boolean) {

@@ -36,29 +36,17 @@ class MainActivity : AppCompatActivity() {
         sharedPreferences = getSharedPreferences("AppPreferences", MODE_PRIVATE)
 
         // Auto-login if user session exists
-        val currentUser = auth.currentUser
-        val loggedOut = sharedPreferences.getBoolean("logged_out", false)
-        if (currentUser != null && !loggedOut) {
-            currentUser.reload()
-                .addOnCompleteListener { reloadTask ->
-                    if (reloadTask.isSuccessful) {
-                        navigateBasedOnRole()
-                    } else {
-                        showCustomToast("Session expired. Please log in again.")
-                        auth.signOut()
-                    }
-                }
-        }
+        handleAutoLogin()
 
         // Handle login button click
         binding.loginButton.setOnClickListener {
             val enteredEmail = binding.emailInput.text.toString().trim()
             val enteredPassword = binding.passwordInput.text.toString().trim()
 
-            if (!validateInputs(enteredEmail, enteredPassword)) return@setOnClickListener
-
-            showLoading(true)
-            loginUser(enteredEmail, enteredPassword)
+            if (validateInputs(enteredEmail, enteredPassword)) {
+                showLoading(true)
+                loginUser(enteredEmail, enteredPassword)
+            }
         }
 
         // Handle sign-up link click
@@ -68,8 +56,24 @@ class MainActivity : AppCompatActivity() {
 
         // Handle terms and privacy link click
         binding.termsPrivacyLink.setOnClickListener {
-            val termsAndPrivacyContent = getString(R.string.terms_of_service_content) + "\n\n" + getString(R.string.privacy_policy_content)
+            val termsAndPrivacyContent = "${getString(R.string.terms_of_service_content)}\n\n${getString(R.string.privacy_policy_content)}"
             showPopup("Terms of Service and Privacy Policy", termsAndPrivacyContent)
+        }
+    }
+
+    private fun handleAutoLogin() {
+        val currentUser = auth.currentUser
+        val loggedOut = sharedPreferences.getBoolean("logged_out", true)
+
+        if (currentUser != null && !loggedOut) {
+            currentUser.reload().addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    navigateBasedOnRole()
+                } else {
+                    showCustomToast("Session expired. Please log in again.")
+                    auth.signOut()
+                }
+            }
         }
     }
 
@@ -116,11 +120,11 @@ class MainActivity : AppCompatActivity() {
         database.child("users").child(userId).get()
             .addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
-                    sharedPreferences.edit().putBoolean("logged_out", false).apply()
                     val role = snapshot.child("role").value?.toString() ?: "unknown"
+                    sharedPreferences.edit().putBoolean("logged_out", false).apply()
                     navigateToActivityBasedOnRole(role)
                 } else {
-                    showCustomToast("Invalid email or password.")
+                    showCustomToast("User not found.")
                     auth.signOut()
                 }
             }
@@ -158,10 +162,7 @@ class MainActivity : AppCompatActivity() {
             "window7" -> Window7Activity::class.java
             "window8" -> Window8Activity::class.java
             "student" -> StudentActivity::class.java
-            else -> {
-                showCustomToast("Unknown role. Navigating back to login.")
-                MainActivity::class.java
-            }
+            else -> MainActivity::class.java
         }
         startActivity(Intent(this, destination))
         finish()
@@ -175,7 +176,7 @@ class MainActivity : AppCompatActivity() {
     // Custom toast message
     private fun showCustomToast(message: String) {
         try {
-            val inflater: LayoutInflater = layoutInflater
+            val inflater = layoutInflater
             val layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container))
 
             val text: TextView = layout.findViewById(R.id.toastText)

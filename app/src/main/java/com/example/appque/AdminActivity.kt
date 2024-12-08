@@ -56,10 +56,10 @@ class AdminActivity : AppCompatActivity() {
                     redirectToLogin()
                 }
         } else {
-            showToast("No logged-in user found.")
             redirectToLogin()
         }
     }
+
 
     private fun redirectToLogin() {
         startActivity(Intent(this, MainActivity::class.java))
@@ -120,6 +120,29 @@ class AdminActivity : AppCompatActivity() {
             .create()
             .show()
     }
+
+    override fun onStart() {
+        super.onStart()
+
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            database.child("users").child(currentUser.uid).get()
+                .addOnSuccessListener { snapshot ->
+                    val role = snapshot.child("role").value?.toString()
+                    if (role != "admin") {
+                        showToast("Access Denied. Admin role required.")
+                        redirectToLogin()
+                    }
+                }
+                .addOnFailureListener {
+                    showToast("Error verifying user role.")
+                    redirectToLogin()
+                }
+        } else {
+            redirectToLogin()
+        }
+    }
+
 
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()

@@ -7,6 +7,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -96,21 +97,32 @@ class StudentsFragment : Fragment() {
 
     private fun fetchStudents() {
         binding.progressBar.visibility = View.VISIBLE
-
         valueEventListener = database.child("users").orderByChild("role").equalTo("student")
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     binding.progressBar.visibility = View.GONE
                     val newStudentsList = mutableListOf<Student>()
-                    for (childSnapshot in snapshot.children) {
-                        val student = childSnapshot.getValue(Student::class.java)
-                        if (student != null) {
-                            student.uid = childSnapshot.key ?: "Unknown UID"
-                            newStudentsList.add(student)
+
+                    if (snapshot.exists()) {
+                        Log.d("StudentsFragment", "Fetched Data: ${snapshot.value}") // Log entire snapshot
+                        for (childSnapshot in snapshot.children) {
+                            try {
+                                val student = childSnapshot.getValue(Student::class.java)?.apply {
+                                    uid = childSnapshot.key ?: "Unknown UID"
+                                }
+                                if (student != null) {
+                                    newStudentsList.add(student)
+                                }
+                            } catch (e: Exception) {
+                                Log.e("StudentsFragment", "Error parsing student data: ${e.message}")
+                            }
                         }
+                    } else {
+                        Log.w("StudentsFragment", "No data found in 'users' with role = 'student'")
                     }
+
                     studentsList.clear()
-                    studentsList.addAll(newStudentsList.reversed())
+                    studentsList.addAll(newStudentsList.sortedByDescending { it.timestamp })
                     filteredList.clear()
                     filteredList.addAll(studentsList)
                     studentsAdapter.notifyDataSetChanged()
@@ -118,34 +130,36 @@ class StudentsFragment : Fragment() {
                     binding.emptyListTextView.visibility =
                         if (studentsList.isEmpty()) View.VISIBLE else View.GONE
 
-                    // Update the Recently Added section
                     updateRecentlyAdded()
-
-                    // Update the counts after data is fetched
                     updateStudentCounts()
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Error fetching students.", Toast.LENGTH_SHORT).show()
+                    Log.e("StudentsFragment", "Database error: ${error.message}")
+                    Toast.makeText(requireContext(), "Error fetching students: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             })
     }
 
-    private fun updateRecentlyAdded() {
-        // Get the last 5 recently added students
-        val recentlyAdded = studentsList.take(5).joinToString("\n") { it.name }
 
-        // Update the UI for recently added students
-        if (recentlyAdded.isNotEmpty()) {
-            binding.recentlyAddedList.text = recentlyAdded
+
+
+
+    private fun updateRecentlyAdded() {
+        val recentlyAdded = studentsList
+            .take(5) // Get the first 5 students (already sorted by timestamp)
+            .joinToString("\n") { it.name.ifEmpty { "Unknown" } }
+
+        binding.recentlyAddedList.text = if (recentlyAdded.isNotEmpty()) {
+            recentlyAdded
         } else {
-            binding.recentlyAddedList.text = "No recent students."
+            "No recent students."
         }
     }
 
+
     private fun updateStudentCounts() {
-        // Create a map to hold counts for each course and level
         val courseCounts = mutableMapOf(
             "SHS" to 0,
             "BSHM" to 0,
@@ -163,33 +177,22 @@ class StudentsFragment : Fragment() {
         )
         var totalStudents = 0
 
-        // Count students in each course and level
         for (student in studentsList) {
             courseCounts[student.course] = courseCounts.getOrDefault(student.course, 0) + 1
-            levelCounts[student.year.replace(" Year", "")] = levelCounts.getOrDefault(student.year.replace(" Year", ""), 0) + 1
+            levelCounts[student.year.replace(" Year", "")] = levelCounts.getOrDefault(
+                student.year.replace(" Year", ""),
+                0
+            ) + 1
             totalStudents++
         }
 
-        // Build the display text for Total Students
-        val studentCountsText = StringBuilder("")
-        for ((course, count) in courseCounts) {
-            studentCountsText.append("$course: $count\n")
-        }
-        studentCountsText.append("Total: $totalStudents")
+        val studentCountsText = courseCounts.entries.joinToString("\n") { "${it.key}: ${it.value}" }
+            .plus("\nTotal: $totalStudents")
+        binding.studentCountsTextView.text = studentCountsText
 
-        // Update the Total Students UI
-        binding.studentCountsTextView.text = studentCountsText.toString()
-
-        // Build the display text for Total Levels
-        val levelCountsText = StringBuilder("")
-        for ((level, count) in levelCounts) {
-            levelCountsText.append("$level: $count\n")
-        }
-
-        // Update the Total Levels UI
-        binding.levelCountsTextView.text = levelCountsText.toString()
+        val levelCountsText = levelCounts.entries.joinToString("\n") { "${it.key}: ${it.value}" }
+        binding.levelCountsTextView.text = levelCountsText
     }
-
 
     private fun filterStudents(query: String) {
         val lowerCaseQuery = query.lowercase()
@@ -208,10 +211,12 @@ class StudentsFragment : Fragment() {
                 }
             }
         }
+
         studentsAdapter.notifyDataSetChanged()
         binding.emptyListTextView.visibility =
             if (filteredList.isEmpty()) View.VISIBLE else View.GONE
     }
+
 
     private fun showStudentInfoDialog(student: Student) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_student_info, null)
@@ -311,6 +316,9 @@ class StudentsFragment : Fragment() {
                 year = updatedYear
             )
 
+            // Show loading indicator
+            showLoading()
+
             // Update student in the database
             database.child("users").child(student.uid).setValue(updatedStudent)
                 .addOnSuccessListener {
@@ -323,10 +331,15 @@ class StudentsFragment : Fragment() {
                     studentsAdapter.notifyDataSetChanged()
                     binding.studentsRecyclerView.scrollToPosition(0)
 
+                    // Hide loading indicator
+                    hideLoading()
+
                     Toast.makeText(requireContext(), "Student updated successfully!", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }
                 .addOnFailureListener { exception ->
+                    // Hide loading indicator
+                    hideLoading()
                     Toast.makeText(requireContext(), "Failed to update student: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
         }
@@ -340,20 +353,24 @@ class StudentsFragment : Fragment() {
         dialog.show()
     }
 
+
     private fun showDeleteConfirmationDialog(student: Student) {
         AlertDialog.Builder(requireContext())
             .setMessage("Are you sure you want to delete ${student.name}?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
+                showLoading() // Show loading indicator
                 database.child("users").child(student.uid).removeValue()
                     .addOnSuccessListener {
                         studentsList.remove(student)
                         filteredList.clear()
                         filteredList.addAll(studentsList)
                         studentsAdapter.notifyDataSetChanged()
+                        hideLoading() // Hide loading indicator
                         Toast.makeText(requireContext(), "Student deleted successfully!", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { exception ->
+                        hideLoading() // Hide loading indicator
                         Toast.makeText(requireContext(), "Failed to delete student: ${exception.message}", Toast.LENGTH_SHORT).show()
                     }
             }
@@ -387,6 +404,7 @@ class StudentsFragment : Fragment() {
                 val selectedCourse = courses[position]
                 setupYearSpinner(yearSpinner, selectedCourse)
             }
+
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
@@ -402,38 +420,48 @@ class StudentsFragment : Fragment() {
             val confirmPassword = confirmPasswordInput.text.toString().trim()
 
             if (validateInputs(id, name, email, course, year, password, confirmPassword)) {
-                secondaryAuth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val userId = task.result?.user?.uid ?: return@addOnCompleteListener
-                            val newStudent = Student(
-                                id = id,
-                                name = name,
-                                email = email,
-                                course = course,
-                                year = year,
-                                timestamp = "student",
-                                uid = userId,
-                                s = "default_value" // Provide value for 's'
-                            )
+                // Check for existing entries
+                database.child("users").orderByChild("email").equalTo(email)
+                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            if (snapshot.exists()) {
+                                Toast.makeText(requireContext(), "Email already exists.", Toast.LENGTH_SHORT).show()
+                            } else {
+                                database.child("users").orderByChild("id").equalTo(id)
+                                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                            if (snapshot.exists()) {
+                                                Toast.makeText(requireContext(), "ID already exists.", Toast.LENGTH_SHORT).show()
+                                            } else {
+                                                database.child("users").orderByChild("name").equalTo(name)
+                                                    .addListenerForSingleValueEvent(object : ValueEventListener {
+                                                        override fun onDataChange(snapshot: DataSnapshot) {
+                                                            if (snapshot.exists()) {
+                                                                Toast.makeText(requireContext(), "Name already exists.", Toast.LENGTH_SHORT).show()
+                                                            } else {
+                                                                // Proceed to add student
+                                                                addStudent(id, name, email, course, year, password, dialog)
+                                                            }
+                                                        }
 
-                            database.child("users").child(userId).setValue(newStudent)
-                                .addOnSuccessListener {
-                                    studentsList.add(0, newStudent)
-                                    filteredList.add(0, newStudent)
-                                    studentsAdapter.notifyDataSetChanged()
-                                    binding.studentsRecyclerView.scrollToPosition(0)
-                                    secondaryAuth.signOut()
-                                    Toast.makeText(requireContext(), "Student added successfully!", Toast.LENGTH_SHORT).show()
-                                    dialog.dismiss()
-                                }
-                                .addOnFailureListener { exception ->
-                                    Toast.makeText(requireContext(), "Failed to save student: ${exception.message}", Toast.LENGTH_SHORT).show()
-                                }
-                        } else {
-                            Toast.makeText(requireContext(), "Failed to create account: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                                                        override fun onCancelled(error: DatabaseError) {
+                                                            Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                    })
+                                            }
+                                        }
+
+                                        override fun onCancelled(error: DatabaseError) {
+                                            Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    })
+                            }
                         }
-                    }
+
+                        override fun onCancelled(error: DatabaseError) {
+                            Toast.makeText(requireContext(), "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    })
             }
         }
 
@@ -443,6 +471,49 @@ class StudentsFragment : Fragment() {
 
         dialog.show()
     }
+
+    private fun addStudent(id: String, name: String, email: String, course: String, year: String, password: String, dialog: AlertDialog) {
+        showLoading()
+        secondaryAuth.createUserWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val userId = task.result?.user?.uid ?: return@addOnCompleteListener
+                    val newStudent = Student(
+                        id = id,
+                        name = name,
+                        email = email,
+                        course = course,
+                        year = year,
+                        timestamp = System.currentTimeMillis(),
+                        uid = userId,
+                        role = "student"
+                    )
+
+                    database.child("users").child(userId).setValue(newStudent)
+                        .addOnSuccessListener {
+                            studentsList.add(0, newStudent)
+                            filteredList.add(0, newStudent)
+                            studentsAdapter.notifyDataSetChanged()
+                            binding.studentsRecyclerView.scrollToPosition(0)
+                            secondaryAuth.signOut()
+                            hideLoading()
+                            Toast.makeText(requireContext(), "Student added successfully!", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }
+                        .addOnFailureListener { exception ->
+                            hideLoading()
+                            Toast.makeText(requireContext(), "Failed to save student: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    hideLoading()
+                    Toast.makeText(requireContext(), "Failed to create account: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                }
+            }
+    }
+
+
+
+
 
 
     private fun setupYearSpinner(yearSpinner: Spinner, selectedCourse: String) {
@@ -479,6 +550,14 @@ class StudentsFragment : Fragment() {
             }
             else -> true
         }
+    }
+
+    private fun showLoading() {
+        binding.loadingProgressBar.visibility = View.VISIBLE
+    }
+
+    private fun hideLoading() {
+        binding.loadingProgressBar.visibility = View.GONE
     }
 
     override fun onDestroyView() {

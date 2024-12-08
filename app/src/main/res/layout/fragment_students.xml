@@ -5,19 +5,6 @@
     android:background="#FFFFFF"
     android:clipChildren="false">
 
-    <!-- Search Bar -->
-    <EditText
-        android:id="@+id/searchEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_margin="8dp"
-        android:hint="Search students..."
-        android:padding="8dp"
-        android:background="@drawable/rounded_edittext"
-        android:inputType="text"
-        android:drawableStart="@android:drawable/ic_menu_search" />
-
     <!-- Student List Title -->
     <TextView
         android:id="@+id/studentTitle"
@@ -26,66 +13,69 @@
         android:text="Student List:"
         android:textColor="@android:color/black"
         android:textStyle="bold"
-        android:elevation="10dp"
-        android:textSize="16sp"
+        android:elevation="20dp"
+        android:textSize="20dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_below="@id/searchEditText"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentTop="true"
         android:layout_alignParentStart="true" />
 
-    <!-- Card Container -->
+    <!-- Compressed Card Container -->
     <LinearLayout
         android:id="@+id/cardContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_margin="8dp"
         android:layout_below="@id/studentTitle"
-        android:weightSum="2"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="4dp"
+        android:weightSum="4"
         android:baselineAligned="false">
 
         <!-- Total Students Card -->
         <RelativeLayout
             android:id="@+id/totalStudentsCard"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="2dp"
             android:layout_weight="1"
-            android:padding="8dp"
             android:background="@drawable/card_background_purple"
-            android:elevation="6dp"
-            android:layout_marginEnd="4dp">
+            android:elevation="15dp"
+            android:padding="4dp">
 
             <TextView
                 android:id="@+id/totalStudentsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="4dp"
                 android:text="Total Students:"
-                android:textStyle="bold"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
-                android:layout_marginBottom="4dp" />
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/studentCountsTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/totalStudentsTitle"
+                android:lineSpacingExtra="2dp"
                 android:text="SHS: 1\nBSHM: 1\nBSIT: 3\nBEED: 0\nBSBA: 0\nTotal: 5"
                 android:textColor="@android:color/black"
-                android:textSize="12sp"
-                android:lineSpacingExtra="2dp" />
+                android:textSize="14dp" />
         </RelativeLayout>
 
         <!-- Total Levels Card -->
         <RelativeLayout
             android:id="@+id/totalLevelsCard"
             android:layout_width="0dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="8dp"
+            android:padding="4dp"
             android:background="@drawable/card_background_orange"
-            android:elevation="6dp"
-            android:layout_marginStart="4dp">
+            android:elevation="15dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp">
 
             <TextView
                 android:id="@+id/totalLevelsTitle"
@@ -104,78 +94,81 @@
                 android:layout_below="@id/totalLevelsTitle"
                 android:text="G-12: 0\nG-11: 1\n1st: 0\n2nd: 1\n3rd: 2\n4th: 1"
                 android:textColor="@android:color/black"
-                android:textSize="12sp"
+                android:textSize="14dp"
+                android:lineSpacingExtra="2dp" />
+        </RelativeLayout>
+
+        <!-- Recently Added Section -->
+        <RelativeLayout
+            android:id="@+id/recentlyAddedContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:padding="4dp"
+            android:background="@drawable/card_background_blue"
+            android:elevation="15dp"
+            android:layout_marginStart="2dp">
+
+            <TextView
+                android:id="@+id/recentlyAddedTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recently Added:"
+                android:textStyle="bold"
+                android:textColor="@android:color/black"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/recentlyAddedList"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/recentlyAddedTitle"
+                android:layout_marginTop="4dp"
+                android:text="Loading..."
+                android:textColor="@android:color/black"
+                android:textSize="14dp"
                 android:lineSpacingExtra="2dp" />
         </RelativeLayout>
     </LinearLayout>
 
-    <!-- Recently Added Section -->
-    <RelativeLayout
-        android:id="@+id/recentlyAddedContainer"
+    <!-- Search Bar -->
+    <EditText
+        android:id="@+id/searchEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/cardContainer"
         android:layout_margin="8dp"
+        android:hint="Search students..."
         android:padding="8dp"
-        android:background="@drawable/card_background_blue"
-        android:elevation="6dp">
-
-        <TextView
-            android:id="@+id/recentlyAddedTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Recently Added:"
-            android:textStyle="bold"
-            android:textColor="@android:color/black"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/recentlyAddedList"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/recentlyAddedTitle"
-            android:layout_marginTop="4dp"
-            android:text="Loading..."
-            android:textColor="@android:color/black"
-            android:textSize="12sp"
-            android:lineSpacingExtra="2dp" />
-    </RelativeLayout>
-
-    <!-- Divider Line -->
-    <View
-        android:id="@+id/recyclerViewDivider"
-        android:layout_width="match_parent"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_height="1dp"
-        android:layout_below="@id/recentlyAddedContainer"
-        android:layout_marginTop="8dp"
-        android:background="#BDBDBD" />
-
-    <!-- RecyclerView -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/studentsRecyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/recyclerViewDivider"
-        android:layout_marginStart="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginTop="4dp"
-        android:clipToPadding="true"
-        android:paddingTop="8dp"
-    android:paddingBottom="8dp" />
+        android:elevation="10dp"
+        android:background="@drawable/rounded_edittext"
+        android:inputType="text"
+        android:drawableStart="@android:drawable/ic_menu_search" />
 
     <!-- Empty List Placeholder -->
     <TextView
         android:id="@+id/emptyListTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_below="@id/searchEditText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
         android:text="No students available."
         android:visibility="gone"
         android:textColor="@android:color/darker_gray"
-        android:textStyle="italic" />
+        android:textStyle="italic"
+        android:textSize="12sp" />
+
+    <!-- RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/studentsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/emptyListTextView"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="true"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
 
     <!-- ProgressBar -->
     <ProgressBar
@@ -184,17 +177,33 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:visibility="gone" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    <!-- Add Button -->
+        <!-- Your existing content -->
+
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+    </RelativeLayout>
+
+    <!-- Floating Add Button -->
     <ImageButton
         android:id="@+id/addStudentButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="12dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/circle_background1"
         android:src="@drawable/addbtutton"
         android:contentDescription="Add Student"
+        android:elevation="10dp"
+        android:scaleType="centerInside"
         app:tint="@android:color/white" />
 </RelativeLayout>
