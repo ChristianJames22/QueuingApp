@@ -2,7 +2,6 @@ package com.example.appque.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,12 +19,10 @@ class RequestFragment : Fragment() {
     private var _binding: FragmentRequestBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var secondaryAuth: FirebaseAuth
     private lateinit var database: DatabaseReference
+    private lateinit var auth: FirebaseAuth
 
-    companion object {
-        val requestList = mutableListOf<Map<String, String>>() // Holds pending user requests
-    }
+    private val requestList = mutableListOf<Map<String, String>>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,21 +35,17 @@ class RequestFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Initialize Firebase
-        secondaryAuth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
+        auth = FirebaseAuth.getInstance()
 
-        // Set up RecyclerView
         binding.requestRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.requestRecyclerView.adapter = RequestAdapter()
 
-        // Fetch requests from Firebase
-        fetchRequestsFromFirebase()
+        fetchPendingRequests()
     }
 
-    private fun fetchRequestsFromFirebase() {
-        showLoading(true)
-        database.child("temp_requests").addValueEventListener(object : ValueEventListener {
+    private fun fetchPendingRequests() {
+        database.child("pending_requests").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 requestList.clear()
                 for (child in snapshot.children) {
@@ -61,109 +54,106 @@ class RequestFragment : Fragment() {
                         requestList.add(request)
                     }
                 }
+
+                // Update the RecyclerView
                 binding.requestRecyclerView.adapter?.notifyDataSetChanged()
-                updateEmptyState()
-                showLoading(false)
+
+                // Show or hide the empty list text
+                if (requestList.isEmpty()) {
+                    binding.emptyListTextView.visibility = View.VISIBLE
+                    binding.requestRecyclerView.visibility = View.GONE
+                } else {
+                    binding.emptyListTextView.visibility = View.GONE
+                    binding.requestRecyclerView.visibility = View.VISIBLE
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                showLoading(false)
-                Log.e("RequestFragment", "Error fetching requests: ${error.message}")
-                showToast("Error fetching requests. Try again.")
+                Toast.makeText(context, "Failed to load requests.", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    private fun updateEmptyState() {
-        binding.emptyListTextView.visibility = if (requestList.isEmpty()) View.VISIBLE else View.GONE
-        binding.requestRecyclerView.visibility = if (requestList.isEmpty()) View.GONE else View.VISIBLE
-    }
 
-    inner class RequestAdapter : RecyclerView.Adapter<RequestAdapter.RequestViewHolder>() {
+    private fun deleteRequest(request: Map<String, String>, position: Int) {
+        val email = request["email"] ?: return
 
-        inner class RequestViewHolder(private val itemBinding: ItemRequestBinding) :
-            RecyclerView.ViewHolder(itemBinding.root) {
-
-            fun bind(request: Map<String, String>) {
-                itemBinding.nameTextView.text = "Name: ${request["name"]}"
-                itemBinding.idTextView.text = "ID: ${request["id"]}"
-                itemBinding.emailTextView.text = "Email: ${request["email"]}"
-                itemBinding.courseTextView.text = "Course: ${request["course"]}"
-                itemBinding.yearTextView.text = "Year: ${request["year"]}"
-
-                itemBinding.acceptButton.setOnClickListener {
-                    showConfirmationDialog("Accept Request", "Are you sure you want to accept this request?") {
-                        showLoading(true)
-                        acceptRequest(request)
+        database.child("pending_requests")
+            .orderByChild("email")
+            .equalTo(email)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    for (child in snapshot.children) {
+                        child.ref.removeValue()
                     }
+                    requestList.removeAt(position)
+                    binding.requestRecyclerView.adapter?.notifyItemRemoved(position)
+                    Toast.makeText(context, "Request deleted successfully.", Toast.LENGTH_SHORT).show()
                 }
 
-                itemBinding.deleteButton.setOnClickListener {
-                    showConfirmationDialog("Delete Request", "Are you sure you want to delete this request?") {
-                        showLoading(true)
-                        deleteRequest(adapterPosition)
-                    }
+                override fun onCancelled(error: DatabaseError) {
+                    Toast.makeText(context, "Error deleting request: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
-            }
-        }
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RequestViewHolder {
-            val inflater = LayoutInflater.from(parent.context)
-            val itemBinding = ItemRequestBinding.inflate(inflater, parent, false)
-            return RequestViewHolder(itemBinding)
-        }
-
-        override fun onBindViewHolder(holder: RequestViewHolder, position: Int) {
-            holder.bind(requestList[position])
-        }
-
-        override fun getItemCount(): Int = requestList.size
+            })
     }
 
-    private fun acceptRequest(request: Map<String, String>) {
+    private fun acceptRequest(request: Map<String, String>, position: Int) {
         val email = request["email"] ?: return
         val password = request["password"] ?: return
         val id = request["id"] ?: return
-        val name = request["name"] ?: return
-        val course = request["course"] ?: return
-        val year = request["year"] ?: return
 
-        val userMap = hashMapOf(
-            "id" to id,
-            "name" to name,
-            "email" to email,
-            "course" to course,
-            "year" to year,
-            "role" to "student", // Default role
-            "timestamp" to System.currentTimeMillis()
-        )
-
-        showLoading(true)
-
-        // Push user data to a "pending_users" node for processing
-        database.child("temp_request").push().setValue(userMap)
+        // Step 1: Save to Firebase Authentication
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {
-                // Remove request after successful push
-                removeRequestFromFirebase(email)
-                showToast("Request accepted. User will be created shortly.")
-                showLoading(false)
+                val userId = auth.currentUser?.uid ?: return@addOnSuccessListener
+                val timestamp = System.currentTimeMillis()
+
+                // Step 2: Save to Firebase Realtime Database (users node)
+                val userMap = mapOf(
+                    "id" to id,
+                    "name" to request["name"],
+                    "email" to email,
+                    "course" to request["course"],
+                    "year" to request["year"],
+                    "role" to "student",
+                    "uid" to userId,
+                    "timestamp" to timestamp
+                )
+                database.child("users").child(userId).setValue(userMap)
+                    .addOnSuccessListener {
+                        // Step 3: Remove from pending_requests
+                        removeRequestFromPending(email)
+                        Toast.makeText(context, "User approved and added to users.", Toast.LENGTH_SHORT).show()
+
+                        // Step 4: Sign out the newly created user and log back in to the admin account
+                        signOutNewUserAndRestoreAdmin()
+                    }
             }
-            .addOnFailureListener { e ->
-                showLoading(false)
-                Log.e("RequestFragment", "Error accepting request: ${e.message}")
-                showToast("Failed to accept request: ${e.message}")
+            .addOnFailureListener {
+                Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun signOutNewUserAndRestoreAdmin() {
+        val adminEmail = "admin@gmail.com" // Replace with your admin's email
+        val adminPassword = "123456" // Replace with your admin's password
+
+        auth.signOut() // Sign out the newly created user
+
+        // Log back in as the admin
+        auth.signInWithEmailAndPassword(adminEmail, adminPassword)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Admin session restored.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Failed to restore admin session: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
 
-    private fun deleteRequest(position: Int) {
-        val request = requestList[position]
-        val email = request["email"] ?: return
-        removeRequestFromFirebase(email)
-    }
 
-    private fun removeRequestFromFirebase(email: String) {
-        database.child("temp_requests")
+    private fun removeRequestFromPending(email: String) {
+        database.child("pending_requests")
             .orderByChild("email")
             .equalTo(email)
             .addListenerForSingleValueEvent(object : ValueEventListener {
@@ -173,26 +163,19 @@ class RequestFragment : Fragment() {
                     }
                     requestList.removeIf { it["email"] == email }
                     binding.requestRecyclerView.adapter?.notifyDataSetChanged()
-                    updateEmptyState()
-                    showToast("Request successfully deleted.")
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    showToast("Error deleting request: ${error.message}")
+                    Toast.makeText(context, "Error removing request: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
             })
     }
 
-    private fun showLoading(show: Boolean) {
-        binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
-        binding.requestRecyclerView.visibility = if (show) View.GONE else View.VISIBLE
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun showConfirmationDialog(title: String, message: String, onConfirm: () -> Unit) {
+    private fun showConfirmationDialog(
+        title: String,
+        message: String,
+        onConfirm: () -> Unit
+    ) {
         AlertDialog.Builder(requireContext())
             .setTitle(title)
             .setMessage(message)
@@ -200,6 +183,50 @@ class RequestFragment : Fragment() {
             .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
             .create()
             .show()
+    }
+
+    inner class RequestAdapter : RecyclerView.Adapter<RequestAdapter.RequestViewHolder>() {
+
+        inner class RequestViewHolder(private val itemBinding: ItemRequestBinding) :
+            RecyclerView.ViewHolder(itemBinding.root) {
+
+            fun bind(request: Map<String, String>, position: Int) {
+                itemBinding.nameTextView.text = "Name: ${request["name"]}"
+                itemBinding.idTextView.text = "ID: ${request["id"]}"
+                itemBinding.emailTextView.text = "Email: ${request["email"]}"
+                itemBinding.courseTextView.text = "Course: ${request["course"]}"
+                itemBinding.yearTextView.text = "Year: ${request["year"]}"
+
+                itemBinding.acceptButton.setOnClickListener {
+                    showConfirmationDialog(
+                        title = "Accept Request",
+                        message = "Are you sure you want to accept this request?",
+                        onConfirm = { acceptRequest(request, position) }
+                    )
+                }
+
+                itemBinding.deleteButton.setOnClickListener {
+                    showConfirmationDialog(
+                        title = "Delete Request",
+                        message = "Are you sure you want to delete this request?",
+                        onConfirm = { deleteRequest(request, position) }
+                    )
+                }
+            }
+        }
+        
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RequestViewHolder {
+            val inflater = LayoutInflater.from(parent.context)
+            val itemBinding = ItemRequestBinding.inflate(inflater, parent, false)
+            return RequestViewHolder(itemBinding)
+        }
+
+        override fun onBindViewHolder(holder: RequestViewHolder, position: Int) {
+            holder.bind(requestList[position], position)
+        }
+
+        override fun getItemCount(): Int = requestList.size
     }
 
     override fun onDestroyView() {

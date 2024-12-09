@@ -103,7 +103,6 @@ class SignUpActivity : AppCompatActivity() {
         }
     }
 
-
     private fun submitRequestToFirebase(
         id: String,
         name: String,
@@ -121,7 +120,7 @@ class SignUpActivity : AppCompatActivity() {
             "password" to password
         )
 
-        database.child("temp_requests").push().setValue(request)
+        database.child("pending_requests").push().setValue(request)
             .addOnSuccessListener {
                 showLoading(false)
                 Toast.makeText(this, "Request submitted. Awaiting admin approval.", Toast.LENGTH_SHORT).show()

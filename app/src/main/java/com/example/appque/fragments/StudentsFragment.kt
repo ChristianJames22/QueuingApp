@@ -17,7 +17,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appque.R
 import com.example.appque.StudentsAdapter
 import com.example.appque.databinding.FragmentStudentsBinding
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
@@ -41,23 +40,24 @@ class StudentsFragment : Fragment() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
 
-        // Initialize secondary Firebase instance safely
-        initializeSecondaryAuth()
     }
 
-    private fun initializeSecondaryAuth() {
-        try {
-            val secondaryApp = FirebaseApp.getInstance("SecondaryApp")
-            secondaryAuth = FirebaseAuth.getInstance(secondaryApp)
-        } catch (e: IllegalStateException) {
-            val secondaryApp = FirebaseApp.initializeApp(
-                requireContext(),
-                FirebaseApp.getInstance().options,
-                "SecondaryApp"
-            )
-            secondaryAuth = FirebaseAuth.getInstance(secondaryApp!!)
-        }
+    private fun signOutNewUserAndRestoreAdmin() {
+        val adminEmail = "admin@gmail.com" // Replace with your admin's email
+        val adminPassword = "123456" // Replace with your admin's password
+
+        auth.signOut() // Sign out the currently logged-in user
+
+        // Log back in as the admin
+        auth.signInWithEmailAndPassword(adminEmail, adminPassword)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Admin session restored.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to restore admin session: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
     }
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -142,14 +142,12 @@ class StudentsFragment : Fragment() {
             })
     }
 
-
-
-
-
     private fun updateRecentlyAdded() {
         val recentlyAdded = studentsList
             .take(5) // Get the first 5 students (already sorted by timestamp)
-            .joinToString("\n") { it.name.ifEmpty { "Unknown" } }
+            .joinToString("\n") {
+                "${it.name.ifEmpty { "Unknown Name" }} - ${it.course.ifEmpty { "Unknown Course" }} ${it.year.ifEmpty { "Unknown Year Level" }}"
+            }
 
         binding.recentlyAddedList.text = if (recentlyAdded.isNotEmpty()) {
             recentlyAdded
@@ -157,7 +155,6 @@ class StudentsFragment : Fragment() {
             "No recent students."
         }
     }
-
 
     private fun updateStudentCounts() {
         val courseCounts = mutableMapOf(
@@ -216,7 +213,6 @@ class StudentsFragment : Fragment() {
         binding.emptyListTextView.visibility =
             if (filteredList.isEmpty()) View.VISIBLE else View.GONE
     }
-
 
     private fun showStudentInfoDialog(student: Student) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_student_info, null)
@@ -353,24 +349,27 @@ class StudentsFragment : Fragment() {
         dialog.show()
     }
 
-
     private fun showDeleteConfirmationDialog(student: Student) {
         AlertDialog.Builder(requireContext())
             .setMessage("Are you sure you want to delete ${student.name}?")
             .setCancelable(false)
             .setPositiveButton("Yes") { _, _ ->
-                showLoading() // Show loading indicator
+                showLoading()
                 database.child("users").child(student.uid).removeValue()
                     .addOnSuccessListener {
                         studentsList.remove(student)
                         filteredList.clear()
                         filteredList.addAll(studentsList)
                         studentsAdapter.notifyDataSetChanged()
-                        hideLoading() // Hide loading indicator
+
+                        // Restore admin session
+                        signOutNewUserAndRestoreAdmin()
+
+                        hideLoading()
                         Toast.makeText(requireContext(), "Student deleted successfully!", Toast.LENGTH_SHORT).show()
                     }
                     .addOnFailureListener { exception ->
-                        hideLoading() // Hide loading indicator
+                        hideLoading()
                         Toast.makeText(requireContext(), "Failed to delete student: ${exception.message}", Toast.LENGTH_SHORT).show()
                     }
             }
@@ -472,9 +471,17 @@ class StudentsFragment : Fragment() {
         dialog.show()
     }
 
-    private fun addStudent(id: String, name: String, email: String, course: String, year: String, password: String, dialog: AlertDialog) {
+    private fun addStudent(
+        id: String,
+        name: String,
+        email: String,
+        course: String,
+        year: String,
+        password: String,
+        dialog: AlertDialog
+    ) {
         showLoading()
-        secondaryAuth.createUserWithEmailAndPassword(email, password)
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val userId = task.result?.user?.uid ?: return@addOnCompleteListener
@@ -495,7 +502,10 @@ class StudentsFragment : Fragment() {
                             filteredList.add(0, newStudent)
                             studentsAdapter.notifyDataSetChanged()
                             binding.studentsRecyclerView.scrollToPosition(0)
-                            secondaryAuth.signOut()
+
+                            // Restore admin session
+                            signOutNewUserAndRestoreAdmin()
+
                             hideLoading()
                             Toast.makeText(requireContext(), "Student added successfully!", Toast.LENGTH_SHORT).show()
                             dialog.dismiss()
@@ -510,11 +520,6 @@ class StudentsFragment : Fragment() {
                 }
             }
     }
-
-
-
-
-
 
     private fun setupYearSpinner(yearSpinner: Spinner, selectedCourse: String) {
         val years = when (selectedCourse) {

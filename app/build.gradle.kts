@@ -55,6 +55,7 @@ dependencies {
     // Constraint layout and activity libraries
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation ("at.favre.lib:bcrypt:0.9.0")
 
     // Testing
     testImplementation("junit:junit:4.13.2")

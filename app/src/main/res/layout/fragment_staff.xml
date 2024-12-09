@@ -11,6 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+        android:elevation="15dp"
         android:hint="Search staff..."
         android:padding="8dp"
         android:background="@drawable/rounded_edittext"
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         android:text="Staff List:"
         android:textColor="@android:color/black"
+        android:elevation="15dp"
         android:textStyle="bold"
         android:textSize="18sp"
         android:layout_marginStart="12dp"
@@ -37,6 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/staffTitle"
+        android:elevation="15dp"
         android:layout_margin="8dp"
         android:overScrollMode="never"
         android:clipToPadding="false" />
@@ -47,7 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="No staff available."
+        android:text="No Pending Request."
         android:visibility="gone"
         android:textColor="@android:color/darker_gray"
         android:textStyle="italic" />

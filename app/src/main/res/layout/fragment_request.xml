@@ -1,7 +1,6 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#FFFFFF"
     android:clipChildren="false">
 
@@ -14,6 +13,7 @@
         android:textColor="@android:color/black"
         android:textStyle="bold"
         android:textSize="18sp"
+        android:elevation="15dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_alignParentTop="true"
@@ -25,6 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/requestTitle"
+        android:elevation="15dp"
         android:layout_margin="8dp"
         android:overScrollMode="never"
         android:clipToPadding="false" />
@@ -35,10 +36,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="No requests available."
+        android:text="No Pending Request."
         android:visibility="gone"
         android:textColor="@android:color/darker_gray"
         android:textStyle="italic" />
+
 
     <!-- ProgressBar -->
     <ProgressBar
