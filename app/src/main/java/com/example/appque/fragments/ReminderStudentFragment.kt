@@ -49,7 +49,7 @@ class ReminderStudentFragment<T> : Fragment() {
         loadRemindersFromDatabase()
 
         // Add reminder button click listener
-        binding.addRemindersButton.setOnClickListener {
+        binding.addReminderButton.setOnClickListener {
             showAddReminderDialog()
         }
     }

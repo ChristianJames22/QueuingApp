@@ -20,6 +20,7 @@
         android:layout_marginEnd="16dp"
         app:cardCornerRadius="8dp"
         app:cardElevation="8dp"
+        android:elevation="15dp"
         app:cardBackgroundColor="#FFFFFF"
         app:cardUseCompatPadding="true">
 
@@ -27,6 +28,8 @@
             android:layout_width="match_parent"
             android:layout_height="400dp"
             android:orientation="vertical"
+            android:elevation="15dp"
+            android:textColor="@color/black"
             android:padding="16dp">
 
             <!-- Title Text -->
@@ -46,6 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                android:elevation="20dp"
                 android:gravity="center_vertical"
                 android:layout_marginBottom="16dp">
 
@@ -67,6 +71,7 @@
                         android:id="@+id/avatarImage"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:elevation="20dp"
                         android:scaleType="centerCrop"
                         android:src="@drawable/avatar" />
                 </FrameLayout>
@@ -88,6 +93,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:textColor="@color/black"
                 android:text="ID No.: N/A"
                 android:textSize="18sp" />
 
@@ -97,6 +103,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
+                android:textColor="@color/black"
                 android:text="Course: N/A"
                 android:textSize="18sp" />
 
@@ -106,6 +113,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Year: N/A"
+                android:textColor="@color/black"
                 android:textSize="18sp" />
 
         </LinearLayout>

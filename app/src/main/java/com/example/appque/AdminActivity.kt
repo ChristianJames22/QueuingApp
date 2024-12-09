@@ -23,6 +23,7 @@ class AdminActivity : AppCompatActivity() {
 
     private var currentFragmentId: Int? = null
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityAdminBinding.inflate(layoutInflater)

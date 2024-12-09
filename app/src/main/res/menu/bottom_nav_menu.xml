@@ -1,18 +1,27 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Students -->
     <item
         android:id="@+id/nav_students"
-        android:icon="@drawable/ic_students"
-        android:title="Students" />
+        android:title="Students"
+        android:icon="@drawable/ic_students" />
+
+    <!-- Staff -->
     <item
         android:id="@+id/nav_staff"
-        android:icon="@drawable/ic_staff"
-        android:title="Staff" />
+        android:title="Staff"
+        android:icon="@drawable/ic_staff" />
+
+    <!-- Request -->
     <item
         android:id="@+id/nav_request"
-        android:icon="@drawable/ic_request"
-        android:title="Request" />
+        android:title="Request"
+        android:icon="@drawable/ic_request" />
+
+    <!-- Reminders -->
     <item
         android:id="@+id/nav_reminders"
-        android:icon="@drawable/ic_reminders"
-        android:title="Reminders" />
+        android:title="Reminders"
+        android:icon="@drawable/ic_reminders" />
+
 </menu>

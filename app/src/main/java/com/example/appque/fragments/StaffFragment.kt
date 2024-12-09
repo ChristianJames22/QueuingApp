@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appque.R
 import com.example.appque.StaffAdapter
 import com.example.appque.databinding.FragmentStaffBinding
-import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 
@@ -69,7 +68,7 @@ class StaffFragment : Fragment() {
         fetchStaff()
     }
 
-     private fun fetchStaff() {
+    private fun fetchStaff() {
         binding.progressBar.visibility = View.VISIBLE
 
         database.child("users")
@@ -85,7 +84,6 @@ class StaffFragment : Fragment() {
                                 staffList.add(0, it)
                             }
                         }
-
                     }
                     filteredList.clear()
                     filteredList.addAll(staffList)
@@ -154,33 +152,7 @@ class StaffFragment : Fragment() {
             val role = roleSpinner.selectedItem.toString()
 
             if (validateInputs(id, name, email, password, confirmPassword, role)) {
-                database.child("users").addListenerForSingleValueEvent(object : ValueEventListener {
-                    override fun onDataChange(snapshot: DataSnapshot) {
-                        var idExists = false
-                        var nameExists = false
-                        var emailExists = false
-
-                        for (childSnapshot in snapshot.children) {
-                            val staff = childSnapshot.getValue(Staff::class.java)
-                            if (staff != null) {
-                                if (staff.id == id) idExists = true
-                                if (staff.name == name) nameExists = true
-                                if (staff.email == email) emailExists = true
-                            }
-                        }
-
-                        when {
-                            idExists -> Toast.makeText(requireContext(), "ID already exists.", Toast.LENGTH_SHORT).show()
-                            nameExists -> Toast.makeText(requireContext(), "Name already exists.", Toast.LENGTH_SHORT).show()
-                            emailExists -> Toast.makeText(requireContext(), "Email already exists.", Toast.LENGTH_SHORT).show()
-                            else -> addStaff(id, name, email, role, password, dialog)
-                        }
-                    }
-
-                    override fun onCancelled(error: DatabaseError) {
-                        Toast.makeText(requireContext(), "Error checking for duplicates: ${error.message}", Toast.LENGTH_SHORT).show()
-                    }
-                })
+                addStaff(id, name, email, role, password, dialog)
             }
         }
 
@@ -204,16 +176,10 @@ class StaffFragment : Fragment() {
             return
         }
 
-        // Initialize a secondary Firebase auth instance
-        val secondaryAuth = FirebaseAuth.getInstance(
-            FirebaseApp.getInstance("SecondaryApp") ?: FirebaseApp.initializeApp(
-                requireContext(),
-                FirebaseApp.getInstance().options,
-                "SecondaryApp"
-            )
-        )
+        // Show progress bar before starting the operation
+        binding.progressBar.visibility = View.VISIBLE
 
-        secondaryAuth.createUserWithEmailAndPassword(email, password)
+        auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { authTask ->
                 if (authTask.isSuccessful) {
                     val userId = authTask.result?.user?.uid
@@ -221,26 +187,31 @@ class StaffFragment : Fragment() {
                         val staff = Staff(id, name, email, role).apply { firebaseUid = userId }
                         database.child("users").child(userId).setValue(staff)
                             .addOnSuccessListener {
-                                // Sign out secondary auth to maintain admin session
-                                secondaryAuth.signOut()
-
+                                // Hide progress bar after success
+                                binding.progressBar.visibility = View.GONE
                                 dialog.dismiss()
                                 Toast.makeText(requireContext(), "Staff added successfully!", Toast.LENGTH_SHORT).show()
                                 staffList.add(0, staff)
                                 filteredList.add(0, staff)
                                 staffAdapter.notifyItemInserted(0)
                                 binding.staffRecyclerView.scrollToPosition(0)
+
+                                // Restore admin session
+                                signOutNewUserAndRestoreAdmin()
                             }
                             .addOnFailureListener {
+                                // Hide progress bar after failure
+                                binding.progressBar.visibility = View.GONE
                                 Toast.makeText(requireContext(), "Failed to add staff.", Toast.LENGTH_SHORT).show()
                             }
                     }
                 } else {
+                    // Hide progress bar if authentication fails
+                    binding.progressBar.visibility = View.GONE
                     Toast.makeText(requireContext(), "Error: ${authTask.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
     }
-
 
 
     private fun showStaffInfoDialog(staff: Staff) {
@@ -271,6 +242,46 @@ class StaffFragment : Fragment() {
         }
 
         dialog.show()
+    }
+
+    private fun showDeleteConfirmationDialog(staff: Staff) {
+        AlertDialog.Builder(requireContext())
+            .setMessage("Are you sure you want to delete ${staff.name}?")
+            .setCancelable(false)
+            .setPositiveButton("Yes") { _, _ ->
+                // Show progress bar
+                binding.progressBar.visibility = View.VISIBLE
+
+                val firebaseUid = staff.firebaseUid
+                if (firebaseUid.isNotEmpty()) {
+                    database.child("users").child(firebaseUid).removeValue()
+                        .addOnSuccessListener {
+                            // Hide progress bar after success
+                            binding.progressBar.visibility = View.GONE
+                            staffList.remove(staff)
+                            filteredList.clear()
+                            filteredList.addAll(staffList)
+                            staffAdapter.notifyDataSetChanged()
+                            Toast.makeText(requireContext(), "${staff.name} deleted successfully!", Toast.LENGTH_SHORT).show()
+
+                            // Restore admin session
+                            signOutNewUserAndRestoreAdmin()
+                        }
+                        .addOnFailureListener { exception ->
+                            // Hide progress bar after failure
+                            binding.progressBar.visibility = View.GONE
+                            Log.e("DeleteStaff", "Failed to delete: ${exception.message}")
+                            Toast.makeText(requireContext(), "Failed to delete staff: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                } else {
+                    // Hide progress bar if no valid UID is found
+                    binding.progressBar.visibility = View.GONE
+                    Toast.makeText(requireContext(), "Invalid staff UID. Cannot delete.", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+            .create()
+            .show()
     }
 
     private fun showUpdateStaffDialog(staff: Staff) {
@@ -307,6 +318,9 @@ class StaffFragment : Fragment() {
                     return@setOnClickListener
                 }
 
+                // Show progress bar
+                binding.progressBar.visibility = View.VISIBLE
+
                 // Update staff data
                 val updatedStaff = staff.copy(name = updatedName, role = updatedRole)
 
@@ -314,6 +328,9 @@ class StaffFragment : Fragment() {
                 database.child("users").child(staff.firebaseUid).updateChildren(
                     mapOf("name" to updatedName, "role" to updatedRole)
                 ).addOnSuccessListener {
+                    // Hide progress bar after success
+                    binding.progressBar.visibility = View.GONE
+
                     // Update local list
                     staffList.remove(staff)
                     staffList.add(0, updatedStaff)
@@ -326,6 +343,8 @@ class StaffFragment : Fragment() {
                     Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
                     dialog.dismiss()
                 }.addOnFailureListener { exception ->
+                    // Hide progress bar after failure
+                    binding.progressBar.visibility = View.GONE
                     Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
                 }
             }
@@ -340,33 +359,19 @@ class StaffFragment : Fragment() {
         dialog.show()
     }
 
+    private fun signOutNewUserAndRestoreAdmin() {
+        val adminEmail = "admin@gmail.com" // Replace with your admin's email
+        val adminPassword = "123456" // Replace with your admin's password
 
-    private fun showDeleteConfirmationDialog(staff: Staff) {
-        AlertDialog.Builder(requireContext())
-            .setMessage("Are you sure you want to delete ${staff.name}?")
-            .setCancelable(false)
-            .setPositiveButton("Yes") { _, _ ->
-                val firebaseUid = staff.firebaseUid
-                if (firebaseUid.isNotEmpty()) {
-                    database.child("users").child(firebaseUid).removeValue()
-                        .addOnSuccessListener {
-                            staffList.remove(staff)
-                            filteredList.clear()
-                            filteredList.addAll(staffList)
-                            staffAdapter.notifyDataSetChanged()
-                            Toast.makeText(requireContext(), "${staff.name} deleted successfully!", Toast.LENGTH_SHORT).show()
-                        }
-                        .addOnFailureListener { exception ->
-                            Log.e("DeleteStaff", "Failed to delete: ${exception.message}")
-                            Toast.makeText(requireContext(), "Failed to delete staff: ${exception.message}", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    Toast.makeText(requireContext(), "Invalid staff UID. Cannot delete.", Toast.LENGTH_SHORT).show()
-                }
+        auth.signOut()
+
+        auth.signInWithEmailAndPassword(adminEmail, adminPassword)
+            .addOnSuccessListener {
+                Toast.makeText(requireContext(), "Admin session restored.", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-            .create()
-            .show()
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Failed to restore admin session: ${it.message}", Toast.LENGTH_SHORT).show()
+            }
     }
 
     private fun validateInputs(

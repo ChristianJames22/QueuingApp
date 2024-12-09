@@ -3,7 +3,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@drawable/rounded_background"
+    android:elevation="15dp"
+    android:background="@drawable/text_view_border"
     android:layout_margin="8dp">
 
     <TextView
@@ -11,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Name: John Doe"
+        android:textColor="@color/black"
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="4dp" />
@@ -19,6 +21,7 @@
         android:id="@+id/idTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textColor="@color/black"
         android:text="ID: 123456"
         android:textSize="14sp"
         android:layout_marginBottom="4dp" />
@@ -26,6 +29,7 @@
     <TextView
         android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
+        android:textColor="@color/black"
         android:layout_height="wrap_content"
         android:text="Email: john.doe@example.com"
         android:textSize="14sp"
@@ -36,6 +40,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Course: Computer Science"
+        android:textColor="@color/black"
         android:textSize="14sp"
         android:layout_marginBottom="4dp" />
 
@@ -44,6 +49,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Year: 1st"
+        android:textColor="@color/black"
         android:textSize="14sp"
         android:layout_marginBottom="8dp" />
 
@@ -58,6 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Accept"
+            android:elevation="15dp"
             android:layout_marginEnd="8dp"
             android:backgroundTint="@color/colorGreen" />
 
@@ -66,6 +73,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Delete"
+            android:elevation="15dp"
+            android:textColor="@color/black"
             android:backgroundTint="@color/colorRed" />
     </LinearLayout>
 </LinearLayout>

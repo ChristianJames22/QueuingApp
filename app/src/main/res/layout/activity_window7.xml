@@ -14,9 +14,9 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
         android:text="Window 7"
-        android:textColor="#3F51B5"
         android:textSize="30sp"
-        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textStyle="bold|italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
@@ -85,17 +85,12 @@
         app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
         app:layout_constraintVertical_bias="1.0" />
 
-    <!-- Scrollable Next Section -->
-
-    <!-- Reset Button -->
-
-    <!-- Next Button -->
-
     <ScrollView
         android:id="@+id/scrollViewNext"
         android:layout_width="0dp"
         android:layout_height="300dp"
         android:background="@drawable/text_view_border"
+        android:elevation="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -118,6 +113,7 @@
         android:layout_marginStart="84dp"
         android:backgroundTint="@android:color/holo_red_dark"
         android:text="Reset"
+        android:elevation="15dp"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -130,6 +126,7 @@
         android:layout_height="wrap_content"
         android:backgroundTint="@color/Charcoal"
         android:text="Next"
+        android:elevation="15dp"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

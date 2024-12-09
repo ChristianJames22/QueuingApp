@@ -14,7 +14,7 @@
         android:elevation="15dp"
         android:hint="Search staff..."
         android:padding="8dp"
-        android:background="@drawable/rounded_edittext"
+        android:background="@drawable/text_view_border"
         android:inputType="text"
         android:drawableStart="@android:drawable/ic_menu_search" />
 
@@ -39,6 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/staffTitle"
+        android:background="@drawable/text_view_border"
         android:elevation="15dp"
         android:layout_margin="8dp"
         android:overScrollMode="never"
@@ -55,7 +56,6 @@
         android:textColor="@android:color/darker_gray"
         android:textStyle="italic" />
 
-    <!-- ProgressBar -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -63,16 +63,20 @@
         android:layout_centerInParent="true"
         android:visibility="gone" />
 
+
     <!-- Add Button -->
     <ImageButton
         android:id="@+id/addStaffButton"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_margin="12dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:background="@drawable/circle_background1"
         android:src="@drawable/addbtutton"
         android:contentDescription="Add Staff"
+        android:elevation="10dp"
+        android:scaleType="centerInside"
         app:tint="@android:color/white" />
 </RelativeLayout>

@@ -55,6 +55,8 @@
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/black"
+        android:background="@color/white"
         android:layout_alignParentBottom="true"
         app:menu="@menu/bottom_nav_menu" />
 </RelativeLayout>
