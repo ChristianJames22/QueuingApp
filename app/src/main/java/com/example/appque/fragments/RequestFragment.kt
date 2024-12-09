@@ -45,9 +45,14 @@ class RequestFragment : Fragment() {
     }
 
     private fun fetchPendingRequests() {
-        database.child("pending_requests").addValueEventListener(object : ValueEventListener {
+        // Show the progress bar at the start of the operation
+        binding.progressBar.visibility = View.VISIBLE
+
+        database.child("pending_requests").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 requestList.clear()
+
+                // Populate the requestList with data from the snapshot
                 for (child in snapshot.children) {
                     val request = child.value as? Map<String, String>
                     if (request != null) {
@@ -66,13 +71,19 @@ class RequestFragment : Fragment() {
                     binding.emptyListTextView.visibility = View.GONE
                     binding.requestRecyclerView.visibility = View.VISIBLE
                 }
+
+                // Hide the progress bar after the data is processed
+                binding.progressBar.visibility = View.GONE
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Toast.makeText(context, "Failed to load requests.", Toast.LENGTH_SHORT).show()
+                // Hide the progress bar on failure
+                binding.progressBar.visibility = View.GONE
+                Toast.makeText(context, "Failed to load requests: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
+
 
 
     private fun deleteRequest(request: Map<String, String>, position: Int) {

@@ -63,6 +63,9 @@ class ReminderStudentFragment<T> : Fragment() {
     }
 
     private fun loadRemindersFromDatabase() {
+        // Show progress bar when loading begins
+        binding.progressBar.visibility = View.VISIBLE
+
         database.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                 remindersList.clear()
@@ -73,9 +76,17 @@ class ReminderStudentFragment<T> : Fragment() {
                     }
                 }
                 adapter.notifyDataSetChanged()
+
+                // Hide progress bar after loading
+                binding.progressBar.visibility = View.GONE
+
+                // Show or hide empty list text
+                binding.emptyListTextView.visibility =
+                    if (remindersList.isEmpty()) View.VISIBLE else View.GONE
             }
 
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                binding.progressBar.visibility = View.GONE // Hide progress bar on failure
                 Toast.makeText(context, "Failed to load reminders: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
@@ -102,11 +113,17 @@ class ReminderStudentFragment<T> : Fragment() {
             if (title.isNotEmpty()) {
                 val reminderId = database.push().key ?: return@setPositiveButton
 
+                // Show progress bar
+                binding.progressBar.visibility = View.VISIBLE
+
                 // Get the current timestamp
                 val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
                 val reminder = Reminder(id = reminderId, title = title, time = currentTime)
                 database.child(reminderId).setValue(reminder).addOnCompleteListener { task ->
+                    // Hide progress bar
+                    binding.progressBar.visibility = View.GONE
+
                     if (task.isSuccessful) {
                         Toast.makeText(context, "Reminder added", Toast.LENGTH_SHORT).show()
                     } else {
@@ -121,6 +138,8 @@ class ReminderStudentFragment<T> : Fragment() {
         builder.setNegativeButton("Cancel", null)
         builder.show()
     }
+
+
 
     private fun showEditDeleteOptions(reminder: Reminder) {
         val builder = android.app.AlertDialog.Builder(context)
@@ -174,11 +193,17 @@ class ReminderStudentFragment<T> : Fragment() {
         builder.setPositiveButton("Save") { _, _ ->
             val updatedTitle = titleInput.text.toString()
             if (updatedTitle.isNotEmpty()) {
+                // Show progress bar
+                binding.progressBar.visibility = View.VISIBLE
+
                 // Get the updated timestamp
                 val updatedTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
                 val updatedReminder = reminder.copy(title = updatedTitle, time = updatedTime)
                 database.child(reminder.id).setValue(updatedReminder).addOnCompleteListener { task ->
+                    // Hide progress bar
+                    binding.progressBar.visibility = View.GONE
+
                     if (task.isSuccessful) {
                         Toast.makeText(context, "Reminder updated", Toast.LENGTH_SHORT).show()
                     } else {
@@ -194,12 +219,19 @@ class ReminderStudentFragment<T> : Fragment() {
         builder.show()
     }
 
+
     private fun showDeleteConfirmationDialog(reminder: Reminder, onDelete: (Boolean) -> Unit) {
         val builder = android.app.AlertDialog.Builder(context)
         builder.setTitle("Delete Reminder")
             .setMessage("Are you sure you want to delete this reminder?")
             .setPositiveButton("Yes") { _, _ ->
+                // Show progress bar
+                binding.progressBar.visibility = View.VISIBLE
+
                 database.child(reminder.id).removeValue().addOnCompleteListener { task ->
+                    // Hide progress bar
+                    binding.progressBar.visibility = View.GONE
+
                     if (task.isSuccessful) {
                         Toast.makeText(context, "Reminder deleted", Toast.LENGTH_SHORT).show()
                         onDelete(true) // Notify successful deletion
@@ -214,6 +246,7 @@ class ReminderStudentFragment<T> : Fragment() {
             }
             .show()
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
