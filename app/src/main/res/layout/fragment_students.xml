@@ -153,12 +153,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/searchEditText"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         android:text="No students available."
         android:visibility="gone"
-        android:textColor="@android:color/darker_gray"
-        android:textStyle="italic"
-        android:textSize="12sp" />
+        android:elevation="50dp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold|italic"
+        android:textSize="14sp" />
 
     <!-- RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
@@ -169,8 +171,10 @@
         android:background="@drawable/text_view_border"
         android:layout_marginTop="8dp"
         android:clipToPadding="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
         android:paddingTop="8dp"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="1dp" />
 
     <!-- ProgressBar -->
     <ProgressBar

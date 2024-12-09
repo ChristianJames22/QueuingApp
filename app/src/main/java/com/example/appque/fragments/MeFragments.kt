@@ -1,6 +1,7 @@
 package com.example.appque.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -40,30 +41,42 @@ class MeFragments : Fragment() {
     }
 
     private fun fetchUserData(userId: String) {
-        database.child("users").child(userId)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    if (snapshot.exists()) {
-                        val name = snapshot.child("name").getValue(String::class.java) ?: "N/A"
-                        val id = snapshot.child("id").getValue(String::class.java) ?: "N/A"
-                        val course = snapshot.child("course").getValue(String::class.java) ?: "N/A"
-                        val year = snapshot.child("year").getValue(String::class.java) ?: "N/A"
+        try {
+            database.child("users").child(userId)
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        try {
+                            if (snapshot.exists()) {
+                                val name = snapshot.child("name").getValue(String::class.java) ?: "N/A"
+                                val id = snapshot.child("id").getValue(String::class.java) ?: "N/A"
+                                val course = snapshot.child("course").getValue(String::class.java) ?: "N/A"
+                                val year = snapshot.child("year").getValue(String::class.java) ?: "N/A"
 
-                        // Update UI with data
-                        binding.textName.text = name // Only display the name
-                        binding.textIdNumber.text = "ID No.: $id"
-                        binding.textCourse.text = "Course: $course"
-                        binding.textYear.text = "Year: $year"
-                    } else {
-                        Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
+                                // Update UI with data
+                                binding.textName.text = name // Only display the name
+                                binding.textIdNumber.text = "ID No.: $id"
+                                binding.textCourse.text = "Course: $course"
+                                binding.textYear.text = "Year: $year"
+                            } else {
+                                Toast.makeText(requireContext(), "User not found", Toast.LENGTH_SHORT).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("FetchUserData", "Error processing user data: ${e.message}")
+                            Toast.makeText(requireContext(), "An error occurred while processing user data.", Toast.LENGTH_SHORT).show()
+                        }
                     }
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    Toast.makeText(requireContext(), "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("FetchUserData", "Database error: ${error.message}")
+                        Toast.makeText(requireContext(), "Error fetching data: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
+        } catch (e: Exception) {
+            Log.e("FetchUserData", "Unexpected error: ${e.message}")
+            Toast.makeText(requireContext(), "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

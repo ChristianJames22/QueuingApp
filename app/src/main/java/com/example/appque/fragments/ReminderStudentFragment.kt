@@ -1,6 +1,7 @@
 package com.example.appque.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -63,34 +64,53 @@ class ReminderStudentFragment<T> : Fragment() {
     }
 
     private fun loadRemindersFromDatabase() {
-        // Show progress bar when loading begins
-        binding.progressBar.visibility = View.VISIBLE
+        try {
+            // Show progress bar when loading begins
+            binding.progressBar.visibility = View.VISIBLE
 
-        database.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
-            override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
-                remindersList.clear()
-                for (data in snapshot.children) {
-                    val reminder = data.getValue(Reminder::class.java)
-                    if (reminder != null) {
-                        remindersList.add(reminder)
+            database.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+                override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
+                    try {
+                        remindersList.clear()
+                        for (data in snapshot.children) {
+                            try {
+                                val reminder = data.getValue(Reminder::class.java)
+                                if (reminder != null) {
+                                    // Add new reminders to the top
+                                    remindersList.add(0, reminder)
+                                }
+                            } catch (e: Exception) {
+                                Log.e("LoadReminders", "Error parsing reminder data: ${e.message}")
+                            }
+                        }
+                        adapter.notifyDataSetChanged()
+
+                        // Show or hide empty list text
+                        binding.emptyListTextView.visibility =
+                            if (remindersList.isEmpty()) View.VISIBLE else View.GONE
+                    } catch (e: Exception) {
+                        Log.e("LoadReminders", "Error processing snapshot data: ${e.message}")
+                        Toast.makeText(context, "An error occurred while processing data: ${e.message}", Toast.LENGTH_SHORT).show()
+                    } finally {
+                        // Hide progress bar after processing
+                        binding.progressBar.visibility = View.GONE
                     }
                 }
-                adapter.notifyDataSetChanged()
 
-                // Hide progress bar after loading
-                binding.progressBar.visibility = View.GONE
-
-                // Show or hide empty list text
-                binding.emptyListTextView.visibility =
-                    if (remindersList.isEmpty()) View.VISIBLE else View.GONE
-            }
-
-            override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
-                binding.progressBar.visibility = View.GONE // Hide progress bar on failure
-                Toast.makeText(context, "Failed to load reminders: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+                override fun onCancelled(error: com.google.firebase.database.DatabaseError) {
+                    binding.progressBar.visibility = View.GONE // Hide progress bar on failure
+                    Log.e("LoadReminders", "Database error: ${error.message}")
+                    Toast.makeText(context, "Failed to load reminders: ${error.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+        } catch (e: Exception) {
+            binding.progressBar.visibility = View.GONE
+            Log.e("LoadReminders", "Unexpected error: ${e.message}")
+            Toast.makeText(context, "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
+
+
 
     private fun showAddReminderDialog() {
         val builder = android.app.AlertDialog.Builder(context)
@@ -125,6 +145,11 @@ class ReminderStudentFragment<T> : Fragment() {
                     binding.progressBar.visibility = View.GONE
 
                     if (task.isSuccessful) {
+                        // Add the new reminder to the top of the list
+                        remindersList.add(0, reminder)
+                        adapter.notifyItemInserted(0)
+                        binding.remindersRecyclerView.scrollToPosition(0)
+
                         Toast.makeText(context, "Reminder added", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "Failed to add reminder", Toast.LENGTH_SHORT).show()

@@ -3,6 +3,8 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
     android:elevation="15dp"
     android:background="@drawable/text_view_border"
     android:layout_margin="8dp">
@@ -16,6 +18,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         android:layout_marginBottom="4dp" />
+
 
     <TextView
         android:id="@+id/idTextView"
@@ -49,6 +52,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Year: 1st"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:layout_marginBottom="8dp" />
+    <TextView
+        android:id="@+id/timestampTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date &amp; Time: 2024-12-09 12:00:00"
         android:textColor="@color/black"
         android:textSize="14sp"
         android:layout_marginBottom="8dp" />

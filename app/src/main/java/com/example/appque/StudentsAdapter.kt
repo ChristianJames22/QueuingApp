@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class StudentsAdapter(
     private val studentsList: MutableList<Student>,
@@ -26,6 +28,12 @@ class StudentsAdapter(
         holder.courseTextView.text = "Course: ${student.course}"
         holder.yearTextView.text = "Year: ${student.year}"
 
+        // Format and display the timestamp
+        val date = Date(student.timestamp)
+        val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        val formattedDate = formatter.format(date)
+        holder.timestampTextView.text = "Added on: $formattedDate"
+
         // Handle item click
         holder.itemView.setOnClickListener {
             onItemClicked(student)
@@ -40,5 +48,6 @@ class StudentsAdapter(
         val emailTextView: TextView = itemView.findViewById(R.id.emailTextView)
         val courseTextView: TextView = itemView.findViewById(R.id.courseTextView)
         val yearTextView: TextView = itemView.findViewById(R.id.yearTextView)
+        val timestampTextView: TextView = itemView.findViewById(R.id.timestampTextView)
     }
 }

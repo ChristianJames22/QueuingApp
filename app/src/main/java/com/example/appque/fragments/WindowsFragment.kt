@@ -49,23 +49,37 @@ class WindowsFragment : Fragment(R.layout.fragment_windows) {
     }
 
     private fun fetchUserName() {
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            val userId = currentUser.uid
-            database.child("users").child(userId)
-                .get()
-                .addOnSuccessListener { snapshot ->
-                    userName = snapshot.child("name").getValue(String::class.java) ?: "Unknown User"
-                }
-                .addOnFailureListener {
-                    Toast.makeText(requireContext(), "Failed to fetch user data", Toast.LENGTH_SHORT).show()
-                    userName = "Unknown User"
-                }
-        } else {
-            Toast.makeText(requireContext(), "No authenticated user found", Toast.LENGTH_SHORT).show()
+        try {
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                val userId = currentUser.uid
+                database.child("users").child(userId)
+                    .get()
+                    .addOnSuccessListener { snapshot ->
+                        try {
+                            userName = snapshot.child("name").getValue(String::class.java) ?: "Unknown User"
+                        } catch (e: Exception) {
+                            Log.e("FetchUserName", "Error parsing user data: ${e.message}")
+                            Toast.makeText(requireContext(), "Error parsing user data", Toast.LENGTH_SHORT).show()
+                            userName = "Unknown User"
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("FetchUserName", "Failed to fetch user data: ${exception.message}")
+                        Toast.makeText(requireContext(), "Failed to fetch user data: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        userName = "Unknown User"
+                    }
+            } else {
+                Toast.makeText(requireContext(), "No authenticated user found", Toast.LENGTH_SHORT).show()
+                userName = "Unknown User"
+            }
+        } catch (e: Exception) {
+            Log.e("FetchUserName", "Unexpected error: ${e.message}")
+            Toast.makeText(requireContext(), "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
             userName = "Unknown User"
         }
     }
+
 
     private fun setupButtonListeners() {
         binding.buttonCashier.setOnClickListener {

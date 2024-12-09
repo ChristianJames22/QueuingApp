@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/borderless_bg"
     android:padding="16dp">
 
     <LinearLayout
@@ -21,6 +22,20 @@
             android:gravity="center"
             android:layout_marginBottom="16dp" />
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
+
+
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:visibility="gone" />
         <!-- ID No. -->
         <EditText
             android:id="@+id/idInput"
@@ -29,8 +44,9 @@
             android:hint="ID No."
             android:textColor="@color/black"
             android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/text_view_border"
+            android:layout_marginBottom="8dp"
+            android:singleLine="true"/>
 
         <!-- Name -->
         <EditText
@@ -40,8 +56,9 @@
             android:hint="Fullname"
             android:textColor="@color/black"
             android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/text_view_border"
+            android:layout_marginBottom="8dp"
+            android:singleLine="true"/>
 
         <!-- Course -->
         <Spinner
@@ -50,8 +67,9 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:textColor="@color/black"
-            android:background="@drawable/rounded_edittext"
-            android:layout_marginBottom="8dp" />
+            android:background="@drawable/text_view_border"
+            android:layout_marginBottom="8dp"
+            android:singleLine="true"/>
 
         <!-- Year -->
         <Spinner
@@ -60,7 +78,8 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:textColor="@color/black"
-            android:background="@drawable/rounded_edittext"
+            android:singleLine="true"
+            android:background="@drawable/text_view_border"
             android:layout_marginBottom="8dp" />
 
         <!-- Email -->
@@ -72,7 +91,8 @@
             android:inputType="textEmailAddress"
             android:textColor="@color/black"
             android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
+            android:singleLine="true"
+            android:background="@drawable/text_view_border"
             android:layout_marginBottom="8dp" />
 
         <!-- Password -->
@@ -84,7 +104,8 @@
             android:inputType="textPassword"
             android:textColor="@color/black"
             android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
+            android:singleLine="true"
+            android:background="@drawable/text_view_border"
             android:layout_marginBottom="8dp" />
 
         <!-- Confirm Password -->
@@ -96,7 +117,8 @@
             android:inputType="textPassword"
             android:textColor="@color/black"
             android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
+            android:singleLine="true"
+            android:background="@drawable/text_view_border"
             android:layout_marginBottom="16dp" />
 
         <!-- Buttons -->

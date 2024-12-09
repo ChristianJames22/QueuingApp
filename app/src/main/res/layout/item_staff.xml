@@ -4,30 +4,35 @@
     android:orientation="vertical"
     android:padding="12dp"
     android:layout_marginBottom="8dp"
-    android:layout_marginStart="5dp"
-    android:layout_marginEnd="5dp"
-    android:elevation="5dp"
+    android:layout_marginStart="10dp"
+    android:layout_marginEnd="10dp"
     android:background="@drawable/text_view_border">
 
     <TextView
         android:id="@+id/nameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:textSize="16sp"
         android:textColor="@color/black"
-        android:textStyle="bold"
-        android:textSize="16sp" />
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/idTextView"
         android:layout_width="wrap_content"
-        android:textColor="@color/black"
         android:layout_height="wrap_content"
-        android:textSize="14sp" />
+        android:textColor="@color/black" />
 
     <TextView
         android:id="@+id/emailTextView"
         android:layout_width="wrap_content"
-        android:textColor="@color/black"
         android:layout_height="wrap_content"
-        android:textSize="14sp" />
+        android:textColor="@color/black" />
+
+    <TextView
+        android:id="@+id/timestampTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="12sp"
+        android:layout_marginTop="4dp" />
 </LinearLayout>

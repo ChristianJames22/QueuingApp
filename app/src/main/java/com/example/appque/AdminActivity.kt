@@ -2,6 +2,7 @@ package com.example.appque
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -42,24 +43,39 @@ class AdminActivity : AppCompatActivity() {
     }
 
     private fun verifyAdminRole() {
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            database.child("users").child(currentUser.uid).get()
-                .addOnSuccessListener { snapshot ->
-                    val role = snapshot.child("role").value?.toString()
-                    if (role != "admin") {
-                        showToast("Access Denied. Admin role required.")
+        try {
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                database.child("users").child(currentUser.uid).get()
+                    .addOnSuccessListener { snapshot ->
+                        try {
+                            val role = snapshot.child("role").value?.toString()
+                            if (role != "admin") {
+                                showToast("Access Denied. Admin role required.")
+                                redirectToLogin()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("VerifyAdminRole", "Error processing user role: ${e.message}")
+                            showToast("An error occurred while verifying user role.")
+                            redirectToLogin()
+                        }
+                    }
+                    .addOnFailureListener { exception ->
+                        Log.e("VerifyAdminRole", "Database error: ${exception.message}")
+                        showToast("Error verifying user role: ${exception.message}")
                         redirectToLogin()
                     }
-                }
-                .addOnFailureListener {
-                    showToast("Error verifying user role.")
-                    redirectToLogin()
-                }
-        } else {
+            } else {
+                showToast("No authenticated user found. Redirecting to login.")
+                redirectToLogin()
+            }
+        } catch (e: Exception) {
+            Log.e("VerifyAdminRole", "Unexpected error: ${e.message}")
+            showToast("An unexpected error occurred. Redirecting to login.")
             redirectToLogin()
         }
     }
+
 
 
     private fun redirectToLogin() {
@@ -68,45 +84,68 @@ class AdminActivity : AppCompatActivity() {
     }
 
     private fun setupListeners() {
-        // Logout button listener
-        binding.logoutButton.setOnClickListener {
-            showLogoutConfirmationDialog()
-        }
-
-        // Bottom navigation listener
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            if (currentFragmentId != item.itemId) {
-                when (item.itemId) {
-                    R.id.nav_students -> {
-                        loadFragment(StudentsFragment(), item.itemId)
-                        true
-                    }
-                    R.id.nav_staff -> {
-                        loadFragment(StaffFragment(), item.itemId)
-                        true
-                    }
-                    R.id.nav_request -> {
-                        loadFragment(RequestFragment(), item.itemId)
-                        true
-                    }
-                    R.id.nav_reminders -> {
-                        loadFragment(ReminderStudentFragment<Any>(), item.itemId)
-                        true
-                    }
-                    else -> false
+        try {
+            // Logout button listener
+            binding.logoutButton.setOnClickListener {
+                try {
+                    showLogoutConfirmationDialog()
+                } catch (e: Exception) {
+                    Log.e("LogoutListener", "Error showing logout dialog: ${e.message}")
+                    showToast("An error occurred while logging out.")
                 }
-            } else {
-                false
             }
+
+            // Bottom navigation listener
+            binding.bottomNavigation.setOnItemSelectedListener { item ->
+                try {
+                    if (currentFragmentId != item.itemId) {
+                        when (item.itemId) {
+                            R.id.nav_students -> {
+                                loadFragment(StudentsFragment(), item.itemId)
+                                true
+                            }
+                            R.id.nav_staff -> {
+                                loadFragment(StaffFragment(), item.itemId)
+                                true
+                            }
+                            R.id.nav_request -> {
+                                loadFragment(RequestFragment(), item.itemId)
+                                true
+                            }
+                            R.id.nav_reminders -> {
+                                loadFragment(ReminderStudentFragment<Any>(), item.itemId)
+                                true
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                } catch (e: Exception) {
+                    Log.e("NavigationListener", "Error during navigation: ${e.message}")
+                    showToast("An error occurred while navigating.")
+                    false
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("SetupListeners", "Error setting up listeners: ${e.message}")
+            showToast("An unexpected error occurred.")
         }
     }
+
 
     private fun loadFragment(fragment: Fragment, fragmentId: Int) {
-        supportFragmentManager.beginTransaction()
-            .replace(binding.fragmentContainer.id, fragment)
-            .commit()
-        currentFragmentId = fragmentId
+        try {
+            supportFragmentManager.beginTransaction()
+                .replace(binding.fragmentContainer.id, fragment)
+                .commit()
+            currentFragmentId = fragmentId
+        } catch (e: Exception) {
+            Log.e("LoadFragment", "Error loading fragment: ${e.message}")
+            showToast("An error occurred while loading the fragment.")
+        }
     }
+
 
     private fun showLogoutConfirmationDialog() {
         AlertDialog.Builder(this)
@@ -124,25 +163,38 @@ class AdminActivity : AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
-
-        val currentUser = auth.currentUser
-        if (currentUser != null) {
-            database.child("users").child(currentUser.uid).get()
-                .addOnSuccessListener { snapshot ->
-                    val role = snapshot.child("role").value?.toString()
-                    if (role != "admin") {
-                        showToast("Access Denied. Admin role required.")
+        try {
+            val currentUser = auth.currentUser
+            if (currentUser != null) {
+                database.child("users").child(currentUser.uid).get()
+                    .addOnSuccessListener { snapshot ->
+                        try {
+                            val role = snapshot.child("role").value?.toString()
+                            if (role != "admin") {
+                                showToast("Access Denied. Admin role required.")
+                                redirectToLogin()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("OnStart", "Error processing user role: ${e.message}")
+                            showToast("An error occurred during role verification.")
+                            redirectToLogin()
+                        }
+                    }
+                    .addOnFailureListener {
+                        Log.e("OnStart", "Database error: ${it.message}")
+                        showToast("Error verifying user role.")
                         redirectToLogin()
                     }
-                }
-                .addOnFailureListener {
-                    showToast("Error verifying user role.")
-                    redirectToLogin()
-                }
-        } else {
+            } else {
+                redirectToLogin()
+            }
+        } catch (e: Exception) {
+            Log.e("OnStart", "Unexpected error: ${e.message}")
+            showToast("An unexpected error occurred. Redirecting to login.")
             redirectToLogin()
         }
     }
+
 
 
     private fun showToast(message: String) {

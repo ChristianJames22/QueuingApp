@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#FFFFFF"
+  android:background="@drawable/borderless_bg"
     android:clipChildren="false">
 
     <!-- Search Bar -->
@@ -18,6 +18,12 @@
         android:inputType="text"
         android:drawableStart="@android:drawable/ic_menu_search" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
     <!-- Title -->
     <TextView
         android:id="@+id/staffTitle"
@@ -42,11 +48,11 @@
         android:layout_below="@id/emptyListTextView"
         android:background="@drawable/text_view_border"
         android:layout_marginTop="100dp"
-        android:elevation="30dp"
-        android:layout_marginStart="1dp"
-        android:layout_marginEnd="1dp"
+        android:elevation="4dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
         android:clipToPadding="true"
-        android:paddingTop="1dp"
+        android:paddingTop="8dp"
         android:paddingBottom="1dp" />
 
     <!-- Empty List Placeholder -->
@@ -59,13 +65,6 @@
         android:visibility="gone"
         android:textColor="@android:color/darker_gray"
         android:textStyle="italic" />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" />
 
 
     <!-- Add Button -->

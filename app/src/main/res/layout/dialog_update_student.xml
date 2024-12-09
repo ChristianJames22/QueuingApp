@@ -1,6 +1,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/borderless_bg"
     android:padding="16dp">
 
     <LinearLayout
@@ -41,7 +42,7 @@
             android:layout_height="wrap_content"
             android:hint="Fullame"
             android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
+            android:background="@drawable/text_view_border"
             android:layout_marginBottom="8dp" />
 
         <!-- Course -->
@@ -50,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
+            android:background="@drawable/text_view_border"
             android:layout_marginBottom="8dp" />
 
         <!-- Year -->
@@ -59,7 +60,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp"
-            android:background="@drawable/rounded_edittext"
+            android:background="@drawable/text_view_border"
             android:layout_marginBottom="8dp" />
 
         <!-- Buttons -->

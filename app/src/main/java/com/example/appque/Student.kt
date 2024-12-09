@@ -7,5 +7,5 @@ data class Student(
     var role: String = "",
     var timestamp: Long = 0,
     var uid: String = "",
-    var s: String = ""
+    var formattedDate: String = "" // New property for displaying formatted date
 )

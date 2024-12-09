@@ -69,35 +69,68 @@ class StaffFragment : Fragment() {
     }
 
     private fun fetchStaff() {
-        binding.progressBar.visibility = View.VISIBLE
+        try {
+            binding.progressBar.visibility = View.VISIBLE
 
-        database.child("users")
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    binding.progressBar.visibility = View.GONE
-                    staffList.clear()
-                    for (childSnapshot in snapshot.children) {
-                        val staff = childSnapshot.getValue(Staff::class.java)
-                        if (staff?.role in VALID_WINDOWS) {  // Adjusted to check for `window1` to `window8`
-                            staff?.let {
-                                it.firebaseUid = childSnapshot.key ?: "" // Attach Firebase UID
-                                staffList.add(0, it)
+            database.child("users")
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        try {
+                            binding.progressBar.visibility = View.GONE
+                            staffList.clear()
+
+                            for (childSnapshot in snapshot.children) {
+                                try {
+                                    val staff = childSnapshot.getValue(Staff::class.java)
+                                    if (staff?.role in VALID_WINDOWS) {
+                                        staff?.let {
+                                            it.firebaseUid = childSnapshot.key ?: ""
+                                            staffList.add(it)
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e("StaffFragment", "Error parsing staff data: ${e.message}")
+                                }
                             }
+
+                            // Sort the staffList by timestamp in descending order
+                            staffList.sortByDescending { it.timestamp }
+
+                            // Update the filtered list and notify the adapter
+                            filteredList.clear()
+                            filteredList.addAll(staffList)
+
+                            staffAdapter.notifyDataSetChanged()
+
+                            // Set empty list text visibility
+                            binding.emptyListTextView.visibility =
+                                if (staffList.isEmpty()) View.VISIBLE else View.GONE
+
+                            // Scroll to the top
+                            if (staffList.isNotEmpty()) {
+                                binding.staffRecyclerView.scrollToPosition(0)
+                            }
+                        } catch (e: Exception) {
+                            Log.e("StaffFragment", "Error processing snapshot data: ${e.message}")
+                            Toast.makeText(requireContext(), "An error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
                         }
                     }
-                    filteredList.clear()
-                    filteredList.addAll(staffList)
-                    staffAdapter.notifyDataSetChanged()
-                    binding.emptyListTextView.visibility =
-                        if (staffList.isEmpty()) View.VISIBLE else View.GONE
-                }
 
-                override fun onCancelled(error: DatabaseError) {
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Error fetching staff: ${error.message}", Toast.LENGTH_SHORT).show()
-                }
-            })
+                    override fun onCancelled(error: DatabaseError) {
+                        binding.progressBar.visibility = View.GONE
+                        Log.e("StaffFragment", "Database error: ${error.message}")
+                        Toast.makeText(requireContext(), "Error fetching staff: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
+        } catch (e: Exception) {
+            binding.progressBar.visibility = View.GONE
+            Log.e("StaffFragment", "Unexpected error: ${e.message}")
+            Toast.makeText(requireContext(), "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
+
+
+
 
     private fun filterStaff(query: String) {
         val lowerCaseQuery = query.lowercase()
@@ -171,47 +204,66 @@ class StaffFragment : Fragment() {
         password: String,
         dialog: AlertDialog
     ) {
-        if (role == "Select Window" || role.isEmpty()) {
-            Toast.makeText(requireContext(), "Please select a valid window.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        // Show progress bar before starting the operation
-        binding.progressBar.visibility = View.VISIBLE
-
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnCompleteListener { authTask ->
-                if (authTask.isSuccessful) {
-                    val userId = authTask.result?.user?.uid
-                    if (userId != null) {
-                        val staff = Staff(id, name, email, role).apply { firebaseUid = userId }
-                        database.child("users").child(userId).setValue(staff)
-                            .addOnSuccessListener {
-                                // Hide progress bar after success
-                                binding.progressBar.visibility = View.GONE
-                                dialog.dismiss()
-                                Toast.makeText(requireContext(), "Staff added successfully!", Toast.LENGTH_SHORT).show()
-                                staffList.add(0, staff)
-                                filteredList.add(0, staff)
-                                staffAdapter.notifyItemInserted(0)
-                                binding.staffRecyclerView.scrollToPosition(0)
-
-                                // Restore admin session
-                                signOutNewUserAndRestoreAdmin()
-                            }
-                            .addOnFailureListener {
-                                // Hide progress bar after failure
-                                binding.progressBar.visibility = View.GONE
-                                Toast.makeText(requireContext(), "Failed to add staff.", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                } else {
-                    // Hide progress bar if authentication fails
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Error: ${authTask.exception?.message}", Toast.LENGTH_SHORT).show()
-                }
+        try {
+            if (role == "Select Window" || role.isEmpty()) {
+                Toast.makeText(requireContext(), "Please select a valid window.", Toast.LENGTH_SHORT).show()
+                return
             }
+
+            binding.progressBar.visibility = View.VISIBLE
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener { authTask ->
+                    try {
+                        if (authTask.isSuccessful) {
+                            val userId = authTask.result?.user?.uid
+                            if (userId != null) {
+                                val staff = Staff(
+                                    id = id,
+                                    name = name,
+                                    email = email,
+                                    role = role,
+                                    firebaseUid = userId,
+                                    timestamp = System.currentTimeMillis() // Set current timestamp
+                                )
+                                database.child("users").child(userId).setValue(staff)
+                                    .addOnSuccessListener {
+                                        binding.progressBar.visibility = View.GONE
+                                        dialog.dismiss()
+                                        Toast.makeText(requireContext(), "Staff added successfully!", Toast.LENGTH_SHORT).show()
+
+                                        // Add the new staff to the top of the lists
+                                        staffList.add(0, staff)
+                                        filteredList.add(0, staff)
+
+                                        // Notify the adapter and scroll to the top
+                                        staffAdapter.notifyItemInserted(0)
+                                        binding.staffRecyclerView.scrollToPosition(0)
+
+                                        signOutNewUserAndRestoreAdmin()
+                                    }
+                                    .addOnFailureListener {
+                                        binding.progressBar.visibility = View.GONE
+                                        Toast.makeText(requireContext(), "Failed to add staff.", Toast.LENGTH_SHORT).show()
+                                    }
+                            }
+                        } else {
+                            binding.progressBar.visibility = View.GONE
+                            Toast.makeText(requireContext(), "Error: ${authTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        binding.progressBar.visibility = View.GONE
+                        Log.e("AddStaff", "Unexpected error: ${e.message}")
+                        Toast.makeText(requireContext(), "An error occurred.", Toast.LENGTH_SHORT).show()
+                    }
+                }
+        } catch (e: Exception) {
+            binding.progressBar.visibility = View.GONE
+            Log.e("AddStaff", "Error adding staff: ${e.message}")
+            Toast.makeText(requireContext(), "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
 
     private fun showStaffInfoDialog(staff: Staff) {
@@ -285,79 +337,74 @@ class StaffFragment : Fragment() {
     }
 
     private fun showUpdateStaffDialog(staff: Staff) {
-        // Inflate the updated dialog layout
-        val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_update_staff, null)
-        val dialog = AlertDialog.Builder(requireContext())
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
+        try {
+            val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_update_staff, null)
+            val dialog = AlertDialog.Builder(requireContext())
+                .setView(dialogView)
+                .setCancelable(true)
+                .create()
 
-        // Bind UI elements to the dialog
-        val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
-        val roleSpinner = dialogView.findViewById<Spinner>(R.id.roleSpinner)
+            val nameInput = dialogView.findViewById<EditText>(R.id.nameInput)
+            val roleSpinner = dialogView.findViewById<Spinner>(R.id.roleSpinner)
 
-        // Pre-fill fields with staff data
-        nameInput.setText(staff.name)
+            nameInput.setText(staff.name)
 
-        // Set up role spinner with roles
-        val roles = arrayOf("Select Window", "window1", "window2", "window3", "window4", "window5", "window6", "window7", "window8")
-        val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
-        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        roleSpinner.adapter = roleAdapter
-        roleSpinner.setSelection(roles.indexOf(staff.role))
+            val roles = arrayOf("Select Window", "window1", "window2", "window3", "window4", "window5", "window6", "window7", "window8")
+            val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
+            roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            roleSpinner.adapter = roleAdapter
+            roleSpinner.setSelection(roles.indexOf(staff.role))
 
-        // Update button logic
-        dialogView.findViewById<Button>(R.id.addButton).apply {
-            text = "Update" // Change button text to "Update"
-            setOnClickListener {
-                val updatedName = nameInput.text.toString().trim()
-                val updatedRole = roleSpinner.selectedItem.toString()
+            dialogView.findViewById<Button>(R.id.addButton).apply {
+                text = "Update"
+                setOnClickListener {
+                    val updatedName = nameInput.text.toString().trim()
+                    val updatedRole = roleSpinner.selectedItem.toString()
 
-                if (updatedName.isEmpty() || updatedRole == "Select Window") {
-                    Toast.makeText(requireContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
+                    if (updatedName.isEmpty() || updatedRole == "Select Window") {
+                        Toast.makeText(requireContext(), "Please fill in all fields.", Toast.LENGTH_SHORT).show()
+                        return@setOnClickListener
+                    }
 
-                // Show progress bar
-                binding.progressBar.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.VISIBLE
 
-                // Update staff data
-                val updatedStaff = staff.copy(name = updatedName, role = updatedRole)
+                    val updatedStaff = staff.copy(name = updatedName, role = updatedRole)
 
-                // Update the database
-                database.child("users").child(staff.firebaseUid).updateChildren(
-                    mapOf("name" to updatedName, "role" to updatedRole)
-                ).addOnSuccessListener {
-                    // Hide progress bar after success
-                    binding.progressBar.visibility = View.GONE
-
-                    // Update local list
-                    staffList.remove(staff)
-                    staffList.add(0, updatedStaff)
-                    filteredList.clear()
-                    filteredList.addAll(staffList)
-
-                    // Notify adapter
-                    staffAdapter.notifyDataSetChanged()
-
-                    Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
-                    dialog.dismiss()
-                }.addOnFailureListener { exception ->
-                    // Hide progress bar after failure
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
+                    try {
+                        database.child("users").child(staff.firebaseUid).updateChildren(
+                            mapOf("name" to updatedName, "role" to updatedRole)
+                        ).addOnSuccessListener {
+                            binding.progressBar.visibility = View.GONE
+                            staffList.remove(staff)
+                            staffList.add(0, updatedStaff)
+                            filteredList.clear()
+                            filteredList.addAll(staffList)
+                            staffAdapter.notifyDataSetChanged()
+                            Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
+                            dialog.dismiss()
+                        }.addOnFailureListener { exception ->
+                            binding.progressBar.visibility = View.GONE
+                            Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        }
+                    } catch (e: Exception) {
+                        binding.progressBar.visibility = View.GONE
+                        Log.e("UpdateStaff", "Error updating staff: ${e.message}")
+                        Toast.makeText(requireContext(), "An error occurred.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
-        }
 
-        // Cancel button logic
-        dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
-            dialog.dismiss()
-        }
+            dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
+                dialog.dismiss()
+            }
 
-        // Show the dialog
-        dialog.show()
+            dialog.show()
+        } catch (e: Exception) {
+            Log.e("UpdateStaff", "Error displaying update dialog: ${e.message}")
+            Toast.makeText(requireContext(), "An error occurred while showing the dialog.", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     private fun signOutNewUserAndRestoreAdmin() {
         val adminEmail = "admin@gmail.com" // Replace with your admin's email

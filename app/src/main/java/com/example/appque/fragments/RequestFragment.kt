@@ -2,6 +2,7 @@ package com.example.appque.fragments
 
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,8 @@ import com.example.appque.databinding.FragmentRequestBinding
 import com.example.appque.databinding.ItemRequestBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
+import java.text.SimpleDateFormat
+import java.util.*
 
 class RequestFragment : Fragment() {
 
@@ -45,46 +48,66 @@ class RequestFragment : Fragment() {
     }
 
     private fun fetchPendingRequests() {
-        // Show the progress bar at the start of the operation
-        binding.progressBar.visibility = View.VISIBLE
+        try {
+            binding.progressBar.visibility = View.VISIBLE
 
-        database.child("pending_requests").addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                requestList.clear()
+            database.child("pending_requests").addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    try {
+                        requestList.clear()
 
-                // Populate the requestList with data from the snapshot
-                for (child in snapshot.children) {
-                    val request = child.value as? Map<String, String>
-                    if (request != null) {
-                        requestList.add(request)
+                        for (child in snapshot.children) {
+                            try {
+                                val request = child.value as? MutableMap<String, Any>
+                                if (request != null) {
+                                    // Format the timestamp into a readable date and time
+                                    val timestamp = request["timestamp"] as? Long
+                                    if (timestamp != null) {
+                                        val formattedDate = formatTimestamp(timestamp)
+                                        request["formattedDate"] = formattedDate
+                                    }
+                                    requestList.add(request as Map<String, String>)
+                                }
+                            } catch (e: Exception) {
+                                Log.e("PendingRequests", "Error parsing request data: ${e.message}")
+                            }
+                        }
+
+                        binding.requestRecyclerView.adapter?.notifyDataSetChanged()
+
+                        if (requestList.isEmpty()) {
+                            binding.emptyListTextView.visibility = View.VISIBLE
+                            binding.requestRecyclerView.visibility = View.GONE
+                        } else {
+                            binding.emptyListTextView.visibility = View.GONE
+                            binding.requestRecyclerView.visibility = View.VISIBLE
+                        }
+
+                        binding.progressBar.visibility = View.GONE
+                    } catch (e: Exception) {
+                        Log.e("PendingRequests", "Error processing snapshot data: ${e.message}")
+                        Toast.makeText(context, "An error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+                        binding.progressBar.visibility = View.GONE
                     }
                 }
 
-                // Update the RecyclerView
-                binding.requestRecyclerView.adapter?.notifyDataSetChanged()
-
-                // Show or hide the empty list text
-                if (requestList.isEmpty()) {
-                    binding.emptyListTextView.visibility = View.VISIBLE
-                    binding.requestRecyclerView.visibility = View.GONE
-                } else {
-                    binding.emptyListTextView.visibility = View.GONE
-                    binding.requestRecyclerView.visibility = View.VISIBLE
+                override fun onCancelled(error: DatabaseError) {
+                    binding.progressBar.visibility = View.GONE
+                    Log.e("PendingRequests", "Database error: ${error.message}")
+                    Toast.makeText(context, "Failed to load requests: ${error.message}", Toast.LENGTH_SHORT).show()
                 }
-
-                // Hide the progress bar after the data is processed
-                binding.progressBar.visibility = View.GONE
-            }
-
-            override fun onCancelled(error: DatabaseError) {
-                // Hide the progress bar on failure
-                binding.progressBar.visibility = View.GONE
-                Toast.makeText(context, "Failed to load requests: ${error.message}", Toast.LENGTH_SHORT).show()
-            }
-        })
+            })
+        } catch (e: Exception) {
+            binding.progressBar.visibility = View.GONE
+            Log.e("PendingRequests", "Unexpected error: ${e.message}")
+            Toast.makeText(context, "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
 
-
+    private fun formatTimestamp(timestamp: Long): String {
+        val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        return sdf.format(Date(timestamp))
+    }
 
     private fun deleteRequest(request: Map<String, String>, position: Int) {
         val email = request["email"] ?: return
@@ -113,13 +136,11 @@ class RequestFragment : Fragment() {
         val password = request["password"] ?: return
         val id = request["id"] ?: return
 
-        // Step 1: Save to Firebase Authentication
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {
                 val userId = auth.currentUser?.uid ?: return@addOnSuccessListener
                 val timestamp = System.currentTimeMillis()
 
-                // Step 2: Save to Firebase Realtime Database (users node)
                 val userMap = mapOf(
                     "id" to id,
                     "name" to request["name"],
@@ -132,11 +153,8 @@ class RequestFragment : Fragment() {
                 )
                 database.child("users").child(userId).setValue(userMap)
                     .addOnSuccessListener {
-                        // Step 3: Remove from pending_requests
                         removeRequestFromPending(email)
                         Toast.makeText(context, "User approved and added to users.", Toast.LENGTH_SHORT).show()
-
-                        // Step 4: Sign out the newly created user and log back in to the admin account
                         signOutNewUserAndRestoreAdmin()
                     }
             }
@@ -146,12 +164,11 @@ class RequestFragment : Fragment() {
     }
 
     private fun signOutNewUserAndRestoreAdmin() {
-        val adminEmail = "admin@gmail.com" // Replace with your admin's email
-        val adminPassword = "123456" // Replace with your admin's password
+        val adminEmail = "admin@gmail.com"
+        val adminPassword = "123456"
 
-        auth.signOut() // Sign out the newly created user
+        auth.signOut()
 
-        // Log back in as the admin
         auth.signInWithEmailAndPassword(adminEmail, adminPassword)
             .addOnSuccessListener {
                 Toast.makeText(context, "Admin session restored.", Toast.LENGTH_SHORT).show()
@@ -160,8 +177,6 @@ class RequestFragment : Fragment() {
                 Toast.makeText(context, "Failed to restore admin session: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
-
-
 
     private fun removeRequestFromPending(email: String) {
         database.child("pending_requests")
@@ -207,6 +222,7 @@ class RequestFragment : Fragment() {
                 itemBinding.emailTextView.text = "Email: ${request["email"]}"
                 itemBinding.courseTextView.text = "Course: ${request["course"]}"
                 itemBinding.yearTextView.text = "Year: ${request["year"]}"
+                itemBinding.timestampTextView.text = "Date & Time: ${request["formattedDate"] ?: "N/A"}"
 
                 itemBinding.acceptButton.setOnClickListener {
                     showConfirmationDialog(
@@ -225,7 +241,6 @@ class RequestFragment : Fragment() {
                 }
             }
         }
-        
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RequestViewHolder {
             val inflater = LayoutInflater.from(parent.context)

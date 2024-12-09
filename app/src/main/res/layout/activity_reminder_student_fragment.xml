@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="@drawable/borderless_bg"
     android:clipChildren="false">
 
     <!-- Title TextView -->
@@ -11,9 +11,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="10dp"
         android:text="  Reminders:  "
         android:textColor="@color/black"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/rounded_background_lilac"
         android:textStyle="bold"
         android:textSize="18sp" />
@@ -33,12 +34,16 @@
         android:visibility="gone"
         android:textColor="@android:color/darker_gray"
         android:textStyle="italic" />
+
     <!-- RecyclerView for reminders -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/remindersRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/reminderTitle"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginTop="5dp"
         android:background="@drawable/rounded_background_lilac"
         android:layout_margin="8dp"
         android:overScrollMode="never"

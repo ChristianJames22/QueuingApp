@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.appque.databinding.ActivitySignUpBinding
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
+import android.text.format.DateFormat
 
 class SignUpActivity : AppCompatActivity() {
 
@@ -95,12 +95,79 @@ class SignUpActivity : AppCompatActivity() {
 
             if (validateInputs(id, name, course, year, email, password, confirmPassword)) {
                 showLoading(true)
-                submitRequestToFirebase(id, name, course, year, email, password)
+                checkForDuplicateEntries(id, name, email, course, year, password)
             }
         } catch (e: Exception) {
             showLoading(false)
             Toast.makeText(this, "An error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun checkForDuplicateEntries(
+        id: String,
+        name: String,
+        email: String,
+        course: String,
+        year: String,
+        password: String
+    ) {
+        database.child("users").orderByChild("name").equalTo(name).addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(userNameSnapshot: DataSnapshot) {
+                if (userNameSnapshot.exists()) {
+                    showLoading(false)
+                    Toast.makeText(this@SignUpActivity, "Name already exists.", Toast.LENGTH_SHORT).show()
+                    return
+                }
+                database.child("users").orderByChild("id").equalTo(id).addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(userIdSnapshot: DataSnapshot) {
+                        if (userIdSnapshot.exists()) {
+                            showLoading(false)
+                            Toast.makeText(this@SignUpActivity, "ID already exists.", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                        database.child("users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
+                            override fun onDataChange(userEmailSnapshot: DataSnapshot) {
+                                if (userEmailSnapshot.exists()) {
+                                    showLoading(false)
+                                    Toast.makeText(this@SignUpActivity, "Email already exists.", Toast.LENGTH_SHORT).show()
+                                    return
+                                }
+                                database.child("pending_requests").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
+                                    override fun onDataChange(pendingSnapshot: DataSnapshot) {
+                                        if (pendingSnapshot.exists()) {
+                                            showLoading(false)
+                                            Toast.makeText(this@SignUpActivity, "Request already submitted.", Toast.LENGTH_SHORT).show()
+                                            return
+                                        }
+                                        submitRequestToFirebase(id, name, course, year, email, password)
+                                    }
+
+                                    override fun onCancelled(error: DatabaseError) {
+                                        showLoading(false)
+                                        Toast.makeText(this@SignUpActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                                    }
+                                })
+                            }
+
+                            override fun onCancelled(error: DatabaseError) {
+                                showLoading(false)
+                                Toast.makeText(this@SignUpActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                            }
+                        })
+                    }
+
+                    override fun onCancelled(error: DatabaseError) {
+                        showLoading(false)
+                        Toast.makeText(this@SignUpActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                showLoading(false)
+                Toast.makeText(this@SignUpActivity, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun submitRequestToFirebase(
@@ -111,13 +178,17 @@ class SignUpActivity : AppCompatActivity() {
         email: String,
         password: String
     ) {
+        val timestamp = System.currentTimeMillis()
+
+        // Exclude `formattedTimestamp`
         val request = mapOf(
             "id" to id,
             "name" to name,
             "course" to course,
             "year" to year,
             "email" to email,
-            "password" to password
+            "password" to password,
+            "timestamp" to timestamp
         )
 
         database.child("pending_requests").push().setValue(request)
@@ -131,6 +202,7 @@ class SignUpActivity : AppCompatActivity() {
                 Toast.makeText(this, "Error submitting request: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
 
     private fun validateInputs(
         id: String,

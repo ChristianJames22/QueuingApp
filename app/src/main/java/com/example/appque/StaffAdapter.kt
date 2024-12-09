@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.text.SimpleDateFormat
+import java.util.*
 
 class StaffAdapter(
     private val staffList: MutableList<Staff>,
@@ -23,31 +25,24 @@ class StaffAdapter(
         holder.bind(staff)
     }
 
-    override fun getItemCount(): Int {
-        return staffList.size
-    }
-
-    /**
-     * Optional: Method to update the data and refresh the RecyclerView
-     */
-    fun updateData(newList: List<Staff>) {
-        staffList.clear()
-        staffList.addAll(newList)
-        notifyDataSetChanged() // Refresh the entire RecyclerView
-    }
+    override fun getItemCount(): Int = staffList.size
 
     inner class StaffViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val nameTextView: TextView = itemView.findViewById(R.id.nameTextView)
         private val idTextView: TextView = itemView.findViewById(R.id.idTextView)
         private val emailTextView: TextView = itemView.findViewById(R.id.emailTextView)
+        private val timestampTextView: TextView = itemView.findViewById(R.id.timestampTextView)
 
         fun bind(staff: Staff) {
-            // Use string resources or String.format() for better localization
-            nameTextView.text = itemView.context.getString(R.string.staff_name, staff.name)
-            idTextView.text = itemView.context.getString(R.string.staff_id, staff.id)
-            emailTextView.text = itemView.context.getString(R.string.staff_email, staff.email)
+            nameTextView.text = "Name: ${staff.name}"
+            idTextView.text = "ID: ${staff.id}"
+            emailTextView.text = "Email: ${staff.email}"
 
-            // Handle click events
+            // Format timestamp to a readable date and time
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+            val formattedTimestamp = dateFormat.format(Date(staff.timestamp))
+            timestampTextView.text = "Added on: $formattedTimestamp"
+
             itemView.setOnClickListener {
                 onItemClick(staff)
             }
