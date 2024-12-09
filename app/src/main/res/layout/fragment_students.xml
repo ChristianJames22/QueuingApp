@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="#FFFFFF"
+    android:background="@drawable/borderless_bg"
     android:clipChildren="false">
 
     <!-- Student List Title -->
@@ -10,8 +10,9 @@
         android:id="@+id/studentTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Student List:"
+        android:text=" Student List: "
         android:textColor="@android:color/black"
+        android:background="@drawable/rounded_background_lilac"
         android:textStyle="bold"
         android:elevation="20dp"
         android:textSize="20dp"
@@ -199,7 +200,7 @@
         android:background="@drawable/circle_background1"
         android:src="@drawable/addbtutton"
         android:contentDescription="Add Student"
-        android:elevation="10dp"
+        android:elevation="20dp"
         android:scaleType="centerInside"
         app:tint="@android:color/white" />
 </RelativeLayout>

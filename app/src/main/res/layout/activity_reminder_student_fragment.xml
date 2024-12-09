@@ -12,8 +12,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
-        android:text="Reminders:"
-        android:textColor="@color/purple_700"
+        android:text="  Reminders:  "
+        android:textColor="@color/black"
+        android:background="@drawable/rounded_background_lilac"
         android:textStyle="bold"
         android:textSize="18sp" />
     <ProgressBar
@@ -38,6 +39,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/reminderTitle"
+        android:background="@drawable/rounded_background_lilac"
         android:layout_margin="8dp"
         android:overScrollMode="never"
         android:clipToPadding="false" />
