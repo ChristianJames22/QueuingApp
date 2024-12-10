@@ -64,7 +64,7 @@
         android:text="No Pending Request."
         android:visibility="gone"
         android:textColor="@android:color/darker_gray"
-        android:textStyle="italic" />
+        android:textStyle="bold|italic" />
 
 
     <!-- Add Button -->

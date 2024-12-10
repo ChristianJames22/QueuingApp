@@ -50,7 +50,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="4dp"
-                android:text="Total Students:"
+                android:text="Overrall Total Students:"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
                 android:textStyle="bold" />
@@ -82,7 +82,7 @@
                 android:id="@+id/totalLevelsTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Total Levels:"
+                android:text="Students Every Year Level :"
                 android:textStyle="bold"
                 android:textColor="@android:color/black"
                 android:textSize="14sp"
