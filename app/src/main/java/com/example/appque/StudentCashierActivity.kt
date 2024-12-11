@@ -112,7 +112,7 @@ class StudentCashierActivity : AppCompatActivity() {
     }
 
     private fun updateUI(status: String, enableButton: Boolean, hideRecyclerView: Boolean, textColor: Int) {
-        binding.tvCashierStatus.apply {
+        binding.tvWindow1Status.apply {
             text = status
             setTextColor(resources.getColor(textColor, null))
         }
@@ -121,13 +121,14 @@ class StudentCashierActivity : AppCompatActivity() {
         binding.appointmentsRecyclerView.visibility = if (hideRecyclerView) View.GONE else View.VISIBLE
 
         if (!enableButton && status == "ON BREAK") {
-            binding.tvCashierStatus.text = "ON BREAK"
+            binding.tvWindow1Status.text = "ON BREAK"
         } else if (!enableButton && status == "OFFLINE") {
-            binding.tvCashierStatus.text = "OFFLINE"
+            binding.tvWindow1Status.text = "OFFLINE"
         } else {
             updateQueueDisplay()
         }
     }
+
 
     private fun setupRealTimeQueueListener() {
         database.child("window1Queue").child("appointments")
@@ -207,11 +208,11 @@ class StudentCashierActivity : AppCompatActivity() {
     private fun updateQueueDisplay() {
         if (appointmentsList.isNotEmpty()) {
             val currentQueue = appointmentsList.firstOrNull();
-            binding.tvCashierStatus.text = currentQueue ?: "No Appointment";
+            binding.tvWindow1Status.text = currentQueue ?: "No Appointment";
             val remainingAppointments = appointmentsList.drop(1);
             studentAppointmentAdapter.submitList(remainingAppointments);
         } else {
-            binding.tvCashierStatus.text = "No Appointment";
+            binding.tvWindow1Status.text = "No Appointment";
             studentAppointmentAdapter.submitList(emptyList());
         }
     }

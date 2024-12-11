@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".Window4Activity">
 
     <!-- Title -->
     <TextView
@@ -13,13 +14,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="56dp"
-        android:text="Window 4"
+        android:text="Window 4 "
         android:textColor="@color/black"
-        android:textStyle="bold|italic"
         android:textSize="30sp"
-        android:elevation="25dp"
+        android:textStyle="bold|italic"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.538"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,14 +30,10 @@
         android:background="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="Settings"
         android:src="@android:drawable/ic_menu_manage"
-        app:layout_constraintBottom_toTopOf="@+id/title"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toTopOf="parent" />
 
-
+    <!-- Serving Now Label -->
     <TextView
         android:id="@+id/tvServingLabel"
         android:layout_width="wrap_content"
@@ -47,100 +42,106 @@
         android:textColor="@color/deep_purple"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.17" />
+        app:layout_constraintTop_toBottomOf="@+id/title" />
 
+    <!-- Serving Now Text -->
     <TextView
         android:id="@+id/tvServingNow"
         android:layout_width="0dp"
         android:layout_height="100dp"
         android:layout_marginTop="8dp"
-        android:elevation="25dp"
         android:background="@drawable/text_view_border"
-        android:gravity="start|center_vertical"
+        android:gravity="center"
         android:padding="8dp"
         android:textColor="#000000"
         android:textSize="18sp"
+        android:textAlignment="center"
+        android:elevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tvServingLabel" />
 
     <!-- Next Label -->
+
+    <!-- RecyclerView for Appointments -->
+
     <TextView
         android:id="@+id/tvNextLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="20dp"
         android:text="Next:"
         android:textColor="@color/deep_purple"
         android:textSize="18sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/scrollViewNext"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvServingNow"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@id/tvServingNow" />
 
-    <!-- Scrollable Next Section -->
-
-    <!-- Reset Button -->
-
-    <!-- Next Button -->
-
-    <ScrollView
-        android:id="@+id/scrollViewNext"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/appointmentsRecyclerView"
         android:layout_width="0dp"
         android:layout_height="300dp"
-        android:elevation="20dp"
+        android:layout_marginTop="8dp"
+        android:clipToPadding="false"
+        android:padding="8dp"
         android:background="@drawable/text_view_border"
+        android:elevation="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvNextLabel">
+        app:layout_constraintTop_toBottomOf="@id/tvNextLabel" />
 
-        <TextView
-            android:id="@+id/tvNextInLine"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="start|center_vertical"
-            android:padding="8dp"
-            android:textColor="#000000"
-            android:textSize="18sp" />
-    </ScrollView>
-
+    <!-- Reset Button -->
     <Button
         android:id="@+id/resetButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="84dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@android:color/holo_red_dark"
         android:text="Reset"
-        android:elevation="15dp"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/nextButton"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/scrollViewNext"
-        app:layout_constraintVertical_bias="0.091" />
+        app:layout_constraintTop_toBottomOf="@+id/appointmentsRecyclerView" />
 
+    <!-- Next Button -->
     <Button
         android:id="@+id/nextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@color/Charcoal"
         android:text="Next"
-        android:elevation="15dp"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.361"
         app:layout_constraintStart_toEndOf="@+id/resetButton"
-        app:layout_constraintTop_toBottomOf="@+id/scrollViewNext"
-        app:layout_constraintVertical_bias="0.091" />
+        app:layout_constraintTop_toBottomOf="@+id/appointmentsRecyclerView" />
+
+    <!-- On Break Button -->
+    <Button
+        android:id="@+id/onBreakButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="On Break: OFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resetButton" />
+
+    <!-- Offline Button -->
+    <Button
+        android:id="@+id/offlineButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Offline: OFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resetButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
