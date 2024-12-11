@@ -82,21 +82,21 @@ class StudentCashierActivity : AppCompatActivity() {
     }
 
     private fun observeCashierStatus() {
-        val cashierId = "cashier1"; // ID for the cashier node
+        val cashierId = "cashier1" // ID for the cashier node
         database.child("cashierStatus").child(cashierId).addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                isOnBreak = snapshot.child("onBreak").getValue(Boolean::class.java) ?: false;
-                isOffline = snapshot.child("offline").getValue(Boolean::class.java) ?: false;
+                isOnBreak = snapshot.child("onBreak").getValue(Boolean::class.java) ?: false
+                isOffline = snapshot.child("offline").getValue(Boolean::class.java) ?: false
 
                 when {
                     isOffline -> {
-                        updateUI("OFFLINE", false, hideRecyclerView = true);
+                        updateUI("OFFLINE", false, hideRecyclerView = true, textColor = android.R.color.holo_red_dark)
                     }
                     isOnBreak -> {
-                        updateUI("ON BREAK", false, hideRecyclerView = false);
+                        updateUI("ON BREAK", false, hideRecyclerView = false, textColor = android.R.color.holo_red_dark)
                     }
                     else -> {
-                        updateUI("ONLINE", true, hideRecyclerView = false);
+                        updateUI("ONLINE", true, hideRecyclerView = false, textColor = android.R.color.black)
                     }
                 }
             }
@@ -106,25 +106,26 @@ class StudentCashierActivity : AppCompatActivity() {
                     this@StudentCashierActivity,
                     "Failed to fetch cashier status: ${error.message}",
                     Toast.LENGTH_SHORT
-                ).show();
+                ).show()
             }
-        });
+        })
     }
 
-    private fun updateUI(status: String, enableButton: Boolean, hideRecyclerView: Boolean) {
-        binding.tvCashierStatus.text = "Cashier is $status";
-        binding.addButton.isEnabled = enableButton;
-
-        if (hideRecyclerView) {
-            binding.appointmentsRecyclerView.visibility = View.GONE;
-        } else {
-            binding.appointmentsRecyclerView.visibility = View.VISIBLE;
+    private fun updateUI(status: String, enableButton: Boolean, hideRecyclerView: Boolean, textColor: Int) {
+        binding.tvCashierStatus.apply {
+            text = status
+            setTextColor(resources.getColor(textColor, null))
         }
+        binding.addButton.isEnabled = enableButton
 
-        if (!enableButton) {
-            binding.tvCashierStatus.text = "ON BREAK";
+        binding.appointmentsRecyclerView.visibility = if (hideRecyclerView) View.GONE else View.VISIBLE
+
+        if (!enableButton && status == "ON BREAK") {
+            binding.tvCashierStatus.text = "ON BREAK"
+        } else if (!enableButton && status == "OFFLINE") {
+            binding.tvCashierStatus.text = "OFFLINE"
         } else {
-            updateQueueDisplay();
+            updateQueueDisplay()
         }
     }
 

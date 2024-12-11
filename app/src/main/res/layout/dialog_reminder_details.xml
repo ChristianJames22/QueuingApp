@@ -6,6 +6,7 @@
     android:orientation="vertical"
     android:background="@drawable/borderless_bg"
     android:padding="16dp">
+
     <TextView
         android:id="@+id/addStaffHeader"
         android:layout_width="match_parent"
@@ -17,15 +18,31 @@
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginBottom="16dp" />
-    <!-- Existing Reminder Details -->
-    <TextView
-        android:id="@+id/reminderDetailsTextView"
+    <!-- Scrollable Text Content -->
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
-        android:layout_marginBottom="16dp"
-        android:text="Your reminder details here" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+
+            <!-- Existing Reminder Details -->
+            <TextView
+                android:id="@+id/reminderDetailsTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:textColor="@android:color/black"
+                android:layout_marginBottom="16dp"
+                android:text="Your reminder details here" />
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Buttons for Update and Delete -->
     <LinearLayout
