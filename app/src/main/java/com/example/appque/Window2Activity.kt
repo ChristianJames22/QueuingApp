@@ -42,7 +42,7 @@ class Window2Activity : AppCompatActivity() {
         fetchWindow2Status()
 
         // Real-time listener for queue status
-        database.child("window2").child("appointments").addValueEventListener(object : ValueEventListener {
+        database.child("window2Queue").child("appointments").addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 appointmentsList.clear()
                 if (snapshot.exists()) {
@@ -174,8 +174,8 @@ class Window2Activity : AppCompatActivity() {
             .setTitle("Confirm Reset")
             .setMessage("Are you sure you want to reset the queue?")
             .setPositiveButton("Yes") { _, _ ->
-                database.child("window2").child("appointments").removeValue()
-                database.child("window2").child("currentQueueNumber").setValue(0)
+                database.child("window2Queue").child("appointments").removeValue()
+                database.child("window2Queue").child("currentQueueNumber").setValue(0)
                     .addOnSuccessListener {
                         Toast.makeText(this, "Queue has been reset.", Toast.LENGTH_SHORT).show()
                     }
@@ -194,12 +194,12 @@ class Window2Activity : AppCompatActivity() {
                     Toast.makeText(this, "Cannot process while On Break or Offline.", Toast.LENGTH_SHORT).show()
                     return@setPositiveButton
                 }
-                database.child("window2").child("appointments").get().addOnSuccessListener { snapshot ->
+                database.child("window2Queue").child("appointments").get().addOnSuccessListener { snapshot ->
                     val appointments = snapshot.children.toList()
                     if (appointments.isNotEmpty()) {
                         val firstKey = appointments.first().key
                         firstKey?.let {
-                            database.child("window2").child("appointments").child(it).removeValue()
+                            database.child("window2Queue").child("appointments").child(it).removeValue()
                             Toast.makeText(this, "Moved to the next appointment.", Toast.LENGTH_SHORT).show()
                         }
                     } else {
