@@ -6,7 +6,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ScrollView
+import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.appque.adapters.RemindersAdapter
@@ -22,9 +25,9 @@ class RemindersFragment : Fragment() {
     private var _binding: FragmentRemindersBinding? = null
     private val binding get() = _binding!!
 
-    private  var database: DatabaseReference? = null
+    private var database: DatabaseReference? = null
     private val remindersList = mutableListOf<Reminder>()
-    private  var adapter: RemindersAdapter? = null
+    private var adapter: RemindersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,7 +52,8 @@ class RemindersFragment : Fragment() {
 
     private fun setupRecyclerView() {
         adapter = RemindersAdapter(remindersList) { reminder ->
-            // Do nothing on click; view-only mode
+            // Show the details of the clicked reminder in a dialog
+            showReminderDetails(reminder)
         }
         binding.staffRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.staffRecyclerView.adapter = adapter
@@ -66,15 +70,13 @@ class RemindersFragment : Fragment() {
                             try {
                                 val reminder = data.getValue(Reminder::class.java)
                                 if (reminder != null) {
-                                    // Add reminders to the top of the list
-                                    remindersList.add(0, reminder)
+                                    remindersList.add(reminder)
                                 }
                             } catch (e: Exception) {
                                 Log.e("LoadReminders", "Error parsing reminder data: ${e.message}")
                             }
                         }
                         adapter?.notifyDataSetChanged()
-                        binding.staffRecyclerView.scrollToPosition(0) // Scroll to the top after adding
                     } catch (e: Exception) {
                         Log.e("LoadReminders", "Error processing snapshot data: ${e.message}")
                         Toast.makeText(context, "An error occurred while processing reminders: ${e.message}", Toast.LENGTH_SHORT).show()
@@ -92,7 +94,22 @@ class RemindersFragment : Fragment() {
         }
     }
 
+    private fun showReminderDetails(reminder: Reminder) {
+        val dialogContent = """
+            Title: ${reminder.title}
+            Description: ${reminder.description}
+            Date: ${reminder.date}
+        """.trimIndent()
 
+        AlertDialog.Builder(requireContext())
+            .setTitle("Reminder Details")
+            .setMessage(dialogContent)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+            .show()
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()

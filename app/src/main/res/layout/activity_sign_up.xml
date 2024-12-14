@@ -116,6 +116,7 @@
         android:background="@drawable/rounded_edittext"
         android:hint="Email/Username"
         android:padding="12dp"
+        android:inputType="textEmailAddress"
         android:textSize="16sp"
         android:singleLine="true"
         app:layout_constraintEnd_toEndOf="parent"

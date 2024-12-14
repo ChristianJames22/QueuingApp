@@ -15,16 +15,35 @@
         android:layout_height="40dp"
         android:layout_gravity="center_vertical"
         android:src="@drawable/megaphone"
-    android:contentDescription="@string/megaphone_icon"
-    android:layout_marginEnd="8dp" />
+        android:contentDescription="@string/megaphone_icon"
+        android:layout_marginEnd="8dp" />
 
-    <!-- Right Text -->
-    <TextView
-        android:id="@+id/RemindersTextView"
-        android:layout_width="wrap_content"
+    <!-- Right Section -->
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:textSize="16sp"
-        android:layout_gravity="center_vertical"
-        android:text="Reminder text here" />
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_vertical">
+
+        <!-- Reminder Text -->
+        <TextView
+            android:id="@+id/RemindersTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="Reminder text here" />
+
+        <!-- Time Text -->
+        <TextView
+            android:id="@+id/TimeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:layout_marginTop="4dp"
+            android:text="Time here" />
+    </LinearLayout>
 </LinearLayout>

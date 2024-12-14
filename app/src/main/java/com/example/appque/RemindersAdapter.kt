@@ -14,18 +14,20 @@ class RemindersAdapter(
 ) : RecyclerView.Adapter<RemindersAdapter.ReminderViewHolder>() {
 
     class ReminderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-        val titleTextView: TextView = view.findViewById(R.id.RemindersTextView)
+        val titleTextView: TextView = view.findViewById(R.id.RemindersTextView) // For reminder title
+        val timeTextView: TextView = view.findViewById(R.id.TimeTextView) // For reminder time
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReminderViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_reminders, parent, false)
+            .inflate(R.layout.item_reminders, parent, false) // Updated layout file
         return ReminderViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ReminderViewHolder, position: Int) {
         val reminder = remindersList[position]
-        holder.titleTextView.text = "${reminder.title} - ${reminder.time}"
+        holder.titleTextView.text = reminder.title // Set reminder title
+        holder.timeTextView.text = reminder.time // Set reminder time
         holder.itemView.setOnClickListener {
             onReminderClick(reminder)
         }

@@ -73,18 +73,15 @@ class ReminderStudentFragment<T> : Fragment() {
                 @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                     try {
-                        remindersList.clear()
+                        remindersList.clear() // Clear the list before adding new data
+
                         for (data in snapshot.children) {
-                            try {
-                                val reminder = data.getValue(Reminder::class.java)
-                                if (reminder != null) {
-                                    // Add new reminders to the top
-                                    remindersList.add(0, reminder)
-                                }
-                            } catch (e: Exception) {
-                                Log.e("LoadReminders", "Error parsing reminder data: ${e.message}")
+                            val reminder = data.getValue(Reminder::class.java)
+                            if (reminder != null) {
+                                remindersList.add(0, reminder) // Add each reminder to the top
                             }
                         }
+
                         adapter?.notifyDataSetChanged()
 
                         // Show or hide empty list text
@@ -92,7 +89,7 @@ class ReminderStudentFragment<T> : Fragment() {
                             if (remindersList.isEmpty()) View.VISIBLE else View.GONE
                     } catch (e: Exception) {
                         Log.e("LoadReminders", "Error processing snapshot data: ${e.message}")
-                        Toast.makeText(context, "An error occurred while processing data: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "An error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
                     } finally {
                         // Hide progress bar after processing
                         binding.progressBar.visibility = View.GONE
@@ -111,7 +108,6 @@ class ReminderStudentFragment<T> : Fragment() {
             Toast.makeText(context, "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
         }
     }
-
 
 
     private fun showAddReminderDialog() {
@@ -143,15 +139,9 @@ class ReminderStudentFragment<T> : Fragment() {
 
                 val reminder = Reminder(id = reminderId, title = title, time = currentTime)
                 database!!.child(reminderId).setValue(reminder).addOnCompleteListener { task ->
-                    // Hide progress bar
-                    binding.progressBar.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE // Hide progress bar
 
                     if (task.isSuccessful) {
-                        // Add the new reminder to the top of the list
-                        remindersList.add(0, reminder)
-                        adapter?.notifyItemInserted(0)
-                        binding.remindersRecyclerView.scrollToPosition(0)
-
                         Toast.makeText(context, "Reminder added", Toast.LENGTH_SHORT).show()
                     } else {
                         Toast.makeText(context, "Failed to add reminder", Toast.LENGTH_SHORT).show()
