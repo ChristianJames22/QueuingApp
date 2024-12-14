@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.appque.R
 import com.example.appque.StudentCashierActivity
@@ -49,43 +48,28 @@ class WindowsFragment : Fragment(R.layout.fragment_windows) {
     }
 
     private fun fetchUserName() {
-        try {
-            val currentUser = auth.currentUser
-            if (currentUser != null) {
-                val userId = currentUser.uid
-                database.child("users").child(userId)
-                    .get()
-                    .addOnSuccessListener { snapshot ->
-                        try {
-                            userName = snapshot.child("name").getValue(String::class.java) ?: "Unknown User"
-                        } catch (e: Exception) {
-                            Log.e("FetchUserName", "Error parsing user data: ${e.message}")
-                            Toast.makeText(requireContext(), "Error parsing user data", Toast.LENGTH_SHORT).show()
-                            userName = "Unknown User"
-                        }
-                    }
-                    .addOnFailureListener { exception ->
-                        Log.e("FetchUserName", "Failed to fetch user data: ${exception.message}")
-                        Toast.makeText(requireContext(), "Failed to fetch user data: ${exception.message}", Toast.LENGTH_SHORT).show()
-                        userName = "Unknown User"
-                    }
-            } else {
-                Toast.makeText(requireContext(), "No authenticated user found", Toast.LENGTH_SHORT).show()
-                userName = "Unknown User"
-            }
-        } catch (e: Exception) {
-            Log.e("FetchUserName", "Unexpected error: ${e.message}")
-            Toast.makeText(requireContext(), "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+        val currentUser = auth.currentUser
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            database.child("users").child(userId)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    userName = snapshot.child("name").getValue(String::class.java) ?: "Unknown User"
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("FetchUserName", "Failed to fetch user data: ${exception.message}")
+                    userName = "Unknown User"
+                }
+        } else {
+            Log.w("FetchUserName", "No authenticated user found")
             userName = "Unknown User"
         }
     }
-
 
     private fun setupButtonListeners() {
         binding.buttonCashier.setOnClickListener {
             navigateToActivity(StudentCashierActivity::class.java)
         }
-
         binding.buttonWindow2.setOnClickListener {
             navigateToActivity(StudentWindow2Activity::class.java)
         }
@@ -117,7 +101,7 @@ class WindowsFragment : Fragment(R.layout.fragment_windows) {
             }
             startActivity(intent)
         } else {
-            Toast.makeText(requireContext(), "Fetching user name. Please try again.", Toast.LENGTH_SHORT).show()
+            Log.w("WindowsFragment", "User name not available yet")
         }
     }
 

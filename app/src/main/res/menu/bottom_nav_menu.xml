@@ -24,4 +24,10 @@
         android:title="Reminders"
         android:icon="@drawable/ic_reminders" />
 
+    <!-- Inactive -->
+    <item
+        android:id="@+id/nav_inactive"
+        android:title="Inactive"
+        android:icon="@drawable/ic_inactive" />
+
 </menu>

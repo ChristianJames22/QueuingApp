@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/borderless_bg"
+    android:background="@drawable/rounded_background_pink"
     android:clipChildren="false">
 
     <!-- Title TextView -->
@@ -31,8 +31,9 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="No Pending Request."
+        android:textSize="20dp"
         android:visibility="gone"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@android:color/black"
         android:textStyle="italic" />
 
     <!-- RecyclerView for reminders -->
@@ -44,7 +45,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginEnd="5dp"
         android:layout_marginTop="5dp"
-        android:background="@drawable/rounded_background_lilac"
+        android:background="@drawable/rounded_background_purple"
         android:layout_margin="8dp"
         android:overScrollMode="never"
         android:clipToPadding="false" />

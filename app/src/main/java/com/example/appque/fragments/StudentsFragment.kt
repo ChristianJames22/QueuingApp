@@ -3,6 +3,7 @@
 package com.example.appque.fragments
 
 import Student
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
@@ -28,13 +29,12 @@ class StudentsFragment : Fragment() {
     private var _binding: FragmentStudentsBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var studentsAdapter: StudentsAdapter
+    private var studentsAdapter: StudentsAdapter? = null
     private val studentsList = mutableListOf<Student>()
     private val filteredList = mutableListOf<Student>()
 
-    private lateinit var database: DatabaseReference
-    private lateinit var auth: FirebaseAuth
-    private lateinit var secondaryAuth: FirebaseAuth
+    private  var database: DatabaseReference? = null
+    private  var auth: FirebaseAuth? = null
     private var valueEventListener: ValueEventListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,28 +44,6 @@ class StudentsFragment : Fragment() {
         database = FirebaseDatabase.getInstance().reference
 
     }
-
-    private fun signOutNewUserAndRestoreAdmin() {
-        val adminEmail = "admin@gmail.com" // Replace with your admin's email
-        val adminPassword = "123456" // Replace with your admin's password
-
-        auth.signOut() // Sign out the currently logged-in user
-
-        // Log back in as the admin
-        auth.signInWithEmailAndPassword(adminEmail, adminPassword)
-            .addOnSuccessListener {
-                Toast.makeText(requireContext(), "Admin session restored.", Toast.LENGTH_SHORT)
-                    .show()
-            }
-            .addOnFailureListener {
-                Toast.makeText(
-                    requireContext(),
-                    "Failed to restore admin session: ${it.message}",
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-    }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -112,8 +90,9 @@ class StudentsFragment : Fragment() {
     private fun fetchStudents() {
         try {
             binding.progressBar.visibility = View.VISIBLE
-            valueEventListener = database.child("users").orderByChild("role").equalTo("student")
-                .addValueEventListener(object : ValueEventListener {
+            valueEventListener = database?.child("users")?.orderByChild("role")?.equalTo("student")
+                ?.addValueEventListener(object : ValueEventListener {
+                    @SuppressLint("NotifyDataSetChanged")
                     override fun onDataChange(snapshot: DataSnapshot) {
                         try {
                             binding.progressBar.visibility = View.GONE
@@ -151,7 +130,7 @@ class StudentsFragment : Fragment() {
                             studentsList.addAll(newStudentsList.sortedByDescending { it.timestamp })
                             filteredList.clear()
                             filteredList.addAll(studentsList)
-                            studentsAdapter.notifyDataSetChanged()
+                            studentsAdapter?.notifyDataSetChanged()
 
                             binding.emptyListTextView.visibility =
                                 if (studentsList.isEmpty()) View.VISIBLE else View.GONE
@@ -242,6 +221,7 @@ class StudentsFragment : Fragment() {
         binding.levelCountsTextView.text = levelCountsText
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun filterStudents(query: String) {
         val lowerCaseQuery = query.lowercase()
         filteredList.clear()
@@ -260,11 +240,12 @@ class StudentsFragment : Fragment() {
             }
         }
 
-        studentsAdapter.notifyDataSetChanged()
+        studentsAdapter?.notifyDataSetChanged()
         binding.emptyListTextView.visibility =
             if (filteredList.isEmpty()) View.VISIBLE else View.GONE
     }
 
+    @SuppressLint("SetTextI18n")
     private fun showStudentInfoDialog(student: Student) {
         try {
             val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_student_info, null)
@@ -303,6 +284,7 @@ class StudentsFragment : Fragment() {
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showUpdateStudentDialog(student: Student) {
         // Inflate the dialog layout
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_update_student, null)
@@ -381,15 +363,15 @@ class StudentsFragment : Fragment() {
             showLoading()
 
             // Update student in the database
-            database.child("users").child(student.uid).setValue(updatedStudent)
-                .addOnSuccessListener {
+            database?.child("users")?.child(student.uid)?.setValue(updatedStudent)
+                ?.addOnSuccessListener {
                     studentsList.removeAll { it.uid == student.uid }
                     filteredList.removeAll { it.uid == student.uid }
 
                     studentsList.add(0, updatedStudent)
                     filteredList.add(0, updatedStudent)
 
-                    studentsAdapter.notifyDataSetChanged()
+                    studentsAdapter?.notifyDataSetChanged()
                     binding.studentsRecyclerView.scrollToPosition(0)
 
                     // Hide loading indicator
@@ -402,7 +384,7 @@ class StudentsFragment : Fragment() {
                     ).show()
                     dialog.dismiss()
                 }
-                .addOnFailureListener { exception ->
+                ?.addOnFailureListener { exception ->
                     // Hide loading indicator
                     hideLoading()
                     Toast.makeText(
@@ -422,42 +404,86 @@ class StudentsFragment : Fragment() {
         dialog.show()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showDeleteConfirmationDialog(student: Student) {
-        AlertDialog.Builder(requireContext())
-            .setMessage("Are you sure you want to delete ${student.name}?")
-            .setCancelable(false)
-            .setPositiveButton("Yes") { _, _ ->
-                showLoading()
-                database.child("users").child(student.uid).removeValue()
-                    .addOnSuccessListener {
-                        studentsList.remove(student)
-                        filteredList.clear()
-                        filteredList.addAll(studentsList)
-                        studentsAdapter.notifyDataSetChanged()
+        try {
+            AlertDialog.Builder(requireContext())
+                .setMessage("Are you sure you want to deactivate ${student.name}?")
+                .setCancelable(false)
+                .setPositiveButton("Yes") { _, _ ->
+                    try {
+                        showLoading()
+                        val inactiveRef = database?.child("inactive")?.child(student.uid)
+                        val activeRef = database?.child("users")?.child(student.uid)
 
-                        // Restore admin session
-                        signOutNewUserAndRestoreAdmin()
-
+                        // Move the student to the inactive node
+                        inactiveRef?.setValue(student)
+                            ?.addOnSuccessListener {
+                                try {
+                                    activeRef?.removeValue()
+                                        ?.addOnSuccessListener {
+                                            try {
+                                                studentsList.remove(student)
+                                                filteredList.clear()
+                                                filteredList.addAll(studentsList)
+                                                studentsAdapter?.notifyDataSetChanged()
+                                                hideLoading()
+                                                Toast.makeText(
+                                                    requireContext(),
+                                                    "Student moved to inactive successfully!",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } catch (e: Exception) {
+                                                hideLoading()
+                                                Toast.makeText(
+                                                    requireContext(),
+                                                    "Error updating UI: ${e.message}",
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                        ?.addOnFailureListener { exception ->
+                                            hideLoading()
+                                            Toast.makeText(
+                                                requireContext(),
+                                                "Failed to remove student from active list: ${exception.message}",
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        }
+                                } catch (e: Exception) {
+                                    hideLoading()
+                                    Toast.makeText(
+                                        requireContext(),
+                                        "Error during removal: ${e.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                            }
+                            ?.addOnFailureListener { exception ->
+                                hideLoading()
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Failed to move student to inactive: ${exception.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                    } catch (e: Exception) {
                         hideLoading()
                         Toast.makeText(
                             requireContext(),
-                            "Student deleted successfully!",
+                            "Unexpected error: ${e.message}",
                             Toast.LENGTH_SHORT
                         ).show()
                     }
-                    .addOnFailureListener { exception ->
-                        hideLoading()
-                        Toast.makeText(
-                            requireContext(),
-                            "Failed to delete student: ${exception.message}",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-            }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
-            .create()
-            .show()
+                }
+                .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+                .create()
+                .show()
+        } catch (e: Exception) {
+            Toast.makeText(requireContext(), "An error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+        }
     }
+
 
     private fun showAddStudentDialog() {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_add_student, null)
@@ -501,22 +527,23 @@ class StudentsFragment : Fragment() {
 
             if (validateInputs(id, name, email, course, year, password, confirmPassword)) {
                 // Check if the student already exists by name, ID, or email
-                database.child("users")
-                    .orderByChild("name").equalTo(name).addListenerForSingleValueEvent(object : ValueEventListener {
+                database?.child("users")
+                    ?.orderByChild("name")?.equalTo(name)?.addListenerForSingleValueEvent(object : ValueEventListener {
                         override fun onDataChange(nameSnapshot: DataSnapshot) {
                             if (nameSnapshot.exists()) {
                                 Toast.makeText(requireContext(), "Name already exists.", Toast.LENGTH_SHORT).show()
                                 return
                             }
-                            database.child("users")
-                                .orderByChild("id").equalTo(id).addListenerForSingleValueEvent(object : ValueEventListener {
+                            database?.child("users")
+                                ?.orderByChild("id")?.equalTo(id)?.addListenerForSingleValueEvent(object : ValueEventListener {
                                     override fun onDataChange(idSnapshot: DataSnapshot) {
                                         if (idSnapshot.exists()) {
                                             Toast.makeText(requireContext(), "ID already exists.", Toast.LENGTH_SHORT).show()
                                             return
                                         }
-                                        database.child("users")
-                                            .orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
+                                        database?.child("users")
+                                            ?.orderByChild("email")?.equalTo(email)
+                                            ?.addListenerForSingleValueEvent(object : ValueEventListener {
                                                 override fun onDataChange(emailSnapshot: DataSnapshot) {
                                                     if (emailSnapshot.exists()) {
                                                         Toast.makeText(requireContext(), "Email already exists.", Toast.LENGTH_SHORT).show()
@@ -564,8 +591,8 @@ class StudentsFragment : Fragment() {
     ) {
         showLoading()
         try {
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
+            auth?.createUserWithEmailAndPassword(email, password)
+                ?.addOnCompleteListener { task ->
                     try {
                         if (task.isSuccessful) {
                             val userId = task.result?.user?.uid ?: throw Exception("User ID is null")
@@ -586,12 +613,12 @@ class StudentsFragment : Fragment() {
                                 role = "student"
                             )
 
-                            database.child("users").child(userId).setValue(newStudent)
-                                .addOnSuccessListener {
+                            database?.child("users")?.child(userId)?.setValue(newStudent)
+                                ?.addOnSuccessListener {
                                     try {
                                         studentsList.add(0, newStudent)
                                         filteredList.add(0, newStudent)
-                                        studentsAdapter.notifyDataSetChanged()
+                                        studentsAdapter?.notifyDataSetChanged()
                                         binding.studentsRecyclerView.scrollToPosition(0)
 
                                         signOutNewUserAndRestoreAdmin()
@@ -606,7 +633,7 @@ class StudentsFragment : Fragment() {
                                         Log.e("AddStudent", "Error updating UI after addition: ${e.message}")
                                     }
                                 }
-                                .addOnFailureListener { exception ->
+                                ?.addOnFailureListener { exception ->
                                     hideLoading()
                                     Log.e("AddStudent", "Database error: ${exception.message}")
                                     Toast.makeText(
@@ -688,7 +715,26 @@ class StudentsFragment : Fragment() {
     private fun showLoading() {
         binding.loadingProgressBar.visibility = View.VISIBLE
     }
+    private fun signOutNewUserAndRestoreAdmin() {
+        val adminEmail = "admin@gmail.com" // Replace with your admin's email
+        val adminPassword = "123456" // Replace with your admin's password
 
+        auth?.signOut() // Sign out the currently logged-in user
+
+        // Log back in as the admin
+        auth?.signInWithEmailAndPassword(adminEmail, adminPassword)
+            ?.addOnSuccessListener {
+                Toast.makeText(requireContext(), "Admin session restored.", Toast.LENGTH_SHORT)
+                    .show()
+            }
+            ?.addOnFailureListener {
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to restore admin session: ${it.message}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+    }
     private fun hideLoading() {
         binding.loadingProgressBar.visibility = View.GONE
     }
@@ -697,7 +743,7 @@ class StudentsFragment : Fragment() {
         try {
             super.onDestroyView()
             if (valueEventListener != null) {
-                database.child("users").removeEventListener(valueEventListener!!)
+                database?.child("users")?.removeEventListener(valueEventListener!!)
             }
             _binding = null
         } catch (e: Exception) {

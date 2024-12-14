@@ -18,6 +18,7 @@
         <item>BSBA</item>
     </string-array>
 
+    <string name="no_data_icon">No Data Found</string>
     <string name="staff_name">Name: %s</string>
     <string name="staff_id">ID: %s</string>
     <string name="staff_email">Email: %s</string>
@@ -149,5 +150,8 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="staff_badge" />
+    <string name="man_image" />
+    <string name="megaphone_icon" />
 
 </resources>

@@ -1,6 +1,7 @@
 package com.example.appque
 
 import Student
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,6 +21,7 @@ class StudentsAdapter(
         return StudentViewHolder(itemView)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: StudentViewHolder, position: Int) {
         val student = studentsList[position]
         holder.nameTextView.text = student.name

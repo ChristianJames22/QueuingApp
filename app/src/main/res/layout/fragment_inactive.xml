@@ -2,7 +2,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-  android:background="@drawable/rounded_background_pink"
+    android:background="@drawable/rounded_background_pink"
     android:clipChildren="false">
 
     <!-- Search Bar -->
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:elevation="15dp"
-        android:hint="Search staff..."
+        android:hint="Search Inactive..."
         android:padding="8dp"
         android:background="@drawable/text_view_border"
         android:inputType="text"
@@ -29,9 +29,8 @@
         android:id="@+id/staffTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text=" Staff List: "
-        android:textColor="@android:color/black"
-        android:background="@drawable/rounded_background_lilac"
+        android:text=" Inactive: "
+        android:textColor="@android:color/holo_red_dark"
         android:elevation="15dp"
         android:textStyle="bold"
         android:textSize="18sp"
@@ -61,8 +60,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:text="No Pending Request."
-        android:textSize="22dp"
+        android:text="Empty No Found."
+        android:textSize="20dp"
         android:visibility="gone"
         android:textColor="@android:color/black"
         android:textStyle="bold|italic" />

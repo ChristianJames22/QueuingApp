@@ -16,10 +16,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar">
         <activity
+            android:name=".fragments.InactiveFragment"
+            android:exported="false" />
+        <activity
             android:name=".fragments.ReminderStudentFragment"
             android:exported="false"
-            tools:ignore="Instantiatable" />
-        <!-- Activities -->
+            tools:ignore="Instantiatable" /> <!-- Activities -->
         <activity
             android:name=".StudentActivity"
             android:exported="false" />

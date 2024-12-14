@@ -17,26 +17,26 @@ import com.google.firebase.database.FirebaseDatabase
 
 class StudentActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityStudentBinding
-    private lateinit var database: DatabaseReference
-    private lateinit var auth: FirebaseAuth
+    private var binding: ActivityStudentBinding? = null
+    private var database: DatabaseReference? = null
+    private var auth: FirebaseAuth? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityStudentBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(binding!!.root)
 
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
 
         // Retrieve the current user ID
-        val currentUser = auth.currentUser
+        val currentUser = auth?.currentUser
         if (currentUser != null) {
             val userId = currentUser.uid
 
             // Fetch user data from Firebase Realtime Database
-            database.child("users").child(userId).get()
-                .addOnSuccessListener { snapshot ->
+            database?.child("users")?.child(userId)?.get()
+                ?.addOnSuccessListener { snapshot ->
                     val userName = snapshot.child("name").value?.toString() ?: "N/A"
                     val userCourse = snapshot.child("course").value?.toString() ?: "N/A"
                     val userYear = snapshot.child("year").value?.toString() ?: "N/A"
@@ -44,7 +44,7 @@ class StudentActivity : AppCompatActivity() {
                     // Pass user data to fragments via BottomNavigationView
                     setupBottomNavigation(userName, userId, userCourse, userYear)
                 }
-                .addOnFailureListener {
+                ?.addOnFailureListener {
                     Toast.makeText(this, "Failed to load user data.", Toast.LENGTH_SHORT).show()
                 }
         } else {
@@ -63,7 +63,7 @@ class StudentActivity : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation(name: String, id: String, course: String, year: String) {
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
+        binding?.bottomNavigation?.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_windows -> {
                     loadFragment(WindowsFragment()) // Windows fragment

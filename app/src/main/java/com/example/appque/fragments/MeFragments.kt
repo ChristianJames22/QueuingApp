@@ -1,5 +1,6 @@
 package com.example.appque.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -44,6 +45,7 @@ class MeFragments : Fragment() {
         try {
             database.child("users").child(userId)
                 .addListenerForSingleValueEvent(object : ValueEventListener {
+                    @SuppressLint("SetTextI18n")
                     override fun onDataChange(snapshot: DataSnapshot) {
                         try {
                             if (snapshot.exists()) {

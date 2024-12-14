@@ -1,5 +1,6 @@
 package com.example.appque.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -21,9 +22,9 @@ class RemindersFragment : Fragment() {
     private var _binding: FragmentRemindersBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var database: DatabaseReference
+    private  var database: DatabaseReference? = null
     private val remindersList = mutableListOf<Reminder>()
-    private lateinit var adapter: RemindersAdapter
+    private  var adapter: RemindersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,7 +57,8 @@ class RemindersFragment : Fragment() {
 
     private fun loadRemindersFromFirebase() {
         try {
-            database.addValueEventListener(object : ValueEventListener {
+            database?.addValueEventListener(object : ValueEventListener {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: DataSnapshot) {
                     try {
                         remindersList.clear()
@@ -71,7 +73,7 @@ class RemindersFragment : Fragment() {
                                 Log.e("LoadReminders", "Error parsing reminder data: ${e.message}")
                             }
                         }
-                        adapter.notifyDataSetChanged()
+                        adapter?.notifyDataSetChanged()
                         binding.staffRecyclerView.scrollToPosition(0) // Scroll to the top after adding
                     } catch (e: Exception) {
                         Log.e("LoadReminders", "Error processing snapshot data: ${e.message}")

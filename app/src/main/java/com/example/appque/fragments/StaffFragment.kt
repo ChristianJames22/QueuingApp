@@ -1,6 +1,7 @@
 package com.example.appque.fragments
 
 import Staff
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
@@ -74,6 +75,7 @@ class StaffFragment : Fragment() {
 
             database.child("users")
                 .addListenerForSingleValueEvent(object : ValueEventListener {
+                    @SuppressLint("NotifyDataSetChanged")
                     override fun onDataChange(snapshot: DataSnapshot) {
                         try {
                             binding.progressBar.visibility = View.GONE
@@ -266,6 +268,7 @@ class StaffFragment : Fragment() {
 
 
 
+    @SuppressLint("SetTextI18n")
     private fun showStaffInfoDialog(staff: Staff) {
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_staff_info, null)
         val dialog = AlertDialog.Builder(requireContext())
@@ -296,6 +299,7 @@ class StaffFragment : Fragment() {
         dialog.show()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun showDeleteConfirmationDialog(staff: Staff) {
         AlertDialog.Builder(requireContext())
             .setMessage("Are you sure you want to delete ${staff.name}?")
@@ -336,6 +340,7 @@ class StaffFragment : Fragment() {
             .show()
     }
 
+    @SuppressLint("SetTextI18n", "NotifyDataSetChanged")
     private fun showUpdateStaffDialog(staff: Staff) {
         try {
             val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_update_staff, null)

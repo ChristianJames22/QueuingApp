@@ -1,5 +1,6 @@
 package com.example.appque.fragments
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -24,15 +25,15 @@ class ReminderStudentFragment<T> : Fragment() {
     private var _binding: ActivityReminderStudentFragmentBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var database: DatabaseReference
+    private var database: DatabaseReference? = null
     private val remindersList = mutableListOf<Reminder>()
-    private lateinit var adapter: RemindersAdapter
+    private var adapter: RemindersAdapter? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = ActivityReminderStudentFragmentBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -68,7 +69,8 @@ class ReminderStudentFragment<T> : Fragment() {
             // Show progress bar when loading begins
             binding.progressBar.visibility = View.VISIBLE
 
-            database.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+            database?.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                     try {
                         remindersList.clear()
@@ -83,7 +85,7 @@ class ReminderStudentFragment<T> : Fragment() {
                                 Log.e("LoadReminders", "Error parsing reminder data: ${e.message}")
                             }
                         }
-                        adapter.notifyDataSetChanged()
+                        adapter?.notifyDataSetChanged()
 
                         // Show or hide empty list text
                         binding.emptyListTextView.visibility =
@@ -131,7 +133,7 @@ class ReminderStudentFragment<T> : Fragment() {
         builder.setPositiveButton("Add") { _, _ ->
             val title = titleInput.text.toString()
             if (title.isNotEmpty()) {
-                val reminderId = database.push().key ?: return@setPositiveButton
+                val reminderId = database?.push()?.key ?: return@setPositiveButton
 
                 // Show progress bar
                 binding.progressBar.visibility = View.VISIBLE
@@ -140,14 +142,14 @@ class ReminderStudentFragment<T> : Fragment() {
                 val currentTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
                 val reminder = Reminder(id = reminderId, title = title, time = currentTime)
-                database.child(reminderId).setValue(reminder).addOnCompleteListener { task ->
+                database!!.child(reminderId).setValue(reminder).addOnCompleteListener { task ->
                     // Hide progress bar
                     binding.progressBar.visibility = View.GONE
 
                     if (task.isSuccessful) {
                         // Add the new reminder to the top of the list
                         remindersList.add(0, reminder)
-                        adapter.notifyItemInserted(0)
+                        adapter?.notifyItemInserted(0)
                         binding.remindersRecyclerView.scrollToPosition(0)
 
                         Toast.makeText(context, "Reminder added", Toast.LENGTH_SHORT).show()
@@ -166,6 +168,7 @@ class ReminderStudentFragment<T> : Fragment() {
 
 
 
+    @SuppressLint("SetTextI18n")
     private fun showEditDeleteOptions(reminder: Reminder) {
         val builder = android.app.AlertDialog.Builder(context)
         val dialogView = LayoutInflater.from(context).inflate(R.layout.dialog_reminder_details, null)
@@ -225,7 +228,7 @@ class ReminderStudentFragment<T> : Fragment() {
                 val updatedTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
                 val updatedReminder = reminder.copy(title = updatedTitle, time = updatedTime)
-                database.child(reminder.id).setValue(updatedReminder).addOnCompleteListener { task ->
+                database?.child(reminder.id)?.setValue(updatedReminder)?.addOnCompleteListener { task ->
                     // Hide progress bar
                     binding.progressBar.visibility = View.GONE
 
@@ -253,7 +256,7 @@ class ReminderStudentFragment<T> : Fragment() {
                 // Show progress bar
                 binding.progressBar.visibility = View.VISIBLE
 
-                database.child(reminder.id).removeValue().addOnCompleteListener { task ->
+                database?.child(reminder.id)?.removeValue()?.addOnCompleteListener { task ->
                     // Hide progress bar
                     binding.progressBar.visibility = View.GONE
 

@@ -1,5 +1,6 @@
 package com.example.appque.fragments
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
@@ -22,8 +23,8 @@ class RequestFragment : Fragment() {
     private var _binding: FragmentRequestBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var database: DatabaseReference
-    private lateinit var auth: FirebaseAuth
+    private  var database: DatabaseReference? = null
+    private  var auth: FirebaseAuth? = null
 
     private val requestList = mutableListOf<Map<String, String>>()
 
@@ -51,7 +52,8 @@ class RequestFragment : Fragment() {
         try {
             binding.progressBar.visibility = View.VISIBLE
 
-            database.child("pending_requests").addListenerForSingleValueEvent(object : ValueEventListener {
+            database?.child("pending_requests")?.addListenerForSingleValueEvent(object : ValueEventListener {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: DataSnapshot) {
                     try {
                         requestList.clear()
@@ -112,10 +114,10 @@ class RequestFragment : Fragment() {
     private fun deleteRequest(request: Map<String, String>, position: Int) {
         val email = request["email"] ?: return
 
-        database.child("pending_requests")
-            .orderByChild("email")
-            .equalTo(email)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+        database?.child("pending_requests")
+            ?.orderByChild("email")
+            ?.equalTo(email)
+            ?.addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (child in snapshot.children) {
                         child.ref.removeValue()
@@ -131,14 +133,14 @@ class RequestFragment : Fragment() {
             })
     }
 
-    private fun acceptRequest(request: Map<String, String>, position: Int) {
+    private fun acceptRequest(request: Map<String, String>) {
         val email = request["email"] ?: return
         val password = request["password"] ?: return
         val id = request["id"] ?: return
 
-        auth.createUserWithEmailAndPassword(email, password)
-            .addOnSuccessListener {
-                val userId = auth.currentUser?.uid ?: return@addOnSuccessListener
+        auth?.createUserWithEmailAndPassword(email, password)
+            ?.addOnSuccessListener {
+                val userId = auth?.currentUser?.uid ?: return@addOnSuccessListener
                 val timestamp = System.currentTimeMillis()
 
                 val userMap = mapOf(
@@ -151,14 +153,14 @@ class RequestFragment : Fragment() {
                     "uid" to userId,
                     "timestamp" to timestamp
                 )
-                database.child("users").child(userId).setValue(userMap)
-                    .addOnSuccessListener {
+                database?.child("users")?.child(userId)?.setValue(userMap)
+                    ?.addOnSuccessListener {
                         removeRequestFromPending(email)
                         Toast.makeText(context, "User approved and added to users.", Toast.LENGTH_SHORT).show()
                         signOutNewUserAndRestoreAdmin()
                     }
             }
-            .addOnFailureListener {
+            ?.addOnFailureListener {
                 Toast.makeText(context, "Error: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
@@ -167,22 +169,23 @@ class RequestFragment : Fragment() {
         val adminEmail = "admin@gmail.com"
         val adminPassword = "123456"
 
-        auth.signOut()
+        auth?.signOut()
 
-        auth.signInWithEmailAndPassword(adminEmail, adminPassword)
-            .addOnSuccessListener {
+        auth?.signInWithEmailAndPassword(adminEmail, adminPassword)
+            ?.addOnSuccessListener {
                 Toast.makeText(context, "Admin session restored.", Toast.LENGTH_SHORT).show()
             }
-            .addOnFailureListener {
+            ?.addOnFailureListener {
                 Toast.makeText(context, "Failed to restore admin session: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
     private fun removeRequestFromPending(email: String) {
-        database.child("pending_requests")
-            .orderByChild("email")
-            .equalTo(email)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
+        database?.child("pending_requests")
+            ?.orderByChild("email")
+            ?.equalTo(email)
+            ?.addListenerForSingleValueEvent(object : ValueEventListener {
+                @SuppressLint("NotifyDataSetChanged")
                 override fun onDataChange(snapshot: DataSnapshot) {
                     for (child in snapshot.children) {
                         child.ref.removeValue()
@@ -216,6 +219,7 @@ class RequestFragment : Fragment() {
         inner class RequestViewHolder(private val itemBinding: ItemRequestBinding) :
             RecyclerView.ViewHolder(itemBinding.root) {
 
+            @SuppressLint("SetTextI18n")
             fun bind(request: Map<String, String>, position: Int) {
                 itemBinding.nameTextView.text = "Name: ${request["name"]}"
                 itemBinding.idTextView.text = "ID: ${request["id"]}"
@@ -228,7 +232,7 @@ class RequestFragment : Fragment() {
                     showConfirmationDialog(
                         title = "Accept Request",
                         message = "Are you sure you want to accept this request?",
-                        onConfirm = { acceptRequest(request, position) }
+                        onConfirm = { acceptRequest(request) }
                     )
                 }
 
