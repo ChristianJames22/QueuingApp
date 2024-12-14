@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
+    android:background="@drawable/uusser"
     tools:context=".Window8Activity">
 
     <!-- Title -->
@@ -13,14 +14,20 @@
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="56dp"
+        android:layout_marginTop="30dp"
         android:text="Window 8"
         android:textColor="@color/black"
-        android:textSize="30sp"
+        android:textSize="50dp"
         android:textStyle="bold|italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:shadowColor="@color/white"
+        android:shadowDx="20"
+        android:shadowDy="0"
+        android:shadowRadius="15"
+        android:layout_gravity="center"
+        android:gravity="center" />
 
     <!-- Settings Button -->
     <ImageButton
@@ -31,6 +38,10 @@
         android:contentDescription="Settings"
         android:src="@android:drawable/ic_menu_manage"
         app:layout_constraintEnd_toEndOf="parent"
+        android:shadowColor="@color/white"
+        android:shadowDx="20"
+        android:shadowDy="20"
+        android:shadowRadius="15"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Serving Now Label -->
@@ -39,7 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Serving now.."
-        android:textColor="@color/deep_purple"
+        android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -75,7 +86,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Next:"
-        android:textColor="@color/deep_purple"
+        android:textColor="@color/black"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
