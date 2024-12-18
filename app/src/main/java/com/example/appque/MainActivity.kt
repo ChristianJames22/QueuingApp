@@ -20,15 +20,15 @@ import com.google.firebase.database.FirebaseDatabase
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
-    private lateinit var auth: FirebaseAuth
-    private lateinit var database: DatabaseReference
-    private lateinit var sharedPreferences: SharedPreferences
+    private  var binding: ActivityMainBinding? = null
+    private var auth: FirebaseAuth? = null
+    private  var database: DatabaseReference? = null
+    private  var sharedPreferences: SharedPreferences? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(binding!!.root)
 
         // Initialize Firebase Authentication and Database
         auth = FirebaseAuth.getInstance()
@@ -39,9 +39,9 @@ class MainActivity : AppCompatActivity() {
         handleAutoLogin()
 
         // Handle login button click
-        binding.loginButton.setOnClickListener {
-            val enteredEmail = binding.emailInput.text.toString().trim()
-            val enteredPassword = binding.passwordInput.text.toString().trim()
+        binding!!.loginButton.setOnClickListener {
+            val enteredEmail = binding!!.emailInput.text.toString().trim()
+            val enteredPassword = binding!!.passwordInput.text.toString().trim()
 
             if (validateInputs(enteredEmail, enteredPassword)) {
                 showLoading(true)
@@ -50,28 +50,28 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Handle sign-up link click
-        binding.signUpLink.setOnClickListener {
+        binding!!.signUpLink.setOnClickListener {
             startActivity(Intent(this, SignUpActivity::class.java))
         }
 
         // Handle terms and privacy link click
-        binding.termsPrivacyLink.setOnClickListener {
+        binding!!.termsPrivacyLink.setOnClickListener {
             val termsAndPrivacyContent = "${getString(R.string.terms_of_service_content)}\n\n${getString(R.string.privacy_policy_content)}"
             showPopup("Terms of Service and Privacy Policy", termsAndPrivacyContent)
         }
     }
 
     private fun handleAutoLogin() {
-        val currentUser = auth.currentUser
-        val loggedOut = sharedPreferences.getBoolean("logged_out", true)
+        val currentUser = auth?.currentUser
+        val loggedOut = sharedPreferences?.getBoolean("logged_out", true)
 
-        if (currentUser != null && !loggedOut) {
+        if (currentUser != null && !loggedOut!!) {
             currentUser.reload().addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     navigateBasedOnRole()
                 } else {
                     showCustomToast("Session expired. Please log in again.")
-                    auth.signOut()
+                    auth?.signOut()
                 }
             }
         }
@@ -98,11 +98,11 @@ class MainActivity : AppCompatActivity() {
 
     // Authenticate user and validate against Firebase Authentication
     private fun loginUser(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
+        auth?.signInWithEmailAndPassword(email, password)
+            ?.addOnCompleteListener { task ->
                 showLoading(false)
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid
+                    val userId = auth?.currentUser?.uid
                     if (userId != null) {
                         validateUserInDatabase(userId)
                     } else {
@@ -117,18 +117,18 @@ class MainActivity : AppCompatActivity() {
 
     // Validate user in Firebase Realtime Database
     private fun validateUserInDatabase(userId: String) {
-        database.child("users").child(userId).get()
-            .addOnSuccessListener { snapshot ->
+        database?.child("users")?.child(userId)?.get()
+            ?.addOnSuccessListener { snapshot ->
                 if (snapshot.exists()) {
                     val role = snapshot.child("role").value?.toString() ?: "unknown"
-                    sharedPreferences.edit().putBoolean("logged_out", false).apply()
+                    sharedPreferences?.edit()?.putBoolean("logged_out", false)?.apply()
                     navigateToActivityBasedOnRole(role)
                 } else {
                     showCustomToast("User not found.")
-                    auth.signOut()
+                    auth?.signOut()
                 }
             }
-            .addOnFailureListener { exception ->
+            ?.addOnFailureListener { exception ->
                 Log.e("MainActivity", "Database error: ${exception.message}")
                 showCustomToast("Login failed. Please try again later.")
             }
@@ -136,14 +136,14 @@ class MainActivity : AppCompatActivity() {
 
     // Navigate based on user role
     private fun navigateBasedOnRole() {
-        val currentUser = auth.currentUser
+        val currentUser = auth?.currentUser
         if (currentUser != null) {
-            database.child("users").child(currentUser.uid).get()
-                .addOnSuccessListener { snapshot ->
+            database?.child("users")?.child(currentUser.uid)?.get()
+                ?.addOnSuccessListener { snapshot ->
                     val role = snapshot.child("role").value?.toString() ?: "unknown"
                     navigateToActivityBasedOnRole(role)
                 }
-                .addOnFailureListener {
+                ?.addOnFailureListener {
                     showCustomToast("Error retrieving user role. Please try again.")
                 }
         }
@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity() {
 
     // Show or hide loading indicator
     private fun showLoading(show: Boolean) {
-        binding.loginProgressBar.visibility = if (show) View.VISIBLE else View.GONE
+        binding?.loginProgressBar?.visibility ?:if (show) View.VISIBLE else View.GONE
     }
 
     // Custom toast message

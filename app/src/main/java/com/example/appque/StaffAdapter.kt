@@ -40,7 +40,7 @@ class StaffAdapter(
 
             // Format timestamp to a readable date and time
             val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-            val formattedTimestamp = dateFormat.format(Date(staff.timestamp))
+            val formattedTimestamp = dateFormat.format(staff.timestamp?.let { Date(it) })
             timestampTextView.text = "Added on: $formattedTimestamp"
 
             itemView.setOnClickListener {

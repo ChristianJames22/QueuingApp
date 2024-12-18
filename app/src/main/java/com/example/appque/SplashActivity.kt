@@ -14,8 +14,8 @@ import com.google.firebase.database.FirebaseDatabase
 class SplashActivity : AppCompatActivity() {
 
     // Declare Firebase Authentication and Database references
-    private lateinit var auth: FirebaseAuth
-    private lateinit var database: DatabaseReference
+    private  var auth: FirebaseAuth? = null
+    private  var database: DatabaseReference? = null
     private lateinit var lottieAnimationView: LottieAnimationView
 
     @SuppressLint("MissingInflatedId")
@@ -48,14 +48,14 @@ class SplashActivity : AppCompatActivity() {
         auth = FirebaseAuth.getInstance()
         database = FirebaseDatabase.getInstance().reference
 
-        val currentUser = auth.currentUser
+        val currentUser = auth?.currentUser
         if (currentUser != null) {
-            database.child("users").child(currentUser.uid).get()
-                .addOnSuccessListener { snapshot ->
+            database?.child("users")?.child(currentUser.uid)?.get()
+                ?.addOnSuccessListener { snapshot ->
                     val role = snapshot.child("role").value.toString()
                     navigateBasedOnRole(role)
                 }
-                .addOnFailureListener {
+                ?.addOnFailureListener {
                     navigateToLogin()
                 }
         } else {

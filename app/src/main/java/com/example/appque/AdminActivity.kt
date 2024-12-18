@@ -118,7 +118,7 @@ class AdminActivity : AppCompatActivity() {
                         redirectToLogin()
                         showToast("Logged out successfully.")
                     } catch (e: Exception) {
-                        showToast("Error during logout: ${e.localizedMessage}")
+                        showToast("")
                     }
                 }
                 .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }

@@ -31,7 +31,7 @@ class StudentsAdapter(
         holder.yearTextView.text = "Year: ${student.year}"
 
         // Format and display the timestamp
-        val date = Date(student.timestamp)
+        val date = student.timestamp?.let { Date(it) }
         val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
         val formattedDate = formatter.format(date)
         holder.timestampTextView.text = "Added on: $formattedDate"

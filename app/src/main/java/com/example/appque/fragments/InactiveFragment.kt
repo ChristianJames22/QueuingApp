@@ -19,8 +19,8 @@ class InactiveFragment : Fragment() {
     private var _binding: FragmentInactiveBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var database: DatabaseReference
-    private lateinit var adapter: InactiveAdapter
+    private var database: DatabaseReference? = null
+    private var adapter: InactiveAdapter? = null
     private val inactiveList = mutableListOf<User>()
     private val filteredList = mutableListOf<User>()
 
@@ -65,7 +65,7 @@ class InactiveFragment : Fragment() {
         binding.progressBar.visibility = View.VISIBLE
         binding.emptyListTextView.visibility = View.GONE
 
-        database.addChildEventListener(object : ChildEventListener {
+        database?.addChildEventListener(object : ChildEventListener {
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 val user = snapshot.getValue(User::class.java)?.apply {
                     timestamp = snapshot.child("timestamp").getValue(Long::class.java)
@@ -74,8 +74,9 @@ class InactiveFragment : Fragment() {
                 user?.let {
                     inactiveList.add(0, it) // Add new user to the top of the list
                     filteredList.add(0, it) // Ensure filtered list stays updated
-                    adapter.submitList(filteredList.toList()) // Submit new list to adapter
+                    adapter?.submitList(filteredList.toList()) // Submit new list to adapter
                     binding.emptyListTextView.visibility = View.GONE
+                    updateInactiveCount() // Update count
                 }
                 binding.progressBar.visibility = View.GONE
             }
@@ -90,7 +91,7 @@ class InactiveFragment : Fragment() {
                     if (index != -1) {
                         inactiveList[index] = user
                         filteredList[index] = user
-                        adapter.submitList(filteredList.toList())
+                        adapter?.submitList(filteredList.toList())
                     }
                 }
             }
@@ -100,10 +101,11 @@ class InactiveFragment : Fragment() {
                 userId?.let {
                     inactiveList.removeAll { user -> user.uid == userId }
                     filteredList.removeAll { user -> user.uid == userId }
-                    adapter.submitList(filteredList.toList())
+                    adapter?.submitList(filteredList.toList())
                     if (inactiveList.isEmpty()) {
                         binding.emptyListTextView.visibility = View.VISIBLE
                     }
+                    updateInactiveCount() // Update count
                 }
             }
 
@@ -113,6 +115,11 @@ class InactiveFragment : Fragment() {
                 Toast.makeText(requireContext(), "Failed to load data: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun updateInactiveCount() {
+        val count = inactiveList.size
+        binding.staffTitle.text = "  Inactive: $count   "
     }
 
     private fun filterInactiveUsers(query: String) {
@@ -133,7 +140,7 @@ class InactiveFragment : Fragment() {
         }
 
         // Update the adapter with the filtered list
-        adapter.submitList(filteredList.toList())
+        adapter?.submitList(filteredList.toList())
 
         // Update visibility for the empty list message
         binding.emptyListTextView.visibility = if (filteredList.isEmpty()) View.VISIBLE else View.GONE
@@ -162,7 +169,7 @@ class InactiveFragment : Fragment() {
             binding.progressBar.visibility = View.VISIBLE
 
             // Move user from "inactive" to "users" node
-            database.child(userId).removeValue().addOnSuccessListener {
+            database?.child(userId)?.removeValue()?.addOnSuccessListener {
                 try {
                     FirebaseDatabase.getInstance().getReference("users").child(userId).setValue(user)
                         .addOnSuccessListener {
@@ -170,10 +177,11 @@ class InactiveFragment : Fragment() {
                                 // Remove from inactive list and update UI
                                 inactiveList.remove(user)
                                 filteredList.remove(user)
-                                adapter.submitList(filteredList.toList())
+                                adapter?.submitList(filteredList.toList())
 
                                 binding.progressBar.visibility = View.GONE
                                 binding.emptyListTextView.visibility = if (inactiveList.isEmpty()) View.VISIBLE else View.GONE
+                                updateInactiveCount() // Update count
                                 Toast.makeText(requireContext(), "${user.name} restored successfully!", Toast.LENGTH_SHORT).show()
                             } catch (e: Exception) {
                                 binding.progressBar.visibility = View.GONE
@@ -188,7 +196,7 @@ class InactiveFragment : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(requireContext(), "Error adding user to 'users' node: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-            }.addOnFailureListener { exception ->
+            }?.addOnFailureListener { exception ->
                 binding.progressBar.visibility = View.GONE
                 Toast.makeText(requireContext(), "Failed to remove user from inactive: ${exception.message}", Toast.LENGTH_SHORT).show()
             }

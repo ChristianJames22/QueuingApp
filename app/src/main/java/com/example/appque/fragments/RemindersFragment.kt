@@ -66,7 +66,7 @@ class RemindersFragment : Fragment() {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     try {
                         remindersList.clear()
-                        for (data in snapshot.children) {
+                        for (data in snapshot.children.reversed()) { // Reverse the order of the data snapshot
                             try {
                                 val reminder = data.getValue(Reminder::class.java)
                                 if (reminder != null) {
@@ -79,26 +79,34 @@ class RemindersFragment : Fragment() {
                         adapter?.notifyDataSetChanged()
                     } catch (e: Exception) {
                         Log.e("LoadReminders", "Error processing snapshot data: ${e.message}")
-                        Toast.makeText(context, "An error occurred while processing reminders: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "An error occurred while processing reminders: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
 
                 override fun onCancelled(error: DatabaseError) {
                     Log.e("LoadReminders", "Database error: ${error.message}")
-                    Toast.makeText(context, "Failed to load reminders: ${error.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Failed to load reminders: ${error.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             })
         } catch (e: Exception) {
             Log.e("LoadReminders", "Unexpected error: ${e.message}")
-            Toast.makeText(context, "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT)
+                .show()
         }
     }
 
+
     private fun showReminderDetails(reminder: Reminder) {
         val dialogContent = """
-            Title: ${reminder.title}
-            Description: ${reminder.description}
-            Date: ${reminder.date}
+            Reminders: ${reminder.title}
         """.trimIndent()
 
         AlertDialog.Builder(requireContext())

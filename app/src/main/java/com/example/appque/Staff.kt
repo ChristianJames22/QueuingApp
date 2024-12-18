@@ -1,8 +1,8 @@
 data class Staff(
-    val id: String = "",
-    val name: String = "",
-    val email: String = "",
-    val role: String = "",
-    var firebaseUid: String = "",
-    val timestamp: Long = System.currentTimeMillis()
+    val id: String? = null,
+    val name: String? = null,
+    val email: String? = null,
+    val role: String? = null,
+    var firebaseUid: String? = null,
+    val timestamp: Long? = System.currentTimeMillis()
 )

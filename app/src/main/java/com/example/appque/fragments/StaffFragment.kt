@@ -24,7 +24,7 @@ class StaffFragment : Fragment() {
     private var _binding: FragmentStaffBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var staffAdapter: StaffAdapter
+    private var staffAdapter: StaffAdapter? = null
     private val staffList = mutableListOf<Staff>()
     private val filteredList = mutableListOf<Staff>() // List for filtered results
     private val database = FirebaseDatabase.getInstance().reference
@@ -102,7 +102,7 @@ class StaffFragment : Fragment() {
                             filteredList.clear()
                             filteredList.addAll(staffList)
 
-                            staffAdapter.notifyDataSetChanged()
+                            staffAdapter?.notifyDataSetChanged()
 
                             // Set empty list text visibility
                             binding.emptyListTextView.visibility =
@@ -142,16 +142,16 @@ class StaffFragment : Fragment() {
             filteredList.addAll(staffList)
         } else {
             staffList.forEach { staff ->
-                if (staff.name.lowercase().contains(lowerCaseQuery) ||
-                    staff.id.lowercase().contains(lowerCaseQuery) ||
-                    staff.email.lowercase().contains(lowerCaseQuery) ||
-                    staff.role.lowercase().contains(lowerCaseQuery)
+                if (staff.name?.lowercase()?.contains(lowerCaseQuery) == true ||
+                    staff.id?.lowercase()?.contains(lowerCaseQuery) == true ||
+                    staff.email?.lowercase()?.contains(lowerCaseQuery) == true ||
+                    staff.role?.lowercase()?.contains(lowerCaseQuery) == true
                 ) {
                     filteredList.add(staff)
                 }
             }
         }
-        staffAdapter.notifyDataSetChanged()
+        staffAdapter?.notifyDataSetChanged()
 
         binding.emptyListTextView.visibility =
             if (filteredList.isEmpty()) View.VISIBLE else View.GONE
@@ -239,7 +239,7 @@ class StaffFragment : Fragment() {
                                         filteredList.add(0, staff)
 
                                         // Notify the adapter and scroll to the top
-                                        staffAdapter.notifyItemInserted(0)
+                                        staffAdapter?.notifyItemInserted(0)
                                         binding.staffRecyclerView.scrollToPosition(0)
 
                                         signOutNewUserAndRestoreAdmin()
@@ -309,30 +309,34 @@ class StaffFragment : Fragment() {
                 binding.progressBar.visibility = View.VISIBLE
 
                 val firebaseUid = staff.firebaseUid
-                if (firebaseUid.isNotEmpty()) {
-                    database.child("users").child(firebaseUid).removeValue()
-                        .addOnSuccessListener {
-                            // Hide progress bar after success
-                            binding.progressBar.visibility = View.GONE
-                            staffList.remove(staff)
-                            filteredList.clear()
-                            filteredList.addAll(staffList)
-                            staffAdapter.notifyDataSetChanged()
-                            Toast.makeText(requireContext(), "${staff.name} deleted successfully!", Toast.LENGTH_SHORT).show()
+                if (firebaseUid != null) {
+                    if (firebaseUid.isNotEmpty()) {
+                        if (firebaseUid != null) {
+                            database.child("users").child(firebaseUid).removeValue()
+                                .addOnSuccessListener {
+                                    // Hide progress bar after success
+                                    binding.progressBar.visibility = View.GONE
+                                    staffList.remove(staff)
+                                    filteredList.clear()
+                                    filteredList.addAll(staffList)
+                                    staffAdapter?.notifyDataSetChanged()
+                                    Toast.makeText(requireContext(), "${staff.name} deleted successfully!", Toast.LENGTH_SHORT).show()
 
-                            // Restore admin session
-                            signOutNewUserAndRestoreAdmin()
+                                    // Restore admin session
+                                    signOutNewUserAndRestoreAdmin()
+                                }
+                                .addOnFailureListener { exception ->
+                                    // Hide progress bar after failure
+                                    binding.progressBar.visibility = View.GONE
+                                    Log.e("DeleteStaff", "Failed to delete: ${exception.message}")
+                                    Toast.makeText(requireContext(), "Failed to delete staff: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                }
                         }
-                        .addOnFailureListener { exception ->
-                            // Hide progress bar after failure
-                            binding.progressBar.visibility = View.GONE
-                            Log.e("DeleteStaff", "Failed to delete: ${exception.message}")
-                            Toast.makeText(requireContext(), "Failed to delete staff: ${exception.message}", Toast.LENGTH_SHORT).show()
-                        }
-                } else {
-                    // Hide progress bar if no valid UID is found
-                    binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), "Invalid staff UID. Cannot delete.", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // Hide progress bar if no valid UID is found
+                        binding.progressBar.visibility = View.GONE
+                        Toast.makeText(requireContext(), "Invalid staff UID. Cannot delete.", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
             .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
@@ -376,20 +380,22 @@ class StaffFragment : Fragment() {
                     val updatedStaff = staff.copy(name = updatedName, role = updatedRole)
 
                     try {
-                        database.child("users").child(staff.firebaseUid).updateChildren(
-                            mapOf("name" to updatedName, "role" to updatedRole)
-                        ).addOnSuccessListener {
-                            binding.progressBar.visibility = View.GONE
-                            staffList.remove(staff)
-                            staffList.add(0, updatedStaff)
-                            filteredList.clear()
-                            filteredList.addAll(staffList)
-                            staffAdapter.notifyDataSetChanged()
-                            Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
-                            dialog.dismiss()
-                        }.addOnFailureListener { exception ->
-                            binding.progressBar.visibility = View.GONE
-                            Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
+                        staff.firebaseUid?.let { it1 ->
+                            database.child("users").child(it1).updateChildren(
+                                mapOf("name" to updatedName, "role" to updatedRole)
+                            ).addOnSuccessListener {
+                                binding.progressBar.visibility = View.GONE
+                                staffList.remove(staff)
+                                staffList.add(0, updatedStaff)
+                                filteredList.clear()
+                                filteredList.addAll(staffList)
+                                staffAdapter?.notifyDataSetChanged()
+                                Toast.makeText(requireContext(), "${staff.name} updated successfully!", Toast.LENGTH_SHORT).show()
+                                dialog.dismiss()
+                            }.addOnFailureListener { exception ->
+                                binding.progressBar.visibility = View.GONE
+                                Toast.makeText(requireContext(), "Failed to update: ${exception.message}", Toast.LENGTH_SHORT).show()
+                            }
                         }
                     } catch (e: Exception) {
                         binding.progressBar.visibility = View.GONE

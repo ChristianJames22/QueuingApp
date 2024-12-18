@@ -218,14 +218,16 @@ class ReminderStudentFragment<T> : Fragment() {
                 val updatedTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
 
                 val updatedReminder = reminder.copy(title = updatedTitle, time = updatedTime)
-                database?.child(reminder.id)?.setValue(updatedReminder)?.addOnCompleteListener { task ->
-                    // Hide progress bar
-                    binding.progressBar.visibility = View.GONE
+                reminder.id?.let {
+                    database?.child(it)?.setValue(updatedReminder)?.addOnCompleteListener { task ->
+                        // Hide progress bar
+                        binding.progressBar.visibility = View.GONE
 
-                    if (task.isSuccessful) {
-                        Toast.makeText(context, "Reminder updated", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "Failed to update reminder", Toast.LENGTH_SHORT).show()
+                        if (task.isSuccessful) {
+                            Toast.makeText(context, "Reminder updated", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(context, "Failed to update reminder", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             } else {
@@ -246,16 +248,18 @@ class ReminderStudentFragment<T> : Fragment() {
                 // Show progress bar
                 binding.progressBar.visibility = View.VISIBLE
 
-                database?.child(reminder.id)?.removeValue()?.addOnCompleteListener { task ->
-                    // Hide progress bar
-                    binding.progressBar.visibility = View.GONE
+                reminder.id?.let {
+                    database?.child(it)?.removeValue()?.addOnCompleteListener { task ->
+                        // Hide progress bar
+                        binding.progressBar.visibility = View.GONE
 
-                    if (task.isSuccessful) {
-                        Toast.makeText(context, "Reminder deleted", Toast.LENGTH_SHORT).show()
-                        onDelete(true) // Notify successful deletion
-                    } else {
-                        Toast.makeText(context, "Failed to delete reminder", Toast.LENGTH_SHORT).show()
-                        onDelete(false) // Notify failed deletion
+                        if (task.isSuccessful) {
+                            Toast.makeText(context, "Reminder deleted", Toast.LENGTH_SHORT).show()
+                            onDelete(true) // Notify successful deletion
+                        } else {
+                            Toast.makeText(context, "Failed to delete reminder", Toast.LENGTH_SHORT).show()
+                            onDelete(false) // Notify failed deletion
+                        }
                     }
                 }
             }

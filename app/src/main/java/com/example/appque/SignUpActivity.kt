@@ -15,8 +15,8 @@ import android.text.format.DateFormat
 
 class SignUpActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivitySignUpBinding
-    private lateinit var database: DatabaseReference
+    private  var binding: ActivitySignUpBinding? = null
+    private  var database: DatabaseReference? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,12 +24,12 @@ class SignUpActivity : AppCompatActivity() {
 
         // Inflate the activity layout
         binding = ActivitySignUpBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        setContentView(binding!!.root)
 
         // Handle window insets for immersive UI
-        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { _, insets ->
+        ViewCompat.setOnApplyWindowInsetsListener(binding!!.main) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            binding.main.setPadding(
+            binding!!.main.setPadding(
                 systemBars.left,
                 systemBars.top,
                 systemBars.right,
@@ -43,12 +43,12 @@ class SignUpActivity : AppCompatActivity() {
         setupYearSpinner()
 
         // Navigate back to the login screen
-        binding.backButton.setOnClickListener {
+        binding!!.backButton.setOnClickListener {
             finish()
         }
 
         // Handle user registration
-        binding.continueButton.setOnClickListener {
+        binding!!.continueButton.setOnClickListener {
             handleSignUp()
         }
     }
@@ -57,9 +57,9 @@ class SignUpActivity : AppCompatActivity() {
         val courses = resources.getStringArray(R.array.course_options)
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, courses)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.courseSpinner.adapter = adapter
+        binding?.courseSpinner?.adapter = adapter
 
-        binding.courseSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+        binding?.courseSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 updateYearOptions(courses[position])
             }
@@ -80,18 +80,18 @@ class SignUpActivity : AppCompatActivity() {
 
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, years)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.yearSpinner.adapter = adapter
+        binding?.yearSpinner?.adapter = adapter
     }
 
     private fun handleSignUp() {
         try {
-            val id = binding.idInput.text.toString().trim()
-            val name = binding.nameInput.text.toString().trim()
-            val course = binding.courseSpinner.selectedItem?.toString()?.trim() ?: ""
-            val year = binding.yearSpinner.selectedItem?.toString()?.trim() ?: ""
-            val email = binding.emailInput.text.toString().trim()
-            val password = binding.passwordInput.text.toString().trim()
-            val confirmPassword = binding.confirmPasswordInput.text.toString().trim()
+            val id = binding?.idInput?.text.toString().trim()
+            val name = binding?.nameInput?.text.toString().trim()
+            val course = binding?.courseSpinner?.selectedItem?.toString()?.trim() ?: ""
+            val year = binding?.yearSpinner?.selectedItem?.toString()?.trim() ?: ""
+            val email = binding?.emailInput?.text.toString().trim()
+            val password = binding?.passwordInput?.text.toString().trim()
+            val confirmPassword = binding?.confirmPasswordInput?.text.toString().trim()
 
             if (validateInputs(id, name, course, year, email, password, confirmPassword)) {
                 showLoading(true)
@@ -111,28 +111,28 @@ class SignUpActivity : AppCompatActivity() {
         year: String,
         password: String
     ) {
-        database.child("users").orderByChild("name").equalTo(name).addListenerForSingleValueEvent(object : ValueEventListener {
+        database?.child("users")?.orderByChild("name")?.equalTo(name)?.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(userNameSnapshot: DataSnapshot) {
                 if (userNameSnapshot.exists()) {
                     showLoading(false)
                     Toast.makeText(this@SignUpActivity, "Name already exists.", Toast.LENGTH_SHORT).show()
                     return
                 }
-                database.child("users").orderByChild("id").equalTo(id).addListenerForSingleValueEvent(object : ValueEventListener {
+                database!!.child("users").orderByChild("id").equalTo(id).addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(userIdSnapshot: DataSnapshot) {
                         if (userIdSnapshot.exists()) {
                             showLoading(false)
                             Toast.makeText(this@SignUpActivity, "ID already exists.", Toast.LENGTH_SHORT).show()
                             return
                         }
-                        database.child("users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
+                        database!!.child("users").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
                             override fun onDataChange(userEmailSnapshot: DataSnapshot) {
                                 if (userEmailSnapshot.exists()) {
                                     showLoading(false)
                                     Toast.makeText(this@SignUpActivity, "Email already exists.", Toast.LENGTH_SHORT).show()
                                     return
                                 }
-                                database.child("pending_requests").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
+                                database!!.child("pending_requests").orderByChild("email").equalTo(email).addListenerForSingleValueEvent(object : ValueEventListener {
                                     override fun onDataChange(pendingSnapshot: DataSnapshot) {
                                         if (pendingSnapshot.exists()) {
                                             showLoading(false)
@@ -191,13 +191,13 @@ class SignUpActivity : AppCompatActivity() {
             "timestamp" to timestamp
         )
 
-        database.child("pending_requests").push().setValue(request)
-            .addOnSuccessListener {
+        database?.child("pending_requests")?.push()?.setValue(request)
+            ?.addOnSuccessListener {
                 showLoading(false)
                 Toast.makeText(this, "Request submitted. Awaiting admin approval.", Toast.LENGTH_SHORT).show()
                 finish()
             }
-            .addOnFailureListener { exception ->
+            ?.addOnFailureListener { exception ->
                 showLoading(false)
                 Toast.makeText(this, "Error submitting request: ${exception.message}", Toast.LENGTH_SHORT).show()
             }
@@ -235,7 +235,7 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun showLoading(show: Boolean) {
-        binding.signupProgressBar.visibility = if (show) View.VISIBLE else View.GONE
-        binding.continueButton.isEnabled = !show
+        binding?.signupProgressBar?.visibility = if (show) View.VISIBLE else View.GONE
+        binding?.continueButton?.isEnabled = !show
     }
 }
